@@ -1,0 +1,1341 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Yitro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #00d4ff;
+            --primary-dark: #0099cc;
+            --secondary: #7b2ffc;
+            --gold: #d4a843;
+            --gold-light: #f0d080;
+            --dark: #0a0e1a;
+            --dark-card: rgba(10, 14, 26, 0.85);
+            --glass-border: rgba(0, 212, 255, 0.3);
+            --neon-glow: 0 0 20px rgba(0, 212, 255, 0.3);
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background: #0a0e1a;
+            color: #fff;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* ===== FUNDO COM VÍDEO ===== */
+        .hero-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .hero-background video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translateX(-50%) translateY(-50%);
+            object-fit: cover;
+            opacity: 0.6;
+            z-index: 1;
+            background: #0a0e1a;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(0, 212, 255, 0.05) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(123, 47, 252, 0.03) 0%, transparent 60%),
+                linear-gradient(180deg, rgba(10, 14, 26, 0.4) 0%, rgba(10, 14, 26, 0.6) 100%);
+            pointer-events: none;
+        }
+
+        .grid-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+        }
+
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.2;
+            animation: float-particle linear infinite;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .particle:nth-child(1) { left: 10%; animation-duration: 20s; animation-delay: 0s; width: 4px; height: 4px; }
+        .particle:nth-child(2) { left: 25%; animation-duration: 25s; animation-delay: 2s; width: 2px; height: 2px; opacity: 0.1; }
+        .particle:nth-child(3) { left: 40%; animation-duration: 18s; animation-delay: 4s; width: 5px; height: 5px; }
+        .particle:nth-child(4) { left: 55%; animation-duration: 22s; animation-delay: 1s; width: 3px; height: 3px; }
+        .particle:nth-child(5) { left: 70%; animation-duration: 28s; animation-delay: 3s; width: 2px; height: 2px; opacity: 0.1; }
+        .particle:nth-child(6) { left: 85%; animation-duration: 16s; animation-delay: 5s; width: 4px; height: 4px; }
+        .particle:nth-child(7) { left: 50%; animation-duration: 30s; animation-delay: 7s; width: 3px; height: 3px; }
+        .particle:nth-child(8) { left: 15%; animation-duration: 24s; animation-delay: 2s; width: 2px; height: 2px; }
+        .particle:nth-child(9) { left: 65%; animation-duration: 19s; animation-delay: 6s; width: 5px; height: 5px; }
+        .particle:nth-child(10) { left: 35%; animation-duration: 26s; animation-delay: 4s; width: 3px; height: 3px; }
+
+        @keyframes float-particle {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 0.2; }
+            90% { opacity: 0.2; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        .glow-circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .glow-circle-1 {
+            width: 500px;
+            height: 500px;
+            top: -200px;
+            right: -200px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.04), transparent 70%);
+        }
+
+        .glow-circle-2 {
+            width: 300px;
+            height: 300px;
+            bottom: -100px;
+            left: -100px;
+            background: radial-gradient(circle, rgba(123, 47, 252, 0.03), transparent 70%);
+        }
+
+        /* ============================================ */
+        /* OVERLAY DE PROCESSAMENTO - DINÂMICO         */
+        /* ============================================ */
+        #globalLoadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 99999;
+            background: rgba(10, 14, 26, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
+            overflow: hidden;
+        }
+
+        #globalLoadingOverlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .loading-bg-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(0, 212, 255, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(123, 47, 252, 0.05) 0%, transparent 60%);
+            animation: bgPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .loading-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 80px 80px;
+            animation: gridMove 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(80px, 80px) rotate(2deg); }
+        }
+
+        .loading-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: contentFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes contentFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .loading-spinner-dinamico {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-spinner-dinamico .spinner-ring-dinamico {
+            position: absolute;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            animation: spinDinamico 2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        }
+
+        .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(1) {
+            width: 120px;
+            height: 120px;
+            border-top-color: #00d4ff;
+            animation-delay: 0s;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(2) {
+            width: 90px;
+            height: 90px;
+            border-right-color: #7b2ffc;
+            animation-delay: 0.3s;
+            box-shadow: 0 0 20px rgba(123, 47, 252, 0.2);
+        }
+
+        .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            border-bottom-color: #f0d080;
+            animation-delay: 0.6s;
+            box-shadow: 0 0 20px rgba(212, 168, 67, 0.2);
+        }
+
+        .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(4) {
+            width: 30px;
+            height: 30px;
+            border-left-color: #00d4ff;
+            animation-delay: 0.9s;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        @keyframes spinDinamico {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(720deg); }
+        }
+
+        .loading-text-dinamico {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            color: #00d4ff;
+            margin-top: 30px;
+            letter-spacing: 15px;
+            text-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+            animation: glowText 2s ease-in-out infinite;
+        }
+
+        @keyframes glowText {
+            0%, 100% { text-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+            50% { text-shadow: 0 0 60px rgba(0, 212, 255, 0.6); }
+        }
+
+        .loading-dot-dinamico {
+            display: inline-block;
+            animation: dotDinamico 1.2s ease-in-out infinite both;
+        }
+
+        .loading-dot-dinamico:nth-child(1) { animation-delay: 0s; }
+        .loading-dot-dinamico:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dot-dinamico:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dotDinamico {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.2; }
+            40% { transform: scale(1.4); opacity: 1; }
+        }
+
+        .loading-message-dinamico {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+            margin-top: 20px;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            position: relative;
+        }
+
+        .loading-message-dinamico::after {
+            content: '|';
+            color: #00d4ff;
+            animation: cursorBlink 0.8s step-end infinite;
+            margin-left: 4px;
+        }
+
+        @keyframes cursorBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .loading-progress-bar {
+            width: 300px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            margin-top: 25px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .loading-progress-bar .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00d4ff, #7b2ffc, #00d4ff);
+            background-size: 200% 100%;
+            border-radius: 4px;
+            animation: progressFill 2s ease-in-out infinite, progressShine 2s linear infinite;
+        }
+
+        @keyframes progressFill {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        @keyframes progressShine {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .loading-particles-dinamico {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .loading-particle-dinamico {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, #00d4ff, transparent);
+            border-radius: 50%;
+            opacity: 0;
+            animation: particleFloatDinamico linear infinite;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+
+        .loading-particle-dinamico:nth-child(1) { left: 5%; animation-duration: 12s; animation-delay: 0s; width: 6px; height: 6px; }
+        .loading-particle-dinamico:nth-child(2) { left: 15%; animation-duration: 15s; animation-delay: 1s; width: 3px; height: 3px; }
+        .loading-particle-dinamico:nth-child(3) { left: 25%; animation-duration: 10s; animation-delay: 2s; width: 5px; height: 5px; }
+        .loading-particle-dinamico:nth-child(4) { left: 35%; animation-duration: 14s; animation-delay: 0.5s; width: 4px; height: 4px; }
+        .loading-particle-dinamico:nth-child(5) { left: 45%; animation-duration: 18s; animation-delay: 1.5s; width: 7px; height: 7px; }
+        .loading-particle-dinamico:nth-child(6) { left: 55%; animation-duration: 11s; animation-delay: 2.5s; width: 3px; height: 3px; }
+        .loading-particle-dinamico:nth-child(7) { left: 65%; animation-duration: 16s; animation-delay: 0.8s; width: 5px; height: 5px; }
+        .loading-particle-dinamico:nth-child(8) { left: 75%; animation-duration: 13s; animation-delay: 1.8s; width: 4px; height: 4px; }
+        .loading-particle-dinamico:nth-child(9) { left: 85%; animation-duration: 17s; animation-delay: 3s; width: 6px; height: 6px; }
+        .loading-particle-dinamico:nth-child(10) { left: 95%; animation-duration: 19s; animation-delay: 2.2s; width: 3px; height: 3px; }
+        .loading-particle-dinamico:nth-child(11) { left: 10%; animation-duration: 20s; animation-delay: 4s; width: 5px; height: 5px; }
+        .loading-particle-dinamico:nth-child(12) { left: 50%; animation-duration: 22s; animation-delay: 3.5s; width: 4px; height: 4px; }
+        .loading-particle-dinamico:nth-child(13) { left: 80%; animation-duration: 21s; animation-delay: 5s; width: 6px; height: 6px; }
+        .loading-particle-dinamico:nth-child(14) { left: 30%; animation-duration: 23s; animation-delay: 4.5s; width: 3px; height: 3px; }
+        .loading-particle-dinamico:nth-child(15) { left: 70%; animation-duration: 24s; animation-delay: 5.5s; width: 5px; height: 5px; }
+
+        @keyframes particleFloatDinamico {
+            0% { transform: translateY(100vh) scale(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) scale(1) rotate(720deg); opacity: 0; }
+        }
+
+        /* ============================================ */
+        /* LOGOTIPO YITRO 3D                           */
+        /* ============================================ */
+        .logo-yitro {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .logo-yitro .logo-icon {
+            width: 38px;
+            height: 38px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .logo-yitro .logo-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
+        }
+
+        .logo-yitro .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+            background: linear-gradient(180deg, #ffffff 0%, #c0d0e0 50%, #8090a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .logo-yitro .logo-text::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), var(--primary), transparent);
+            opacity: 0.3;
+        }
+
+        /* ============================================ */
+        /* LAYOUT PRINCIPAL                            */
+        /* ============================================ */
+        .app-wrapper {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ============================================ */
+        /* SIDEBAR - OCULTO POR PADRÃO                 */
+        /* ============================================ */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: var(--sidebar-width);
+            background: rgba(10, 14, 26, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1050;
+            padding: 20px 0;
+            overflow-y: auto;
+            box-shadow: 4px 0 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 2px;
+        }
+
+        .sidebar-nav {
+            padding: 0 12px;
+            margin-top: 20px;
+        }
+
+        .sidebar-nav .nav-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.2);
+            padding: 10px 12px 6px;
+            font-weight: 600;
+        }
+
+        .sidebar-nav .nav-link-tech {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .sidebar-nav .nav-link-tech i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav .nav-link-tech:hover {
+            background: rgba(0, 212, 255, 0.08);
+            color: #fff;
+        }
+
+        .sidebar-nav .nav-link-tech.active {
+            background: rgba(0, 212, 255, 0.12);
+            color: var(--primary);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+        }
+
+        .sidebar-nav .nav-link-tech.active::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 0 3px 3px 0;
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        .sidebar-user {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-user .user-avatar-sm {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            padding: 2px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-user .user-avatar-sm img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .sidebar-user .user-name-sm {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .sidebar-user .user-role-sm {
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-user .logout-btn {
+            margin-left: auto;
+            color: rgba(255, 255, 255, 0.3);
+            transition: 0.3s;
+            font-size: 1.1rem;
+            padding: 4px 8px;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        .sidebar-user .logout-btn:hover {
+            color: #ff4757;
+            background: rgba(255, 71, 87, 0.1);
+        }
+
+        /* ============================================ */
+        /* OVERLAY DO SIDEBAR                          */
+        /* ============================================ */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1040;
+            display: none;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        /* ============================================ */
+        /* BOTÃO TOGGLE SIDEBAR                        */
+        /* ============================================ */
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-toggle:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* ============================================ */
+        /* HEADER SUPERIOR - FIXO NO TOPO             */
+        /* ============================================ */
+        .top-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 14, 26, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 10px 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .top-header .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .top-header .page-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+
+        .top-header .page-title i {
+            color: var(--primary);
+        }
+
+        .top-header .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+
+        .top-header .header-actions .notif-badge {
+            position: relative;
+        }
+
+        .top-header .header-actions .notif-badge .badge-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: #ff4757;
+            border-radius: 50%;
+            border: 2px solid var(--dark);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        .top-header .header-actions .btn-icon {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .top-header .header-actions .btn-icon:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* ============================================ */
+        /* CONTEÚDO PRINCIPAL                          */
+        /* ============================================ */
+        .main-content {
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin-left: 0;
+            transition: margin-left 0.3s ease;
+        }
+
+        .content-container {
+            padding: 1.5rem 2rem 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ============================================ */
+        /* GLASS CARD                                   */
+        /* ============================================ */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 212, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.03);
+        }
+
+        /* ============================================ */
+        /* RESPONSIVIDADE                               */
+        /* ============================================ */
+        @media (max-width: 992px) {
+            .top-header {
+                padding: 10px 1rem;
+            }
+            
+            .top-header .page-title {
+                font-size: 0.95rem;
+            }
+            
+            .content-container {
+                padding: 1rem 1rem 3rem;
+            }
+            
+            .logo-yitro .logo-text {
+                font-size: 1.1rem;
+            }
+            .logo-yitro .logo-icon {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .top-header .page-title {
+                font-size: 0.85rem;
+            }
+            .top-header .page-title span {
+                display: none;
+            }
+            .top-header .header-actions {
+                gap: 10px;
+            }
+            .content-container {
+                padding: 0.8rem 0.8rem 2rem;
+            }
+            .sidebar {
+                width: 280px;
+            }
+            .logo-yitro .logo-text {
+                font-size: 0.9rem;
+            }
+            .logo-yitro .logo-icon {
+                width: 28px;
+                height: 28px;
+            }
+            .sidebar-toggle {
+                font-size: 1.2rem;
+            }
+            .loading-spinner-dinamico {
+                width: 80px;
+                height: 80px;
+            }
+            .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(1) {
+                width: 80px;
+                height: 80px;
+            }
+            .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(2) {
+                width: 60px;
+                height: 60px;
+            }
+            .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(3) {
+                width: 40px;
+                height: 40px;
+            }
+            .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(4) {
+                width: 20px;
+                height: 20px;
+            }
+            .loading-text-dinamico {
+                font-size: 1.8rem;
+                letter-spacing: 10px;
+            }
+            .loading-progress-bar {
+                width: 200px;
+            }
+        }
+
+        /* ============================================ */
+        /* SCROLLBAR                                    */
+        /* ============================================ */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== FUNDO COM VÍDEO ===== -->
+    <div class="hero-background">
+        <video autoplay muted loop playsinline id="bgVideo">
+            <source src="/static/videos/fundo-tecnologia.mp4" type="video/mp4">
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-abstract-technology-connection-lines-network-loop-28564-large.mp4" type="video/mp4">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Crect width='100%25' height='100%25' fill='%230a0e1a'/%3E%3Ctext x='50%25' y='50%25' font-family='Orbitron' font-size='24' fill='%2300d4ff' text-anchor='middle' dy='.3em'%3EYITRO%3C/text%3E%3C/svg%3E" alt="Yitro">
+        </video>
+        <div class="hero-overlay"></div>
+        <div class="grid-lines"></div>
+        <div class="glow-circle glow-circle-1"></div>
+        <div class="glow-circle glow-circle-2"></div>
+        <div class="particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+
+    <!-- ===== OVERLAY SIDEBAR ===== -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <!-- Navegação -->
+        <nav class="sidebar-nav">
+            <div class="nav-label">Menu Principal</div>
+            <a href="{% url 'home' %}" class="nav-link-tech" id="navDashboard">
+                <i class="bi bi-grid-1x2-fill"></i> Dashboard
+            </a>
+            <a href="{% url 'financeiro:lista_faturas' %}" class="nav-link-tech" id="navFaturamento">
+                <i class="bi bi-receipt"></i> Faturação AGT
+            </a>
+            <a href="/financeiro/clientes/lista/" class="nav-link-tech" id="navClientes">
+                <i class="bi bi-people"></i> Clientes
+            </a>
+            
+            <!-- Produtos e Serviços -->
+            <a href="{% url 'servicos:lista_servicos' %}" class="nav-link-tech" id="navServicos">
+                <i class="bi bi-box-seam"></i> Produtos e Serviços
+            </a>
+            
+            <!-- 🔥 RELATÓRIOS - ATIVADO (link funcional) -->
+            <a href="{% url 'servicos:relatorios' %}" class="nav-link-tech" id="navRelatorios">
+                <i class="bi bi-file-earmark-text"></i> Relatórios
+            </a>
+
+            <div class="nav-label" style="margin-top: 20px;">Sistema</div>
+            
+            <!-- 🔥 PAINEL ADMIN PERSONALIZADO -->
+            <a href="{% url 'servicos:painel_admin' %}" class="nav-link-tech" id="navPainelAdmin">
+                <i class="bi bi-shield-lock"></i> Painel Admin
+            </a>
+            
+            <!-- 🔥 CONFIGURAÇÕES - MANTIDO -->
+            <a href="{% url 'servicos:configuracoes' %}" class="nav-link-tech" id="navConfiguracoes">
+                <i class="bi bi-gear"></i> Configurações
+            </a>
+        </nav>
+
+        <!-- Usuário -->
+        <div class="sidebar-user">
+            <div class="user-avatar-sm">
+                <img src="{% static 'img/user-avatar.png' %}" alt="Usuário" onerror="this.src='https://ui-avatars.com/api/?name=Admin+Yitro&background=00d4ff&color=fff&size=38'">
+            </div>
+            <div>
+                <div class="user-name-sm">Administrador</div>
+                <div class="user-role-sm">Super Admin</div>
+            </div>
+            <a href="{% url 'autenticacao:logout' %}" class="logout-btn" title="Sair">
+                <i class="bi bi-box-arrow-right"></i>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ===== CONTEÚDO PRINCIPAL ===== -->
+    <main class="main-content" id="mainContent">
+        <!-- Header Superior - FIXO -->
+        <header class="top-header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+                    <i class="bi bi-list"></i>
+                </button>
+
+                <!-- Logo Yitro SEMPRE VISÍVEL -->
+                <a href="{% url 'home' %}" class="logo-yitro">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="yGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#0099cc;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#006699;stop-opacity:1" />
+                                </linearGradient>
+                                <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#f0d080;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#d4a843;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#b8922e;stop-opacity:1" />
+                                </linearGradient>
+                                <filter id="glow3d">
+                                    <feDropShadow dx="2" dy="4" stdDeviation="6" flood-color="#00d4ff" flood-opacity="0.4"/>
+                                    <feDropShadow dx="-1" dy="-1" stdDeviation="3" flood-color="#7b2ffc" flood-opacity="0.2"/>
+                                </filter>
+                            </defs>
+                            <polygon points="50,8 84,29 84,71 50,92 16,71 16,29" fill="rgba(0,212,255,0.06)" stroke="rgba(0,212,255,0.15)" stroke-width="1.5"/>
+                            <line x1="16" y1="29" x2="30" y2="42" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+                            <line x1="84" y1="29" x2="70" y2="42" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+                            <line x1="16" y1="71" x2="30" y2="58" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+                            <line x1="84" y1="71" x2="70" y2="58" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+                            <path d="M35,30 L50,50 L50,70" stroke="url(#yGrad)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow3d)"/>
+                            <path d="M65,30 L50,50 L50,70" stroke="url(#yGrad)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow3d)"/>
+                            <circle cx="40" cy="38" r="2" fill="#00d4ff" opacity="0.6"/>
+                            <circle cx="60" cy="38" r="2" fill="#00d4ff" opacity="0.6"/>
+                            <circle cx="50" cy="50" r="3" fill="#7b2ffc" opacity="0.8"/>
+                            <circle cx="50" cy="65" r="2" fill="#00d4ff" opacity="0.5"/>
+                            <polygon points="44,75 50,72 56,75 56,81 50,84 44,81" fill="rgba(212,168,67,0.15)" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.8"/>
+                            <polygon points="38,81 44,78 50,81 50,87 44,90 38,87" fill="rgba(212,168,67,0.10)" stroke="url(#goldGrad)" stroke-width="1" opacity="0.6"/>
+                            <polygon points="50,81 56,78 62,81 62,87 56,90 50,87" fill="rgba(212,168,67,0.10)" stroke="url(#goldGrad)" stroke-width="1" opacity="0.6"/>
+                            <circle cx="35" cy="30" r="1.5" fill="#00d4ff" opacity="0.8">
+                                <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+                            </circle>
+                            <circle cx="65" cy="30" r="1.5" fill="#00d4ff" opacity="0.8">
+                                <animate attributeName="opacity" values="0.3;1;0.3" dur="2.5s" repeatCount="indefinite"/>
+                            </circle>
+                            <circle cx="50" cy="78" r="1.5" fill="#d4a843" opacity="0.6">
+                                <animate attributeName="opacity" values="0.2;0.8;0.2" dur="3s" repeatCount="indefinite"/>
+                            </circle>
+                        </svg>
+                    </div>
+                    <span class="logo-text">Yitro</span>
+                </a>
+
+                <div class="page-title">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>{% block page_title %}Dashboard{% endblock %}</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="notif-badge">
+                    <button class="btn-icon" title="Notificações">
+                        <i class="bi bi-bell"></i>
+                        <span class="badge-dot"></span>
+                    </button>
+                </div>
+                <button class="btn-icon" title="Atualizar" onclick="location.reload()">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Conteúdo -->
+        <div class="content-container">
+            {% block content %}
+            <!-- Conteúdo das páginas será inserido aqui -->
+            {% endblock %}
+        </div>
+    </main>
+
+    <!-- ============================================ -->
+    <!-- OVERLAY DE PROCESSAMENTO DINÂMICO            -->
+    <!-- ============================================ -->
+    <div id="globalLoadingOverlay">
+        <div class="loading-bg-animation"></div>
+        <div class="loading-grid"></div>
+        <div class="loading-particles-dinamico">
+            <div class="loading-particle-dinamico"></div>
+            <div class="loading-particle-dinamico"></div>
+            <div class="loading-particle-dinamico"></div>
+            <div class="loading-particle-dinamico"></div>
+            <div class="loading-particle-dinamico"></div>
+            <div class="loading-particle-dinamico"></div>
+            <div class="loading-particle-dinamico"></div>
+            <div class="loading-particle-dinamico"></div>
+            <div class="loading-particle-dinamico"></div>
+            <div class="loading-particle-dinamico"></div>
+            <div class="loading-particle-dinamico"></div>
+            <div class="loading-particle-dinamico"></div>
+            <div class="loading-particle-dinamico"></div>
+            <div class="loading-particle-dinamico"></div>
+            <div class="loading-particle-dinamico"></div>
+        </div>
+        <div class="loading-content">
+            <div class="loading-spinner-dinamico">
+                <div class="spinner-ring-dinamico"></div>
+                <div class="spinner-ring-dinamico"></div>
+                <div class="spinner-ring-dinamico"></div>
+                <div class="spinner-ring-dinamico"></div>
+            </div>
+            <div class="loading-text-dinamico">
+                <span class="loading-dot-dinamico">.</span>
+                <span class="loading-dot-dinamico">.</span>
+                <span class="loading-dot-dinamico">.</span>
+            </div>
+            <p class="loading-message-dinamico" id="loadingMessage">Processando</p>
+            <div class="loading-progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ============================================
+        // TOGGLE SIDEBAR
+        // ============================================
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            
+            const icon = toggleBtn.querySelector('i');
+            if (sidebar.classList.contains('open')) {
+                icon.className = 'bi bi-x-lg';
+            } else {
+                icon.className = 'bi bi-list';
+            }
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            toggleBtn.querySelector('i').className = 'bi bi-list';
+        }
+
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                if (sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('active');
+                    toggleBtn.querySelector('i').className = 'bi bi-list';
+                }
+            }
+        });
+
+        // ============================================
+        // ATIVAR LINK ATIVO NO SIDEBAR
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remover active de todos
+            document.querySelectorAll('.sidebar-nav .nav-link-tech').forEach(l => l.classList.remove('active'));
+            
+            // Pegar a URL atual
+            const currentPath = window.location.pathname;
+            
+            // Tentar encontrar o link correspondente
+            const links = {
+                'navDashboard': ['/', '/servicos/dashboard/'],
+                'navFaturamento': ['/financeiro/lista/', '/financeiro/'],
+                'navClientes': ['/financeiro/clientes/lista/', '/clientes/'],
+                'navServicos': ['/servicos/servicos/', '/servicos/servicos'],
+                'navPainelAdmin': ['/servicos/painel-admin/'],
+            };
+            
+            // Verificar cada link
+            document.querySelectorAll('.sidebar-nav .nav-link-tech').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && currentPath.startsWith(href) && href !== '/') {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Se for a raiz, ativar Dashboard
+            if (currentPath === '/' || currentPath === '') {
+                document.getElementById('navDashboard')?.classList.add('active');
+            }
+        });
+
+        // ============================================
+        // VÍDEO
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('bgVideo');
+            if (video) {
+                video.style.display = 'block';
+                video.style.opacity = '0.6';
+                video.style.visibility = 'visible';
+                video.load();
+                video.play().catch(function(e) {
+                    console.log('⚠️ Autoplay bloqueado:', e);
+                    document.addEventListener('click', function() {
+                        video.play();
+                    }, { once: true });
+                });
+            }
+        });
+
+        document.addEventListener('visibilitychange', function() {
+            const video = document.getElementById('bgVideo');
+            if (video) {
+                if (document.hidden) {
+                    video.pause();
+                } else {
+                    video.play();
+                }
+            }
+        });
+
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(function(battery) {
+                if (battery.level < 0.15) {
+                    const video = document.getElementById('bgVideo');
+                    if (video) video.pause();
+                }
+            });
+        }
+
+        // ============================================
+        // LOADING DINÂMICO
+        // ============================================
+        const mensagens = [
+            'Processando',
+            'Carregando dados',
+            'Aguarde um momento',
+            'Quase lá',
+            'Finalizando'
+        ];
+
+        let mensagemIndex = 0;
+        let intervalId = null;
+
+        function showLoading(message = null) {
+            const overlay = document.getElementById('globalLoadingOverlay');
+            const messageEl = document.getElementById('loadingMessage');
+            
+            if (overlay) {
+                if (message) {
+                    messageEl.textContent = message;
+                } else {
+                    mensagemIndex = 0;
+                    messageEl.textContent = mensagens[0];
+                    
+                    if (intervalId) clearInterval(intervalId);
+                    intervalId = setInterval(() => {
+                        mensagemIndex = (mensagemIndex + 1) % mensagens.length;
+                        messageEl.textContent = mensagens[mensagemIndex];
+                    }, 2000);
+                }
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('globalLoadingOverlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
+            }
+        }
+
+        // ============================================
+        // INTERCEPTAR REQUISIÇÕES AJAX
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const originalFetch = window.fetch;
+            window.fetch = function(...args) {
+                const method = args[1]?.method || 'GET';
+                if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method.toUpperCase())) {
+                    showLoading('Enviando dados');
+                }
+                
+                return originalFetch.apply(this, args)
+                    .then(response => {
+                        hideLoading();
+                        return response;
+                    })
+                    .catch(error => {
+                        hideLoading();
+                        throw error;
+                    });
+            };
+            
+            const originalXHROpen = XMLHttpRequest.prototype.open;
+            const originalXHRSend = XMLHttpRequest.prototype.send;
+            
+            XMLHttpRequest.prototype.open = function(method, url, async, user, password) {
+                this._method = method;
+                this._url = url;
+                return originalXHROpen.apply(this, arguments);
+            };
+            
+            XMLHttpRequest.prototype.send = function(body) {
+                const method = this._method || 'GET';
+                if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method.toUpperCase())) {
+                    showLoading('Processando');
+                }
+                
+                this.addEventListener('load', function() {
+                    hideLoading();
+                });
+                
+                this.addEventListener('error', function() {
+                    hideLoading();
+                });
+                
+                this.addEventListener('abort', function() {
+                    hideLoading();
+                });
+                
+                return originalXHRSend.apply(this, arguments);
+            };
+        });
+
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            if (form && form.tagName === 'FORM' && !form.classList.contains('no-loading')) {
+                showLoading('Salvando dados');
+            }
+        });
+
+        function loadingAction(message = 'Aguarde') {
+            showLoading(message);
+            return new Promise((resolve) => {
+                setTimeout(resolve, 100);
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a');
+            if (link && link.href && link.href.indexOf(window.location.origin) === 0) {
+                if (!link.href.includes('#') && !link.href.includes('javascript:')) {
+                    showLoading('Carregando página');
+                    setTimeout(() => {
+                        hideLoading();
+                    }, 5000);
+                }
+            }
+        });
+
+        window.addEventListener('load', function() {
+            hideLoading();
+        });
+    </script>
+</body>
+</html>

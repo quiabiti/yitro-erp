@@ -1,0 +1,531 @@
+<!-- templates/servicos/detalhe_item.html -->
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ item.nome }} - {{ block.super }}{% endblock %}
+{% block page_title %}{{ item.nome }}{% endblock %}
+
+{% block content %}
+<style>
+    .detalhe-imagem {
+        width: 100%;
+        max-height: 300px;
+        object-fit: cover;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .detalhe-info {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .detalhe-info .price {
+        font-size: 1.8rem;
+        color: #00d4ff;
+        font-weight: 700;
+    }
+    
+    .detalhe-info .badge {
+        font-size: 0.7rem;
+        padding: 4px 12px;
+    }
+    
+    .btn-voltar {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.6);
+        padding: 6px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85rem;
+    }
+    
+    .btn-voltar:hover {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: rgba(0, 212, 255, 0.2);
+        color: #fff;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    
+    .info-item {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        padding: 10px 12px;
+    }
+    
+    .info-item .label {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .info-item .value {
+        color: #fff;
+        font-weight: 500;
+        font-size: 0.85rem;
+        margin-top: 2px;
+        word-break: break-word;
+    }
+    
+    .descricao-texto {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        max-height: 200px;
+        overflow-y: auto;
+        padding-right: 5px;
+    }
+    
+    .descricao-texto::-webkit-scrollbar {
+        width: 3px;
+    }
+    .descricao-texto::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .descricao-texto::-webkit-scrollbar-thumb {
+        background: rgba(0, 212, 255, 0.3);
+        border-radius: 2px;
+    }
+    
+    .acoes-rapidas {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 5px;
+    }
+    
+    @media (max-width: 576px) {
+        .detalhe-imagem {
+            max-height: 200px;
+        }
+        
+        .detalhe-info .price {
+            font-size: 1.5rem;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        
+        .info-item {
+            padding: 8px 10px;
+        }
+        
+        .info-item .value {
+            font-size: 0.8rem;
+        }
+        
+        .btn-voltar {
+            font-size: 0.75rem;
+            padding: 5px 12px;
+        }
+        
+        .descricao-texto {
+            font-size: 0.85rem;
+            max-height: 150px;
+        }
+        
+        .table-admin {
+            font-size: 0.75rem;
+        }
+        .table-admin th,
+        .table-admin td {
+            padding: 6px 8px;
+        }
+    }
+    
+    @media (max-width: 400px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .detalhe-imagem {
+            max-height: 180px;
+        }
+        
+        .detalhe-info .price {
+            font-size: 1.3rem;
+        }
+        
+        .detalhe-info .badge {
+            font-size: 0.6rem;
+            padding: 3px 10px;
+        }
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table-admin {
+        width: 100%;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.85rem;
+        min-width: 400px;
+    }
+    
+    .table-admin th {
+        color: rgba(255, 255, 255, 0.3);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.6rem;
+        letter-spacing: 0.5px;
+        padding: 8px 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        white-space: nowrap;
+    }
+    
+    .table-admin td {
+        padding: 8px 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        vertical-align: middle;
+    }
+    
+    .table-admin tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+    }
+    
+    .badge {
+        font-size: 0.65rem;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+        color: #ffffff !important;
+    }
+    
+    .badge.bg-warning {
+        color: #212529 !important;
+    }
+    
+    .badge.bg-success {
+        background-color: #2ed573 !important;
+    }
+    .badge.bg-danger {
+        background-color: #ff4757 !important;
+    }
+    .badge.bg-warning {
+        background-color: #ffa502 !important;
+    }
+    .badge.bg-info {
+        background-color: #00d4ff !important;
+    }
+    .badge.bg-primary {
+        background-color: #00d4ff !important;
+    }
+    .badge.bg-secondary {
+        background-color: #6c757d !important;
+    }
+    
+    .section-title {
+        font-size: 1rem;
+        color: #fff;
+        font-weight: 600;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .section-title i {
+        font-size: 1.2rem;
+    }
+    
+    .glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 1.25rem;
+        transition: all 0.3s ease;
+        margin-bottom: 16px;
+    }
+    
+    .glass-card:hover {
+        border-color: rgba(0, 212, 255, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 212, 255, 0.03);
+    }
+</style>
+
+<div class="glass-card">
+    <!-- Botão Voltar -->
+    <div class="acoes-rapidas">
+        <a href="{% url 'servicos:dashboard' %}" class="btn-voltar">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <div class="row g-3">
+        <!-- Imagem -->
+        <div class="col-12 col-lg-5">
+            {% if item.imagem %}
+            <img src="{{ item.imagem.url }}" alt="{{ item.nome }}" class="detalhe-imagem">
+            {% else %}
+            <div class="detalhe-imagem" style="display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.03); min-height: 200px;">
+                <i class="bi bi-image" style="font-size: 4rem; color: rgba(255, 255, 255, 0.1);"></i>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Informações -->
+        <div class="col-12 col-lg-7">
+            <div class="detalhe-info">
+                <!-- Badges -->
+                <div class="d-flex flex-wrap gap-1">
+                    <span class="badge {% if item.tipo == 'produto' %}bg-primary{% elif item.tipo == 'servico' %}bg-success{% elif item.tipo == 'software' %}bg-info{% else %}bg-secondary{% endif %}">
+                        {{ item.get_tipo_display }}
+                    </span>
+                    <span class="badge {% if item.status == 'ativo' %}bg-success{% else %}bg-secondary{% endif %}">
+                        {{ item.get_status_display }}
+                    </span>
+                    {% if item.is_recorrente %}
+                    <span class="badge bg-warning" style="color: #000;">
+                        <i class="bi bi-arrow-repeat me-1"></i> {{ item.get_recorrencia_display }}
+                    </span>
+                    {% endif %}
+                    {% if item.tipo == 'produto' %}
+                        {% with stock=item.get_stock_atual %}
+                        <span class="badge {% if stock <= 0 %}bg-danger{% elif stock <= 5 %}bg-warning{% else %}bg-success{% endif %}">
+                            <i class="bi bi-box me-1"></i> {{ stock|default:0 }} un.
+                        </span>
+                        {% endwith %}
+                    {% endif %}
+                </div>
+                
+                <h1 class="text-white" style="font-size: 1.4rem; margin: 0;">{{ item.nome }}</h1>
+                <p class="text-muted" style="font-size: 0.8rem;">
+                    <i class="bi bi-tag me-1"></i> Código: {{ item.codigo }}
+                </p>
+                
+                <div>
+                    <span class="price">Kz {{ item.preco_venda|floatformat:2|intcomma }}</span>
+                    {% if item.preco_custo %}
+                    <span class="text-muted ms-2" style="font-size: 0.8rem;">
+                        <i class="bi bi-arrow-down"></i> Custo: Kz {{ item.preco_custo|floatformat:2|intcomma }}
+                    </span>
+                    {% endif %}
+                </div>
+                
+                {% if item.descricao %}
+                <div class="descricao-texto">
+                    {{ item.descricao|linebreaks }}
+                </div>
+                {% endif %}
+                
+                <!-- Info Grid -->
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="label">Código</div>
+                        <div class="value">{{ item.codigo }}</div>
+                    </div>
+                    {% if item.preco_custo %}
+                    <div class="info-item">
+                        <div class="label">Preço Custo</div>
+                        <div class="value">Kz {{ item.preco_custo|floatformat:2|intcomma }}</div>
+                    </div>
+                    {% endif %}
+                    {% if item.margem_lucro %}
+                    <div class="info-item">
+                        <div class="label">Margem</div>
+                        <div class="value">{{ item.margem_lucro|floatformat:1 }}%</div>
+                    </div>
+                    {% endif %}
+                    {% if item.duracao_padrao %}
+                    <div class="info-item">
+                        <div class="label">Duração</div>
+                        <div class="value">{{ item.duracao_padrao }} dias</div>
+                    </div>
+                    {% endif %}
+                    {% if item.horas_estimadas %}
+                    <div class="info-item">
+                        <div class="label">Horas</div>
+                        <div class="value">{{ item.horas_estimadas }}h</div>
+                    </div>
+                    {% endif %}
+                    {% if item.peso %}
+                    <div class="info-item">
+                        <div class="label">Peso</div>
+                        <div class="value">{{ item.peso }} kg</div>
+                    </div>
+                    {% endif %}
+                    {% if item.dimensoes %}
+                    <div class="info-item">
+                        <div class="label">Dimensões</div>
+                        <div class="value">{{ item.dimensoes }}</div>
+                    </div>
+                    {% endif %}
+                    <div class="info-item">
+                        <div class="label">Criado</div>
+                        <div class="value">{{ item.criado_em|date:"d/m/Y" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">Atualizado</div>
+                        <div class="value">{{ item.atualizado_em|date:"d/m/Y" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stock por Local -->
+{% if item.is_produto and stocks %}
+<div class="glass-card">
+    <div class="section-title">
+        <i class="bi bi-box-seam" style="color: #00d4ff;"></i> Stock por Local
+    </div>
+    <div class="table-responsive">
+        <table class="table-admin">
+            <thead>
+                <tr>
+                    <th>Local</th>
+                    <th>Quantidade</th>
+                    <th>Mínimo</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in stocks %}
+                <tr>
+                    <td>{{ stock.local.nome }}</td>
+                    <td>
+                        <span class="badge {% if stock.quantidade_atual <= 0 %}bg-danger{% elif stock.quantidade_atual <= 5 %}bg-warning{% else %}bg-success{% endif %}">
+                            {{ stock.quantidade_atual }}
+                        </span>
+                    </td>
+                    <td>{{ stock.stock_minimo }}</td>
+                    <td>
+                        {% if stock.quantidade_atual <= 0 %}
+                            <span class="badge bg-danger">Sem Stock</span>
+                        {% elif stock.quantidade_atual <= stock.stock_minimo %}
+                            <span class="badge bg-warning" style="color: #000;">Baixo</span>
+                        {% else %}
+                            <span class="badge bg-success">Normal</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Movimentos de Stock -->
+{% if item.is_produto and movimentos %}
+<div class="glass-card">
+    <div class="section-title">
+        <i class="bi bi-clock-history" style="color: #ffa502;"></i> Últimos Movimentos
+    </div>
+    <div class="table-responsive">
+        <table class="table-admin">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Tipo</th>
+                    <th>Qtd</th>
+                    <th>Motivo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movimento in movimentos|slice:":10" %}
+                <tr>
+                    <td>{{ movimento.criado_em|date:"d/m/Y" }}</td>
+                    <td>
+                        <span class="badge {% if movimento.tipo == 'entrada' %}bg-success{% elif movimento.tipo == 'saida' %}bg-danger{% else %}bg-warning{% endif %}">
+                            {{ movimento.get_tipo_display }}
+                        </span>
+                    </td>
+                    <td>{{ movimento.quantidade }}</td>
+                    <td>{{ movimento.get_motivo_display }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Licenças -->
+{% if item.is_software and licencas %}
+<div class="glass-card">
+    <div class="section-title">
+        <i class="bi bi-key" style="color: #7b2ffc;"></i> Licenças
+    </div>
+    <div class="table-responsive">
+        <table class="table-admin">
+            <thead>
+                <tr>
+                    <th>Usuário</th>
+                    <th>Status</th>
+                    <th>Expiração</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for licenca in licencas %}
+                <tr>
+                    <td>{{ licenca.usuario.username }}</td>
+                    <td>
+                        <span class="badge {% if licenca.status == 'ativa' %}bg-success{% elif licenca.status == 'expirada' %}bg-danger{% else %}bg-warning{% endif %}">
+                            {{ licenca.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ licenca.data_expiracao|date:"d/m/Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Contratos -->
+{% if item.is_servico and contratos %}
+<div class="glass-card">
+    <div class="section-title">
+        <i class="bi bi-file-earmark-text" style="color: #2ed573;"></i> Contratos
+    </div>
+    <div class="table-responsive">
+        <table class="table-admin">
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Status</th>
+                    <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contrato in contratos %}
+                <tr>
+                    <td>{{ contrato.cliente.username }}</td>
+                    <td>
+                        <span class="badge {% if contrato.status == 'ativo' %}bg-success{% elif contrato.status == 'expirado' %}bg-danger{% else %}bg-warning{% endif %}">
+                            {{ contrato.get_status_display }}
+                        </span>
+                    </td>
+                    <td>Kz {{ contrato.valor_total|floatformat:0|intcomma }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

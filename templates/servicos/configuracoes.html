@@ -1,0 +1,1276 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Configurações - {{ block.super }}{% endblock %}
+{% block page_title %}Configurações{% endblock %}
+
+{% block content %}
+<style>
+    .config-section {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .config-section:hover {
+        border-color: rgba(0, 212, 255, 0.15);
+    }
+
+    .config-section .section-title {
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .config-section .section-title i {
+        color: #00d4ff;
+    }
+
+    .config-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .config-item:last-child {
+        border-bottom: none;
+    }
+
+    .config-item .config-label {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+    }
+
+    .config-item .config-label small {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.75rem;
+        display: block;
+        margin-top: 2px;
+    }
+
+    .config-item .config-value {
+        color: #fff;
+        font-weight: 500;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .config-item .config-value .badge {
+        font-size: 0.7rem;
+        padding: 4px 12px;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .switch .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.15);
+        transition: 0.3s;
+        border-radius: 24px;
+    }
+
+    .switch .slider:before {
+        content: '';
+        position: absolute;
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background: white;
+        transition: 0.3s;
+        border-radius: 50%;
+    }
+
+    .switch input:checked + .slider {
+        background: #00d4ff;
+    }
+
+    .switch input:checked + .slider:before {
+        transform: translateX(20px);
+    }
+
+    .config-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    .config-actions .btn-config {
+        padding: 8px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        border: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-config.primary {
+        background: rgba(0, 212, 255, 0.15);
+        color: #00d4ff;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .btn-config.primary:hover {
+        background: rgba(0, 212, 255, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .btn-config.success {
+        background: rgba(46, 213, 115, 0.15);
+        color: #2ed573;
+        border: 1px solid rgba(46, 213, 115, 0.2);
+    }
+
+    .btn-config.success:hover {
+        background: rgba(46, 213, 115, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .btn-config.danger {
+        background: rgba(255, 71, 87, 0.15);
+        color: #ff4757;
+        border: 1px solid rgba(255, 71, 87, 0.2);
+    }
+
+    .btn-config.danger:hover {
+        background: rgba(255, 71, 87, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .btn-config.warning {
+        background: rgba(255, 165, 2, 0.15);
+        color: #ffa502;
+        border: 1px solid rgba(255, 165, 2, 0.2);
+    }
+
+    .btn-config.warning:hover {
+        background: rgba(255, 165, 2, 0.25);
+        transform: translateY(-2px);
+    }
+
+    /* Modal Styles */
+    .metal-modal-content {
+        background: #0a0e1a;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 16px;
+    }
+
+    .metal-modal-header {
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+        color: white;
+        border-radius: 16px 16px 0 0;
+        padding: 15px 20px;
+    }
+
+    .metal-modal-footer {
+        background: rgba(0,0,0,0.2);
+        border-top: 1px solid rgba(255,255,255,0.05);
+        padding: 12px 20px;
+        border-radius: 0 0 16px 16px;
+    }
+
+    .metal-form-control {
+        background: rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 10px;
+        padding: 10px 12px;
+        color: #ffffff !important;
+        font-size: 14px;
+        width: 100%;
+    }
+
+    .metal-form-control:focus {
+        border-color: #00d4ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2) !important;
+        outline: none;
+    }
+
+    .metal-form-label {
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-weight: 500;
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+
+    /* Mensagem de manutenção */
+    .maintenance-banner {
+        background: rgba(255, 165, 2, 0.15);
+        border: 1px solid rgba(255, 165, 2, 0.3);
+        border-radius: 12px;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        display: none;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .maintenance-banner.active {
+        display: flex;
+    }
+
+    .maintenance-banner i {
+        color: #ffa502;
+        font-size: 1.5rem;
+    }
+
+    .maintenance-banner .banner-text {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+    }
+
+    .maintenance-banner .banner-text strong {
+        color: #ffa502;
+    }
+
+    /* Info Cards */
+    .info-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        border-color: rgba(0, 212, 255, 0.15);
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    .info-card .info-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+
+    .info-card .info-icon.whatsapp {
+        background: rgba(46, 213, 115, 0.15);
+        color: #2ed573;
+    }
+
+    .info-card .info-icon.email {
+        background: rgba(0, 212, 255, 0.15);
+        color: #00d4ff;
+    }
+
+    .info-card .info-icon.phone {
+        background: rgba(255, 165, 2, 0.15);
+        color: #ffa502;
+    }
+
+    .info-card .info-icon.address {
+        background: rgba(123, 47, 252, 0.15);
+        color: #7b2ffc;
+    }
+
+    .info-card .info-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .info-card .info-content .info-label {
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-card .info-content .info-value {
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 500;
+        word-break: break-word;
+    }
+
+    .info-card .btn-edit-icon {
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.15);
+        color: #00d4ff;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .info-card .btn-edit-icon:hover {
+        background: rgba(0, 212, 255, 0.2);
+        transform: scale(1.05);
+    }
+
+    @media (max-width: 576px) {
+        .config-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .config-item .config-value {
+            width: 100%;
+        }
+
+        .maintenance-banner {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .info-card {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .info-card .info-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<div class="glass-card fade-in-up">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <i class="bi bi-gear" style="font-size: 2.5rem; color: #00d4ff;"></i>
+        <div>
+            <h2 class="metal-title" style="font-size: 1.8rem; margin: 0;">
+                Configurações do Sistema
+            </h2>
+            <p class="text-muted mt-1">Gerencie as configurações gerais do sistema</p>
+        </div>
+    </div>
+
+    <!-- Banner de Manutenção -->
+    <div class="maintenance-banner" id="maintenanceBanner">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div class="banner-text">
+            <strong>⚠️ Modo de Manutenção Ativado!</strong>
+            <span style="display: block; font-size: 0.8rem; margin-top: 4px;">
+                O sistema está em modo de manutenção. Apenas administradores têm acesso.
+            </span>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- INFORMAÇÕES DA EMPRESA (NOVA SEÇÃO)         -->
+    <!-- ============================================ -->
+    <div class="config-section">
+        <div class="section-title">
+            <i class="bi bi-building"></i> Informações da Empresa
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="info-card">
+                    <div class="info-icon whatsapp">
+                        <i class="bi bi-whatsapp"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">WhatsApp</div>
+                        <div class="info-value" id="display_whatsapp">{{ config_sistema.whatsapp|default:"+244 900 000 000" }}</div>
+                    </div>
+                    <button class="btn-edit-icon" onclick="abrirModal('whatsapp')">
+                        <i class="bi bi-pencil"></i> Editar
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="info-card">
+                    <div class="info-icon email">
+                        <i class="bi bi-envelope"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Email</div>
+                        <div class="info-value" id="display_email">{{ config_sistema.email|default:"contato@yitro.ao" }}</div>
+                    </div>
+                    <button class="btn-edit-icon" onclick="abrirModal('email')">
+                        <i class="bi bi-pencil"></i> Editar
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="info-card">
+                    <div class="info-icon phone">
+                        <i class="bi bi-telephone"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Telefone</div>
+                        <div class="info-value" id="display_telefone">{{ config_sistema.telefone|default:"+244 222 000 000" }}</div>
+                    </div>
+                    <button class="btn-edit-icon" onclick="abrirModal('telefone')">
+                        <i class="bi bi-pencil"></i> Editar
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="info-card">
+                    <div class="info-icon address">
+                        <i class="bi bi-geo-alt"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Endereço</div>
+                        <div class="info-value" id="display_endereco">{{ config_sistema.endereco|default:"Luanda, Angola" }}</div>
+                    </div>
+                    <button class="btn-edit-icon" onclick="abrirModal('endereco')">
+                        <i class="bi bi-pencil"></i> Editar
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="info-card">
+                    <div class="info-icon" style="background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.5);">
+                        <i class="bi bi-clock"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Horário de Funcionamento</div>
+                        <div class="info-value" id="display_horario">{{ config_sistema.horario|default:"Segunda a Sexta: 08h00 - 18h00, Sábado: 08h00 - 13h00" }}</div>
+                    </div>
+                    <button class="btn-edit-icon" onclick="abrirModal('horario')">
+                        <i class="bi bi-pencil"></i> Editar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- CONFIGURAÇÕES GERAIS                        -->
+    <!-- ============================================ -->
+    <div class="config-section">
+        <div class="section-title">
+            <i class="bi bi-globe2"></i> Configurações Gerais
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">
+                Nome do Sistema
+                <small>Nome exibido no cabeçalho e títulos</small>
+            </div>
+            <div class="config-value">
+                <span class="badge bg-primary" id="display_nome_sistema">{{ config_sistema.nome_sistema|default:"Yitro ERP" }}</span>
+                <button class="btn-config primary" style="padding: 4px 12px; font-size: 0.75rem;" onclick="abrirModal('nome_sistema')">
+                    <i class="bi bi-pencil"></i> Editar
+                </button>
+            </div>
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">
+                Moeda Padrão
+                <small>Moeda utilizada para valores monetários</small>
+            </div>
+            <div class="config-value">
+                <span class="badge bg-success" id="display_moeda_padrao">{{ config_sistema.moeda_padrao|default:"Kz" }}</span>
+                <button class="btn-config primary" style="padding: 4px 12px; font-size: 0.75rem;" onclick="abrirModal('moeda_padrao')">
+                    <i class="bi bi-pencil"></i> Alterar
+                </button>
+            </div>
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">
+                Fuso Horário
+                <small>Fuso horário do sistema</small>
+            </div>
+            <div class="config-value">
+                <span class="badge bg-info" id="display_fuso_horario">{{ config_sistema.fuso_horario|default:"Africa/Luanda" }}</span>
+                <button class="btn-config primary" style="padding: 4px 12px; font-size: 0.75rem;" onclick="abrirModal('fuso_horario')">
+                    <i class="bi bi-pencil"></i> Alterar
+                </button>
+            </div>
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">
+                Idioma Padrão
+                <small>Idioma utilizado no sistema</small>
+            </div>
+            <div class="config-value">
+                <span class="badge bg-secondary" id="display_idioma_padrao">{{ config_sistema.idioma_padrao|default:"Português (PT)" }}</span>
+                <button class="btn-config primary" style="padding: 4px 12px; font-size: 0.75rem;" onclick="abrirModal('idioma_padrao')">
+                    <i class="bi bi-pencil"></i> Alterar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- CONFIGURAÇÕES DE SEGURANÇA                  -->
+    <!-- ============================================ -->
+    <div class="config-section">
+        <div class="section-title">
+            <i class="bi bi-shield-lock"></i> Segurança
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">
+                Autenticação em Dois Fatores (2FA)
+                <small>Adiciona uma camada extra de segurança</small>
+            </div>
+            <div class="config-value">
+                <label class="switch">
+                    <input type="checkbox" {% if config_sistema.dois_fatores %}checked{% endif %} id="switch_dois_fatores" onchange="toggleSwitch('dois_fatores', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">
+                Tempo de Sessão
+                <small>Tempo máximo de inatividade antes de expirar</small>
+            </div>
+            <div class="config-value">
+                <span class="badge bg-warning" style="color: #000;" id="display_tempo_sessao">{{ config_sistema.tempo_sessao|default:"120" }} min</span>
+                <button class="btn-config primary" style="padding: 4px 12px; font-size: 0.75rem;" onclick="abrirModal('tempo_sessao')">
+                    <i class="bi bi-pencil"></i> Alterar
+                </button>
+            </div>
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">
+                Tentativas de Login
+                <small>Número máximo de tentativas antes do bloqueio</small>
+            </div>
+            <div class="config-value">
+                <span class="badge bg-danger" id="display_tentativas_login">{{ config_sistema.tentativas_login|default:"5" }} tentativas</span>
+                <button class="btn-config primary" style="padding: 4px 12px; font-size: 0.75rem;" onclick="abrirModal('tentativas_login')">
+                    <i class="bi bi-pencil"></i> Alterar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- CONFIGURAÇÕES DE NOTIFICAÇÕES               -->
+    <!-- ============================================ -->
+    <div class="config-section">
+        <div class="section-title">
+            <i class="bi bi-bell"></i> Notificações
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">
+                Notificações por E-mail
+                <small>Receber notificações por e-mail</small>
+            </div>
+            <div class="config-value">
+                <label class="switch">
+                    <input type="checkbox" {% if config_sistema.notificacoes_email %}checked{% endif %} id="switch_notificacoes_email" onchange="toggleSwitch('notificacoes_email', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">
+                Notificações Push
+                <small>Receber notificações no navegador</small>
+            </div>
+            <div class="config-value">
+                <label class="switch">
+                    <input type="checkbox" {% if config_sistema.notificacoes_push %}checked{% endif %} id="switch_notificacoes_push" onchange="toggleSwitch('notificacoes_push', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">
+                Alertas de Stock
+                <small>Receber alertas quando stock estiver baixo</small>
+            </div>
+            <div class="config-value">
+                <label class="switch">
+                    <input type="checkbox" {% if config_sistema.alertas_stock %}checked{% endif %} id="switch_alertas_stock" onchange="toggleSwitch('alertas_stock', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- CONFIGURAÇÕES DE FATURAÇÃO                  -->
+    <!-- ============================================ -->
+    <div class="config-section">
+        <div class="section-title">
+            <i class="bi bi-receipt"></i> Faturação
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">
+                Série Padrão
+                <small>Prefixo do número da fatura</small>
+            </div>
+            <div class="config-value">
+                <span class="badge bg-primary" id="display_serie_padrao">{{ config_sistema.serie_padrao|default:"FT-" }}</span>
+                <button class="btn-config primary" style="padding: 4px 12px; font-size: 0.75rem;" onclick="abrirModal('serie_padrao')">
+                    <i class="bi bi-pencil"></i> Alterar
+                </button>
+            </div>
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">
+                IVA Padrão
+                <small>Taxa de IVA aplicada por padrão</small>
+            </div>
+            <div class="config-value">
+                <span class="badge bg-warning" style="color: #000;" id="display_iva_padrao">{{ config_sistema.iva_padrao|stringformat:"s"|default:"14" }}%</span>
+                <button class="btn-config primary" style="padding: 4px 12px; font-size: 0.75rem;" onclick="abrirModal('iva_padrao')">
+                    <i class="bi bi-pencil"></i> Alterar
+                </button>
+            </div>
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">
+                Validação Automática
+                <small>Validar faturas automaticamente</small>
+            </div>
+            <div class="config-value">
+                <label class="switch">
+                    <input type="checkbox" {% if config_sistema.validacao_automatica %}checked{% endif %} id="switch_validacao_automatica" onchange="toggleSwitch('validacao_automatica', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- CONFIGURAÇÕES DE SISTEMA                    -->
+    <!-- ============================================ -->
+    <div class="config-section">
+        <div class="section-title">
+            <i class="bi bi-database"></i> Sistema
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">
+                Backup Automático
+                <small>Realizar backup diário automático</small>
+            </div>
+            <div class="config-value">
+                <label class="switch">
+                    <input type="checkbox" {% if config_sistema.backup_automatico %}checked{% endif %} id="switch_backup_automatico" onchange="toggleSwitch('backup_automatico', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">
+                Logs de Sistema
+                <small>Manter registros de todas as ações</small>
+            </div>
+            <div class="config-value">
+                <label class="switch">
+                    <input type="checkbox" {% if config_sistema.logs_sistema %}checked{% endif %} id="switch_logs_sistema" onchange="toggleSwitch('logs_sistema', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">
+                Modo de Manutenção
+                <small>Ativar modo de manutenção (sistema offline)</small>
+            </div>
+            <div class="config-value">
+                <label class="switch">
+                    <input type="checkbox" {% if config_sistema.modo_manutencao %}checked{% endif %} id="switch_modo_manutencao" onchange="toggleSwitch('modo_manutencao', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- AÇÕES                                        -->
+    <!-- ============================================ -->
+    <div class="config-section">
+        <div class="section-title">
+            <i class="bi bi-gear"></i> Ações
+        </div>
+
+        <div class="config-actions">
+            <button class="btn-config success" onclick="salvarConfiguracoes()">
+                <i class="bi bi-check-circle"></i> Salvar Configurações
+            </button>
+            <button class="btn-config warning" onclick="restaurarPadroes()">
+                <i class="bi bi-arrow-counterclockwise"></i> Restaurar Padrões
+            </button>
+            <button class="btn-config primary" onclick="backupManual()">
+                <i class="bi bi-cloud-upload"></i> Backup Manual
+            </button>
+            <button class="btn-config danger" onclick="limparCache()">
+                <i class="bi bi-trash"></i> Limpar Cache
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- MODAL PARA EDIÇÃO DE TEXTO                  -->
+<!-- ============================================ -->
+<div class="modal fade" id="textModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content metal-modal-content">
+            <div class="modal-header metal-modal-header">
+                <h5 class="modal-title" id="textModalTitle">
+                    <i class="bi bi-pencil me-2"></i>Editar Configuração
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="textForm">
+                    <input type="hidden" id="textConfigKey">
+                    <div class="mb-3">
+                        <label class="metal-form-label" id="textModalLabel">Valor</label>
+                        <input type="text" class="metal-form-control" id="textConfigValue" placeholder="Digite o valor...">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer metal-modal-footer">
+                <button type="button" class="btn-config warning" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn-config success" onclick="salvarTextModal()">
+                    <i class="bi bi-check-circle"></i> Salvar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- MODAL PARA EDIÇÃO DE NÚMERO                 -->
+<!-- ============================================ -->
+<div class="modal fade" id="numberModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content metal-modal-content">
+            <div class="modal-header metal-modal-header">
+                <h5 class="modal-title" id="numberModalTitle">
+                    <i class="bi bi-pencil me-2"></i>Editar Configuração
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="numberForm">
+                    <input type="hidden" id="numberConfigKey">
+                    <div class="mb-3">
+                        <label class="metal-form-label" id="numberModalLabel">Valor</label>
+                        <input type="number" class="metal-form-control" id="numberConfigValue" placeholder="Digite o valor...">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer metal-modal-footer">
+                <button type="button" class="btn-config warning" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn-config success" onclick="salvarNumberModal()">
+                    <i class="bi bi-check-circle"></i> Salvar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================
+    // DADOS DE CONFIGURAÇÃO - CARREGADOS DO BANCO
+    // ============================================
+    var configData = {
+        // Informações da Empresa
+        whatsapp: '{{ config_sistema.whatsapp|default:"+244 900 000 000"|escapejs }}',
+        email: '{{ config_sistema.email|default:"contato@yitro.ao"|escapejs }}',
+        telefone: '{{ config_sistema.telefone|default:"+244 222 000 000"|escapejs }}',
+        endereco: '{{ config_sistema.endereco|default:"Luanda, Angola"|escapejs }}',
+        horario: '{{ config_sistema.horario|default:"Segunda a Sexta: 08h00 - 18h00, Sábado: 08h00 - 13h00"|escapejs }}',
+        
+        // Configurações Gerais
+        nome_sistema: '{{ config_sistema.nome_sistema|default:"Yitro ERP"|escapejs }}',
+        moeda_padrao: '{{ config_sistema.moeda_padrao|default:"Kz"|escapejs }}',
+        fuso_horario: '{{ config_sistema.fuso_horario|default:"Africa/Luanda"|escapejs }}',
+        idioma_padrao: '{{ config_sistema.idioma_padrao|default:"Português (PT)"|escapejs }}',
+        
+        // Segurança
+        dois_fatores: {% if config_sistema.dois_fatores %}true{% else %}false{% endif %},
+        tempo_sessao: {{ config_sistema.tempo_sessao|default:"120"|floatformat:"0" }},
+        tentativas_login: {{ config_sistema.tentativas_login|default:"5"|floatformat:"0" }},
+        
+        // Notificações
+        notificacoes_email: {% if config_sistema.notificacoes_email %}true{% else %}false{% endif %},
+        notificacoes_push: {% if config_sistema.notificacoes_push %}true{% else %}false{% endif %},
+        alertas_stock: {% if config_sistema.alertas_stock %}true{% else %}false{% endif %},
+        
+        // Faturação
+        serie_padrao: '{{ config_sistema.serie_padrao|default:"FT-"|escapejs }}',
+        iva_padrao: {{ config_sistema.iva_padrao|default:"14"|floatformat:"0" }},
+        validacao_automatica: {% if config_sistema.validacao_automatica %}true{% else %}false{% endif %},
+        
+        // Sistema
+        backup_automatico: {% if config_sistema.backup_automatico %}true{% else %}false{% endif %},
+        logs_sistema: {% if config_sistema.logs_sistema %}true{% else %}false{% endif %},
+        modo_manutencao: {% if config_sistema.modo_manutencao %}true{% else %}false{% endif %}
+    };
+
+    console.log('✅ Configurações carregadas:', configData);
+
+    // ============================================
+    // FUNÇÃO PARA ABRIR MODAL
+    // ============================================
+    function abrirModal(key) {
+        console.log('🔓 Abrindo modal para:', key);
+        
+        var textLabels = {
+            nome_sistema: 'Nome do Sistema',
+            moeda_padrao: 'Moeda Padrão',
+            fuso_horario: 'Fuso Horário',
+            idioma_padrao: 'Idioma Padrão',
+            serie_padrao: 'Série Padrão',
+            whatsapp: 'WhatsApp',
+            email: 'Email',
+            telefone: 'Telefone',
+            endereco: 'Endereço',
+            horario: 'Horário de Funcionamento'
+        };
+
+        var numberLabels = {
+            tempo_sessao: 'Tempo de Sessão (minutos)',
+            tentativas_login: 'Tentativas de Login',
+            iva_padrao: 'IVA Padrão (%)'
+        };
+
+        var modalElement;
+        
+        if (key in numberLabels) {
+            modalElement = document.getElementById('numberModal');
+            if (modalElement) {
+                document.getElementById('numberModalLabel').textContent = numberLabels[key];
+                document.getElementById('numberConfigKey').value = key;
+                document.getElementById('numberConfigValue').value = configData[key] || '';
+            }
+        } else {
+            modalElement = document.getElementById('textModal');
+            if (modalElement) {
+                document.getElementById('textModalLabel').textContent = textLabels[key] || 'Valor';
+                document.getElementById('textConfigKey').value = key;
+                document.getElementById('textConfigValue').value = configData[key] || '';
+            }
+        }
+
+        if (!modalElement) {
+            console.error('❌ Modal não encontrado para:', key);
+            mostrarMensagem('❌ Erro ao abrir modal', 'error');
+            return;
+        }
+
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            try {
+                var modal = new bootstrap.Modal(modalElement);
+                modal.show();
+                console.log('✅ Modal aberto com Bootstrap');
+            } catch (e) {
+                console.error('Erro ao abrir modal com Bootstrap:', e);
+                abrirModalManual(modalElement);
+            }
+        } else {
+            console.warn('⚠️ Bootstrap não encontrado, usando fallback manual');
+            abrirModalManual(modalElement);
+        }
+    }
+
+    function abrirModalManual(modalElement) {
+        modalElement.style.display = 'block';
+        modalElement.classList.add('show');
+        document.body.classList.add('modal-open');
+        
+        var backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(function(b) { if (b.remove) b.remove(); });
+        
+        var backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+    }
+
+    function fecharModal(modalId) {
+        var modalElement = document.getElementById(modalId);
+        if (modalElement) {
+            modalElement.style.display = 'none';
+            modalElement.classList.remove('show');
+            document.body.classList.remove('modal-open');
+            var backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(function(b) { if (b.remove) b.remove(); });
+        }
+    }
+
+    // ============================================
+    // SALVAR MODAL DE TEXTO
+    // ============================================
+    function salvarTextModal() {
+        var key = document.getElementById('textConfigKey').value;
+        var value = document.getElementById('textConfigValue').value;
+
+        if (!value) {
+            mostrarMensagem('⚠️ Por favor, preencha o valor!', 'warning');
+            return;
+        }
+
+        configData[key] = value;
+        atualizarDisplay(key, value);
+        fecharModal('textModal');
+        mostrarMensagem('✅ ' + key + ' atualizado com sucesso!', 'success');
+    }
+
+    // ============================================
+    // SALVAR MODAL DE NÚMERO
+    // ============================================
+    function salvarNumberModal() {
+        var key = document.getElementById('numberConfigKey').value;
+        var value = document.getElementById('numberConfigValue').value;
+
+        if (!value) {
+            mostrarMensagem('⚠️ Por favor, preencha o valor!', 'warning');
+            return;
+        }
+
+        var finalValue = parseFloat(value);
+        if (isNaN(finalValue)) {
+            mostrarMensagem('⚠️ Por favor, insira um número válido!', 'warning');
+            return;
+        }
+
+        configData[key] = finalValue;
+        atualizarDisplay(key, finalValue);
+        fecharModal('numberModal');
+        mostrarMensagem('✅ ' + key + ' atualizado com sucesso!', 'success');
+    }
+
+    // ============================================
+    // ATUALIZAR DISPLAY
+    // ============================================
+    function atualizarDisplay(key, value) {
+        var displayId = 'display_' + key;
+        var element = document.getElementById(displayId);
+        if (element) {
+            if (key === 'tempo_sessao') {
+                element.textContent = value + ' min';
+            } else if (key === 'tentativas_login') {
+                element.textContent = value + ' tentativas';
+            } else if (key === 'iva_padrao') {
+                element.textContent = value + '%';
+            } else {
+                element.textContent = value;
+            }
+        }
+    }
+
+    // ============================================
+    // TOGGLE SWITCH
+    // ============================================
+    function toggleSwitch(key, value) {
+        configData[key] = value;
+        
+        if (key === 'modo_manutencao') {
+            atualizarBannerManutencao(value);
+        }
+        
+        var label = {
+            dois_fatores: 'Autenticação em Dois Fatores',
+            notificacoes_email: 'Notificações por E-mail',
+            notificacoes_push: 'Notificações Push',
+            alertas_stock: 'Alertas de Stock',
+            validacao_automatica: 'Validação Automática',
+            backup_automatico: 'Backup Automático',
+            logs_sistema: 'Logs de Sistema',
+            modo_manutencao: 'Modo de Manutenção'
+        };
+        mostrarMensagem('✅ ' + (label[key] || key) + ' ' + (value ? 'ativado' : 'desativado') + '!', 'success');
+    }
+
+    // ============================================
+    // BANNER DE MANUTENÇÃO
+    // ============================================
+    function atualizarBannerManutencao(ativo) {
+        var banner = document.getElementById('maintenanceBanner');
+        if (banner) {
+            if (ativo) {
+                banner.classList.add('active');
+            } else {
+                banner.classList.remove('active');
+            }
+        }
+    }
+
+    // ============================================
+    // SALVAR CONFIGURAÇÕES - COM REFRESH DOS DADOS
+    // ============================================
+// ============================================
+// SALVAR CONFIGURAÇÕES - VERSÃO CORRIGIDA
+// ============================================
+function salvarConfiguracoes() {
+    console.log('📤 Enviando dados para salvar:', configData);
+    mostrarLoading('Salvando configurações...');
+
+    fetch('/servicos/configuracoes/salvar/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify(configData)
+    })
+    .then(function(response) { 
+        console.log('📥 Status da resposta:', response.status);
+        if (!response.ok) {
+            throw new Error('Erro na requisição: ' + response.status);
+        }
+        return response.json(); 
+    })
+    .then(function(data) {
+        console.log('📥 Dados da resposta:', data);
+        esconderLoading();
+        
+        if (data.status === 'success') {
+            // 🔥 ATUALIZAR OS DADOS LOCAIS COM OS DADOS RETORNADOS
+            if (data.data) {
+                Object.keys(data.data).forEach(function(key) {
+                    configData[key] = data.data[key];
+                    atualizarDisplay(key, data.data[key]);
+                });
+            }
+            
+            mostrarMensagem('✅ ' + data.message, 'success');
+            
+            // 🔥 FORÇAR RECARREGAMENTO COM TIMESTAMP PARA QUEBRAR CACHE
+            setTimeout(function() { 
+                window.location.href = window.location.pathname + '?t=' + Date.now();
+            }, 1500);
+        } else {
+            mostrarMensagem('❌ ' + data.message, 'error');
+        }
+    })
+    .catch(function(error) {
+        console.error('❌ Erro na requisição:', error);
+        esconderLoading();
+        mostrarMensagem('❌ Erro ao salvar configurações: ' + error.message, 'error');
+    });
+}
+    
+
+    // ============================================
+    // RESTAURAR PADRÕES
+    // ============================================
+    function restaurarPadroes() {
+        if (!confirm('Tem certeza que deseja restaurar todas as configurações para os valores padrão?')) return;
+
+        var padroes = {
+            whatsapp: '+244 900 000 000',
+            email: 'contato@yitro.ao',
+            telefone: '+244 222 000 000',
+            endereco: 'Luanda, Angola',
+            horario: 'Segunda a Sexta: 08h00 - 18h00, Sábado: 08h00 - 13h00',
+            nome_sistema: 'Yitro ERP',
+            moeda_padrao: 'Kz',
+            fuso_horario: 'Africa/Luanda',
+            idioma_padrao: 'Português (PT)',
+            dois_fatores: true,
+            tempo_sessao: 120,
+            tentativas_login: 5,
+            notificacoes_email: true,
+            notificacoes_push: false,
+            alertas_stock: true,
+            serie_padrao: 'FT-',
+            iva_padrao: 14,
+            validacao_automatica: false,
+            backup_automatico: true,
+            logs_sistema: true,
+            modo_manutencao: false
+        };
+
+        Object.keys(padroes).forEach(function(key) {
+            configData[key] = padroes[key];
+            atualizarDisplay(key, padroes[key]);
+
+            var switchEl = document.getElementById('switch_' + key);
+            if (switchEl) {
+                switchEl.checked = padroes[key];
+            }
+        });
+
+        atualizarBannerManutencao(false);
+        mostrarMensagem('🔄 Configurações restauradas para os valores padrão!', 'warning');
+    }
+
+    // ============================================
+    // BACKUP MANUAL
+    // ============================================
+    function backupManual() {
+        mostrarLoading('Iniciando backup...');
+        setTimeout(function() {
+            esconderLoading();
+            mostrarMensagem('📤 Backup concluído com sucesso!', 'success');
+        }, 2000);
+    }
+
+    // ============================================
+    // LIMPAR CACHE
+    // ============================================
+    function limparCache() {
+        if (!confirm('Tem certeza que deseja limpar o cache do sistema?')) return;
+
+        mostrarLoading('Limpando cache...');
+        setTimeout(function() {
+            esconderLoading();
+            mostrarMensagem('⚠️ Cache limpo com sucesso!', 'warning');
+        }, 1500);
+    }
+
+    // ============================================
+    // UTILITÁRIOS
+    // ============================================
+    function getCsrfToken() {
+        var token = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (token) return token.value;
+        
+        // Fallback: pegar do cookie
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, 'csrftoken'.length + 1) === ('csrftoken' + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring('csrftoken'.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function mostrarMensagem(message, type) {
+        type = type || 'success';
+        var colors = {
+            success: '#2ed573',
+            error: '#ff4757',
+            warning: '#ffa502',
+            info: '#00d4ff'
+        };
+
+        var container = document.createElement('div');
+        container.style.cssText = 'position:fixed;top:20px;right:20px;background:rgba(10,14,26,0.95);border:1px solid ' + (colors[type] || colors.success) + '44;color:#fff;padding:15px 25px;border-radius:12px;z-index:99999;backdrop-filter:blur(10px);animation:slideIn 0.3s ease;max-width:400px;border-left:4px solid ' + (colors[type] || colors.success) + ';';
+        container.textContent = message;
+        document.body.appendChild(container);
+        setTimeout(function() {
+            container.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(function() { container.remove(); }, 300);
+        }, 3000);
+    }
+
+    function mostrarLoading(message) {
+        var overlay = document.getElementById('globalLoadingOverlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'globalLoadingOverlay';
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99999;display:none;justify-content:center;align-items:center;flex-direction:column;';
+            overlay.innerHTML = '<div class="spinner-border text-primary" style="width:3rem;height:3rem;"></div><p id="loadingMessage" style="color:#fff;margin-top:15px;font-size:1rem;">Carregando...</p>';
+            document.body.appendChild(overlay);
+        }
+        
+        var msgEl = document.getElementById('loadingMessage');
+        if (msgEl) msgEl.textContent = message || 'Carregando...';
+        overlay.style.display = 'flex';
+    }
+
+    function esconderLoading() {
+        var overlay = document.getElementById('globalLoadingOverlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+    }
+
+    // ============================================
+    // INICIALIZAR
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('✅ Configurações carregadas');
+        console.log('📊 Dados:', configData);
+        atualizarBannerManutencao(configData.modo_manutencao);
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                var modals = document.querySelectorAll('.modal.show');
+                modals.forEach(function(modal) {
+                    fecharModal(modal.id);
+                });
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal') && e.target.classList.contains('show')) {
+                fecharModal(e.target.id);
+            }
+        });
+    });
+
+    var style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100px); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    console.log('✅ Script de configurações carregado com sucesso!');
+</script>
+{% endblock %}

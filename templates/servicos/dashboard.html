@@ -1,0 +1,851 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<style>
+    .product-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 20px;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .product-card:hover {
+        border-color: rgba(0, 212, 255, 0.2);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(0, 212, 255, 0.05);
+    }
+    
+    .product-card .product-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        font-size: 0.6rem;
+        padding: 4px 12px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        z-index: 2;
+        color: #ffffff !important;
+        font-weight: 600;
+    }
+    
+    .product-card .product-badge.produto {
+        background: #00d4ff !important;
+        color: #ffffff !important;
+    }
+    
+    .product-card .product-badge.servico {
+        background: #2ed573 !important;
+        color: #ffffff !important;
+    }
+    
+    .product-card .product-badge.software {
+        background: #7b2ffc !important;
+        color: #ffffff !important;
+    }
+    
+    .product-card .product-badge.consultoria {
+        background: #ffa502 !important;
+        color: #ffffff !important;
+    }
+    
+    .product-card .product-image-wrapper {
+        width: 100%;
+        height: 180px;
+        border-radius: 10px;
+        margin-bottom: 12px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        position: relative;
+    }
+    
+    .product-card .product-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .product-card .product-image-wrapper:hover img {
+        transform: scale(1.05);
+    }
+    
+    .product-card .product-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.1);
+        font-size: 4rem;
+    }
+    
+    .product-card .product-title {
+        color: #fff;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 6px;
+    }
+    
+    .product-card .product-description {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.8rem;
+        flex-grow: 1;
+        margin-bottom: 12px;
+    }
+    
+    .product-card .product-price {
+        color: #00d4ff;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+    
+    .product-card .product-stock {
+        font-size: 0.65rem;
+        color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .btn-comprar {
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+        border: none;
+        color: white;
+        padding: 6px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .btn-comprar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+    }
+    
+    .btn-comprar:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .btn-detalhes {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.6);
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .btn-detalhes:hover {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: rgba(0, 212, 255, 0.2);
+        color: #fff;
+    }
+    
+    .carrinho-flutuante {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 1000;
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+        border-radius: 50px;
+        padding: 12px 24px;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 8px 30px rgba(0, 212, 255, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        border: none;
+        font-weight: 500;
+    }
+    
+    .carrinho-flutuante:hover {
+        transform: scale(1.05);
+        box-shadow: 0 12px 40px rgba(0, 212, 255, 0.5);
+        color: white;
+    }
+    
+    .carrinho-flutuante .badge-carrinho {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        padding: 2px 8px;
+        font-size: 0.75rem;
+    }
+    
+    .alert-card {
+        background: rgba(255, 193, 7, 0.05);
+        border-left: 3px solid #ffa502;
+        padding: 8px 14px;
+        border-radius: 8px;
+        margin-bottom: 6px;
+    }
+    
+    .alert-card.critico {
+        border-left-color: #ff4757;
+        background: rgba(255, 71, 87, 0.05);
+    }
+    
+    .alert-card .alert-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .stats-mini {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    
+    .stats-mini .stat-box {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 12px;
+        text-align: center;
+    }
+    
+    .stats-mini .stat-box .number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #fff;
+    }
+    
+    .stats-mini .stat-box .label {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* ===== SEÇÃO DE CATEGORIA ===== */
+    .categoria-section {
+        margin-bottom: 32px;
+    }
+    
+    .categoria-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+        padding: 12px 18px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+    
+    .categoria-header:hover {
+        transform: translateX(4px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .categoria-header .categoria-icon {
+        font-size: 1.6rem;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        color: #ffffff !important;
+    }
+    
+    .categoria-header .categoria-titulo {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin: 0;
+        color: #ffffff !important;
+    }
+    
+    .categoria-header .categoria-count {
+        font-size: 0.7rem;
+        margin-left: auto;
+        padding: 4px 14px;
+        border-radius: 20px;
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 600;
+    }
+    
+    /* ===== CORES VIBRANTES POR CATEGORIA ===== */
+    .categoria-produto .categoria-header {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.05));
+        border: 1px solid rgba(0, 212, 255, 0.25);
+    }
+    .categoria-produto .categoria-icon {
+        background: #00d4ff;
+        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+    }
+    .categoria-produto .categoria-count {
+        background: rgba(0, 212, 255, 0.2);
+        border: 1px solid rgba(0, 212, 255, 0.15);
+    }
+    
+    .categoria-servico .categoria-header {
+        background: linear-gradient(135deg, rgba(46, 213, 115, 0.2), rgba(46, 213, 115, 0.05));
+        border: 1px solid rgba(46, 213, 115, 0.25);
+    }
+    .categoria-servico .categoria-icon {
+        background: #2ed573;
+        box-shadow: 0 4px 15px rgba(46, 213, 115, 0.3);
+    }
+    .categoria-servico .categoria-count {
+        background: rgba(46, 213, 115, 0.2);
+        border: 1px solid rgba(46, 213, 115, 0.15);
+    }
+    
+    .categoria-software .categoria-header {
+        background: linear-gradient(135deg, rgba(123, 47, 252, 0.2), rgba(123, 47, 252, 0.05));
+        border: 1px solid rgba(123, 47, 252, 0.25);
+    }
+    .categoria-software .categoria-icon {
+        background: #7b2ffc;
+        box-shadow: 0 4px 15px rgba(123, 47, 252, 0.3);
+    }
+    .categoria-software .categoria-count {
+        background: rgba(123, 47, 252, 0.2);
+        border: 1px solid rgba(123, 47, 252, 0.15);
+    }
+    
+    .categoria-consultoria .categoria-header {
+        background: linear-gradient(135deg, rgba(255, 165, 2, 0.2), rgba(255, 165, 2, 0.05));
+        border: 1px solid rgba(255, 165, 2, 0.25);
+    }
+    .categoria-consultoria .categoria-icon {
+        background: #ffa502;
+        box-shadow: 0 4px 15px rgba(255, 165, 2, 0.3);
+    }
+    .categoria-consultoria .categoria-count {
+        background: rgba(255, 165, 2, 0.2);
+        border: 1px solid rgba(255, 165, 2, 0.15);
+    }
+    
+    /* Glass card para alertas e destaques */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 1.25rem;
+        transition: all 0.3s ease;
+        color: #ffffff !important;
+    }
+    
+    .glass-card:hover {
+        border-color: rgba(0, 212, 255, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 212, 255, 0.03);
+    }
+    
+    .metal-btn-primary {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .metal-btn-primary:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+    
+    /* Responsivo */
+    @media (max-width: 768px) {
+        .categoria-header {
+            padding: 10px 14px;
+        }
+        .categoria-header .categoria-icon {
+            font-size: 1.2rem;
+            width: 36px;
+            height: 36px;
+        }
+        .categoria-header .categoria-titulo {
+            font-size: 0.9rem;
+        }
+        .product-card .product-image-wrapper {
+            height: 130px;
+        }
+        .categoria-header .categoria-count {
+            font-size: 0.6rem;
+            padding: 3px 10px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .product-card .product-image-wrapper {
+            height: 100px;
+        }
+        .product-card {
+            padding: 12px;
+        }
+        .product-card .product-title {
+            font-size: 0.8rem;
+        }
+        .product-card .product-price {
+            font-size: 0.9rem;
+        }
+        .btn-comprar {
+            padding: 4px 10px;
+            font-size: 0.7rem;
+        }
+        .btn-detalhes {
+            padding: 4px 10px;
+            font-size: 0.65rem;
+        }
+    }
+</style>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h1 class="text-white fw-bold">Produtos e Serviços</h1>
+                <p class="text-white-50">Soluções tecnológicas para o seu negócio</p>
+            </div>
+            <div>
+                <a href="{% url 'servicos:carrinho' %}" class="metal-btn-primary">
+                    <i class="bi bi-cart-fill me-2"></i> Carrinho
+                    {% if total_carrinho_itens > 0 %}
+                    <span class="badge bg-light text-dark ms-1">{{ total_carrinho_itens }}</span>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estatísticas Rápidas -->
+<div class="stats-mini">
+    <div class="stat-box">
+        <div class="number">{{ total_itens|default:0 }}</div>
+        <div class="label">Total Itens</div>
+    </div>
+    <div class="stat-box">
+        <div class="number">{{ total_produtos|default:0 }}</div>
+        <div class="label">Produtos</div>
+    </div>
+    <div class="stat-box">
+        <div class="number">{{ total_servicos|default:0 }}</div>
+        <div class="label">Serviços</div>
+    </div>
+    <div class="stat-box">
+        <div class="number">Kz {{ valor_total_itens|floatformat:0|default:"0"|intcomma }}</div>
+        <div class="label">Valor Total</div>
+    </div>
+</div>
+
+<!-- Alertas de Stock -->
+{% if alertas_stock %}
+<div class="glass-card mb-4">
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 1.2rem;"></i>
+        <h6 class="mb-0 text-warning">Alertas de Stock</h6>
+        <span class="badge bg-warning ms-1">{{ total_alertas }}</span>
+    </div>
+    <div class="row g-2">
+        {% for alerta in alertas_stock|slice:":6" %}
+        <div class="col-md-4">
+            <div class="alert-card {% if alerta.status == 'critico' %}critico{% endif %}">
+                <div class="alert-item">
+                    <div>
+                        <strong>{{ alerta.item }}</strong>
+                        <span class="badge bg-secondary ms-1">{{ alerta.codigo }}</span>
+                    </div>
+                    <span class="badge {% if alerta.atual == 0 %}bg-danger{% else %}bg-warning{% endif %}">
+                        {{ alerta.atual }} / {{ alerta.minimo }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Em Destaque -->
+{% if destaque %}
+<div class="mb-4">
+    <h5 class="text-white mb-3">
+        <i class="bi bi-star-fill me-2" style="color: #ffa502;"></i> Em Destaque
+    </h5>
+    <div class="row g-3">
+        {% for item in destaque %}
+        <div class="col-4 col-md-2">
+            <a href="{% url 'servicos:detalhe_item' item.id %}" class="text-decoration-none">
+                <div class="glass-card text-center p-3" style="border-color: rgba(255, 165, 2, 0.1);">
+                    {% if item.imagem %}
+                    <img src="{{ item.imagem.url }}" alt="{{ item.nome }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;">
+                    {% else %}
+                    <div style="font-size: 1.5rem; color: #ffa502;">
+                        {% if item.tipo == 'produto' %}<i class="bi bi-box-seam"></i>
+                        {% elif item.tipo == 'servico' %}<i class="bi bi-gear"></i>
+                        {% elif item.tipo == 'software' %}<i class="bi bi-code-square"></i>
+                        {% else %}<i class="bi bi-person-badge"></i>{% endif %}
+                    </div>
+                    {% endif %}
+                    <h6 class="text-white mt-2" style="font-size: 0.7rem;">{{ item.nome|truncatechars:12 }}</h6>
+                    <small class="text-muted">Kz {{ item.preco_venda|floatformat:0|intcomma }}</small>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- ============================================ -->
+<!-- PRODUTOS ORGANIZADOS POR CATEGORIA -->
+<!-- ============================================ -->
+
+<!-- 1. PRODUTOS FÍSICOS -->
+{% if produtos %}
+<div class="categoria-section categoria-produto">
+    <div class="categoria-header">
+        <div class="categoria-icon"><i class="bi bi-box-seam"></i></div>
+        <h5 class="categoria-titulo">Produtos Físicos</h5>
+        <span class="categoria-count">{{ produtos|length }} itens</span>
+    </div>
+    <div class="row g-4">
+        {% for item in produtos %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="product-card">
+                <span class="product-badge produto">{{ item.get_tipo_display }}</span>
+                
+                <div class="product-image-wrapper">
+                    {% if item.imagem %}
+                    <img src="{{ item.imagem.url }}" alt="{{ item.nome }}">
+                    {% else %}
+                    <div class="product-image-placeholder">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <h6 class="product-title">{{ item.nome|truncatechars:30 }}</h6>
+                <p class="product-description">{{ item.descricao|default:"Sem descrição"|truncatechars:50 }}</p>
+                
+                <div class="mt-auto">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="product-price">Kz {{ item.preco_venda|floatformat:2|intcomma }}</span>
+                            {% with stock=item.get_stock_atual %}
+                            <div class="product-stock">
+                                <i class="bi bi-box me-1"></i> {{ stock|default:0 }} disponíveis
+                            </div>
+                            {% endwith %}
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'servicos:detalhe_item' item.id %}" class="btn-detalhes" title="Detalhes">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <button class="btn-comprar" onclick="adicionarAoCarrinho({{ item.id }})" title="Adicionar ao carrinho">
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- 2. SERVIÇOS -->
+{% if servicos %}
+<div class="categoria-section categoria-servico">
+    <div class="categoria-header">
+        <div class="categoria-icon"><i class="bi bi-gear"></i></div>
+        <h5 class="categoria-titulo">Serviços</h5>
+        <span class="categoria-count">{{ servicos|length }} itens</span>
+    </div>
+    <div class="row g-4">
+        {% for item in servicos %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="product-card">
+                <span class="product-badge servico">{{ item.get_tipo_display }}</span>
+                
+                <div class="product-image-wrapper">
+                    {% if item.imagem %}
+                    <img src="{{ item.imagem.url }}" alt="{{ item.nome }}">
+                    {% else %}
+                    <div class="product-image-placeholder">
+                        <i class="bi bi-gear"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <h6 class="product-title">{{ item.nome|truncatechars:30 }}</h6>
+                <p class="product-description">{{ item.descricao|default:"Sem descrição"|truncatechars:50 }}</p>
+                
+                <div class="mt-auto">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="product-price">Kz {{ item.preco_venda|floatformat:2|intcomma }}</span>
+                            {% if item.recorrencia != 'unico' %}
+                            <div class="product-stock">
+                                <i class="bi bi-arrow-repeat me-1"></i> {{ item.get_recorrencia_display }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'servicos:detalhe_item' item.id %}" class="btn-detalhes" title="Detalhes">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <button class="btn-comprar" onclick="adicionarAoCarrinho({{ item.id }})" title="Adicionar ao carrinho">
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- 3. SOFTWARES -->
+{% if softwares %}
+<div class="categoria-section categoria-software">
+    <div class="categoria-header">
+        <div class="categoria-icon"><i class="bi bi-code-square"></i></div>
+        <h5 class="categoria-titulo">Software / SaaS</h5>
+        <span class="categoria-count">{{ softwares|length }} itens</span>
+    </div>
+    <div class="row g-4">
+        {% for item in softwares %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="product-card">
+                <span class="product-badge software">{{ item.get_tipo_display }}</span>
+                
+                <div class="product-image-wrapper">
+                    {% if item.imagem %}
+                    <img src="{{ item.imagem.url }}" alt="{{ item.nome }}">
+                    {% else %}
+                    <div class="product-image-placeholder">
+                        <i class="bi bi-code-square"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <h6 class="product-title">{{ item.nome|truncatechars:30 }}</h6>
+                <p class="product-description">{{ item.descricao|default:"Sem descrição"|truncatechars:50 }}</p>
+                
+                <div class="mt-auto">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="product-price">Kz {{ item.preco_venda|floatformat:2|intcomma }}</span>
+                            {% if item.recorrencia != 'unico' %}
+                            <div class="product-stock">
+                                <i class="bi bi-arrow-repeat me-1"></i> {{ item.get_recorrencia_display }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'servicos:detalhe_item' item.id %}" class="btn-detalhes" title="Detalhes">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <button class="btn-comprar" onclick="adicionarAoCarrinho({{ item.id }})" title="Adicionar ao carrinho">
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- 4. CONSULTORIAS -->
+{% if consultorias %}
+<div class="categoria-section categoria-consultoria">
+    <div class="categoria-header">
+        <div class="categoria-icon"><i class="bi bi-person-badge"></i></div>
+        <h5 class="categoria-titulo">Consultorias</h5>
+        <span class="categoria-count">{{ consultorias|length }} itens</span>
+    </div>
+    <div class="row g-4">
+        {% for item in consultorias %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="product-card">
+                <span class="product-badge consultoria">{{ item.get_tipo_display }}</span>
+                
+                <div class="product-image-wrapper">
+                    {% if item.imagem %}
+                    <img src="{{ item.imagem.url }}" alt="{{ item.nome }}">
+                    {% else %}
+                    <div class="product-image-placeholder">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <h6 class="product-title">{{ item.nome|truncatechars:30 }}</h6>
+                <p class="product-description">{{ item.descricao|default:"Sem descrição"|truncatechars:50 }}</p>
+                
+                <div class="mt-auto">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="product-price">Kz {{ item.preco_venda|floatformat:2|intcomma }}</span>
+                            {% if item.recorrencia != 'unico' %}
+                            <div class="product-stock">
+                                <i class="bi bi-arrow-repeat me-1"></i> {{ item.get_recorrencia_display }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'servicos:detalhe_item' item.id %}" class="btn-detalhes" title="Detalhes">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <button class="btn-comprar" onclick="adicionarAoCarrinho({{ item.id }})" title="Adicionar ao carrinho">
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Mensagem se não houver itens -->
+{% if not produtos and not servicos and not softwares and not consultorias %}
+<div class="glass-card text-center py-5">
+    <i class="bi bi-inbox" style="font-size: 4rem; color: rgba(255,255,255,0.1);"></i>
+    <h5 class="text-muted mt-3">Nenhum item disponível</h5>
+    <p class="text-muted small">Volte em breve para ver nossos produtos e serviços.</p>
+</div>
+{% endif %}
+
+<!-- Carrinho Flutuante -->
+{% if total_carrinho_itens > 0 %}
+<a href="{% url 'servicos:carrinho' %}" class="carrinho-flutuante" id="carrinhoFlutuante">
+    <i class="bi bi-cart-fill" style="font-size: 1.3rem;"></i>
+    <span>Ver Carrinho</span>
+    <span class="badge-carrinho" id="carrinhoCount">{{ total_carrinho_itens }}</span>
+    <span id="carrinhoTotal">Kz {{ total_carrinho|floatformat:0|intcomma }}</span>
+</a>
+{% endif %}
+
+<script>
+    // ============================================
+    // ADICIONAR AO CARRINHO (AJAX)
+    // ============================================
+    function adicionarAoCarrinho(itemId) {
+        const btn = event?.target?.closest?.('.btn-comprar') || document.querySelector(`.btn-comprar[onclick*="${itemId}"]`);
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+        }
+        
+        fetch('/servicos/carrinho/adicionar/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                item_id: itemId,
+                quantidade: 1
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showMessage('✅ ' + data.message);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showMessage('❌ ' + data.error, 'error');
+            }
+        })
+        .catch(error => {
+            showMessage('❌ Erro ao adicionar ao carrinho', 'error');
+        })
+        .finally(() => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-cart-plus"></i>';
+            }
+        });
+    }
+    
+    // ============================================
+    // UTILITÁRIOS
+    // ============================================
+    function getCsrfToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+    }
+    
+    function showMessage(message, type = 'success') {
+        const colors = {
+            success: '#2ed573',
+            error: '#ff4757',
+            warning: '#ffa502'
+        };
+        
+        const container = document.createElement('div');
+        container.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(10, 14, 26, 0.95);
+            border-left: 4px solid ${colors[type] || colors.success};
+            color: #fff;
+            padding: 15px 25px;
+            border-radius: 12px;
+            z-index: 99999;
+            backdrop-filter: blur(10px);
+            animation: slideIn 0.3s ease;
+            max-width: 400px;
+        `;
+        container.textContent = message;
+        document.body.appendChild(container);
+        setTimeout(() => {
+            container.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => container.remove(), 300);
+        }, 3000);
+    }
+    
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100px); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

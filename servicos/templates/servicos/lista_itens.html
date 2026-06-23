@@ -1,0 +1,1228 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Produtos e Serviços - {{ block.super }}{% endblock %}
+{% block page_title %}Produtos e Serviços{% endblock %}
+
+{% block content %}
+<!-- HEADER DA PÁGINA -->
+<div class="metal-header mb-4 fade-in-up">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+        <div>
+            <h1 class="metal-title">
+                <i class="bi bi-box-seam me-2"></i> Produtos e Serviços
+            </h1>
+            <p class="metal-subtitle mt-2">Gerencie todos os produtos, serviços, software e consultorias</p>
+        </div>
+        <button type="button" class="metal-btn-primary" data-bs-toggle="modal" data-bs-target="#modalItemForm" onclick="openCreateItemModal()">
+            <i class="bi bi-plus-circle me-2"></i> Novo Item
+        </button>
+    </div>
+</div>
+
+<!-- CARDS ESTATÍSTICOS -->
+<div class="row g-4 mb-4 fade-in-up delay-1">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="glass-card text-center">
+            <div class="display-6 text-primary"><i class="bi bi-box-seam"></i></div>
+            <h3 class="h5">{{ total_itens|default:0 }}</h3>
+            <p class="text-muted small card-label">Total de Itens</p>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="glass-card text-center">
+            <div class="display-6 text-success"><i class="bi bi-check-circle"></i></div>
+            <h3 class="h5">{{ itens_ativos|default:0 }}</h3>
+            <p class="text-muted small card-label">Ativos</p>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="glass-card text-center">
+            <div class="display-6 text-warning"><i class="bi bi-clock-history"></i></div>
+            <h3 class="h5">{{ itens_inativos|default:0 }}</h3>
+            <p class="text-muted small card-label">Inativos</p>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="glass-card text-center">
+            <div class="display-6 text-success"><i class="bi bi-currency-dollar"></i></div>
+            <h3 class="h5">Kz {{ total_preco|floatformat:0|default:"0"|intcomma }}</h3>
+            <p class="text-muted small card-label">Valor Total</p>
+        </div>
+    </div>
+</div>
+
+<!-- ALERTAS DE STOCK -->
+{% if alertas_stock %}
+<div class="glass-card mb-4 fade-in-up delay-1" style="border-color: rgba(255, 193, 7, 0.3);">
+    <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 1.5rem;"></i>
+        <h6 class="mb-0 text-warning">Alertas de Stock Mínimo</h6>
+    </div>
+    <hr>
+    <div class="row g-2">
+        {% for alerta in alertas_stock %}
+        <div class="col-md-4">
+            <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(255, 193, 7, 0.05);">
+                <div>
+                    <strong>{{ alerta.item }}</strong>
+                    <span class="badge bg-secondary ms-2">{{ alerta.local }}</span>
+                </div>
+                <div>
+                    <span class="badge {% if alerta.atual == 0 %}bg-danger{% else %}bg-warning{% endif %}">
+                        {{ alerta.atual }} / {{ alerta.minimo }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- FILTROS -->
+<div class="glass-card mb-4 fade-in-up delay-2">
+    <form method="get" class="row g-3">
+        <div class="col-md-4">
+            <input type="text" name="q" class="metal-form-control" 
+                   placeholder="Buscar por código ou nome..." 
+                   value="{{ query }}">
+        </div>
+        <div class="col-md-3">
+            <select name="tipo" class="metal-form-select">
+                <option value="">Todos os tipos</option>
+                {% for value, label in tipos %}
+                <option value="{{ value }}" {% if tipo == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="status" class="metal-form-select">
+                <option value="">Todos os status</option>
+                {% for value, label in status_options %}
+                <option value="{{ value }}" {% if status == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="metal-btn-primary w-100">
+                <i class="bi bi-search"></i> Filtrar
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- TABELA DE ITENS -->
+<div class="glass-card fade-in-up delay-2">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Imagem</th>
+                    <th>Código</th>
+                    <th>Nome</th>
+                    <th>Tipo</th>
+                    <th>Preço</th>
+                    <th>Recorrência</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in itens %}
+                <tr>
+                    <td>
+                        {% if item.imagem %}
+                        <img src="{{ item.imagem.url }}" alt="{{ item.nome }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                        {% else %}
+                        <div style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); color: rgba(255,255,255,0.1); font-size: 1.2rem;">
+                            <i class="bi bi-image"></i>
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ item.codigo }}</strong></td>
+                    <td>{{ item.nome }}</td>
+                    <td>
+                        <span class="badge {% if item.tipo == 'produto' %}bg-primary{% elif item.tipo == 'servico' %}bg-info{% elif item.tipo == 'software' %}bg-success{% elif item.tipo == 'consultoria' %}bg-secondary{% else %}bg-secondary{% endif %}">
+                            {{ item.get_tipo_display }}
+                        </span>
+                    </td>
+                    <td>Kz {{ item.preco_venda|floatformat:2|intcomma }}</td>
+                    <td>
+                        {% if item.is_recorrente %}
+                        <span class="badge bg-primary">{{ item.get_recorrencia_display }}</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Único</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.is_produto %}
+                            {% with stock=item.get_stock_atual %}
+                            <span class="badge {% if stock <= 0 %}bg-danger{% elif stock <= 5 %}bg-warning{% else %}bg-success{% endif %}">
+                                {{ stock }} un.
+                            </span>
+                            {% endwith %}
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge {% if item.status == 'ativo' %}bg-success{% else %}bg-secondary{% endif %}">
+                            {{ item.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalItemDetail" onclick="openItemDetail({{ item.id }})">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modalItemForm" onclick="openEditItemModal({{ item.id }})">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalItemDelete" onclick="openDeleteItemModal({{ item.id }}, '{{ item.nome }}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center py-4">
+                        <i class="bi bi-inbox display-6 d-block text-muted" style="color: rgba(255,255,255,0.3) !important;"></i>
+                        <p class="text-muted mt-2" style="color: rgba(255,255,255,0.5) !important;">Nenhum item cadastrado.</p>
+                        <button class="btn-criar-primeiro" data-bs-toggle="modal" data-bs-target="#modalItemForm" onclick="openCreateItemModal()">
+                            <i class="bi bi-plus-circle me-1"></i> Criar Primeiro Item
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Paginação -->
+    {% if is_paginated %}
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+            {% endif %}
+            <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próximo</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- ============================================ -->
+<!-- MODAL: ITEM - CRIAR/EDITAR                  -->
+<!-- ============================================ -->
+<div class="modal fade" id="modalItemForm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content metal-modal-content">
+            <div class="modal-header metal-modal-header">
+                <h5 class="modal-title" id="modalItemFormTitle">
+                    <i class="bi bi-plus-circle me-2"></i>Novo Item
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="itemForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="item_id">
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="metal-form-label">Código <span class="text-danger">*</span></label>
+                            <input type="text" id="item_codigo" class="metal-form-control" placeholder="Ex: ITEM-001" required>
+                        </div>
+                        <div class="col-md-8 mb-3">
+                            <label class="metal-form-label">Nome <span class="text-danger">*</span></label>
+                            <input type="text" id="item_nome" class="metal-form-control" placeholder="Nome do item" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="metal-form-label">Tipo <span class="text-danger">*</span></label>
+                            <select id="item_tipo" class="metal-form-select" required>
+                                <option value="">Selecione...</option>
+                                {% for value, label in tipos %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="metal-form-label">Status</label>
+                            <select id="item_status" class="metal-form-select">
+                                <option value="ativo">Ativo</option>
+                                <option value="inativo">Inativo</option>
+                                <option value="descontinuado">Descontinuado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="metal-form-label">Recorrência</label>
+                            <select id="item_recorrencia" class="metal-form-select">
+                                <option value="unico">Pagamento Único</option>
+                                <option value="mensal">Mensal</option>
+                                <option value="trimestral">Trimestral</option>
+                                <option value="semestral">Semestral</option>
+                                <option value="anual">Anual</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label class="metal-form-label">Preço Venda (Kz) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" id="item_preco_venda" class="metal-form-control" value="0.00" min="0" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="metal-form-label">Preço Custo (Kz)</label>
+                            <input type="number" step="0.01" id="item_preco_custo" class="metal-form-control" value="0.00" min="0">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="metal-form-label">Duração (dias)</label>
+                            <input type="number" id="item_duracao" class="metal-form-control" placeholder="Ex: 30">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="metal-form-label">Horas Estimadas</label>
+                            <input type="number" step="0.5" id="item_horas" class="metal-form-control" placeholder="Ex: 8">
+                        </div>
+                    </div>
+
+                    <!-- 🔥 CAMPO DE IMAGEM -->
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="metal-form-label">Imagem do Produto</label>
+                            <input type="file" id="item_imagem" class="metal-form-control" accept="image/*">
+                            <small class="text-muted">Formatos: JPG, PNG, GIF, WebP. Máx: 5MB</small>
+                            <div id="preview_imagem" style="margin-top: 10px; display: none;">
+                                <img id="preview_img" src="#" alt="Pré-visualização" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Campos específicos para Produto -->
+                    <div id="campos_produto" style="display:none;">
+                        <hr>
+                        <h6 class="text-primary"><i class="bi bi-box"></i> Controle de Stock</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="metal-form-label">Stock Inicial</label>
+                                <input type="number" id="item_stock_inicial" class="metal-form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="metal-form-label">Stock Mínimo</label>
+                                <input type="number" id="item_stock_minimo" class="metal-form-control" value="5" min="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="metal-form-label">Peso (kg)</label>
+                                <input type="number" step="0.01" id="item_peso" class="metal-form-control" placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="metal-form-label">Código de Barras</label>
+                                <input type="text" id="item_codigo_barras" class="metal-form-control" placeholder="Código de barras">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="metal-form-label">Dimensões</label>
+                                <input type="text" id="item_dimensoes" class="metal-form-control" placeholder="Ex: 30x20x5 cm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Campos específicos para Software -->
+                    <div id="campos_software" style="display:none;">
+                        <hr>
+                        <h6 class="text-success"><i class="bi bi-code-square"></i> Configurações de Software</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3 d-flex align-items-center">
+                                <div class="form-check">
+                                    <input type="checkbox" id="item_requer_ativacao" class="form-check-input">
+                                    <label class="form-check-label metal-form-label" for="item_requer_ativacao">Requer Ativação</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="metal-form-label">Nº Usuários</label>
+                                <input type="number" id="item_usuarios" class="metal-form-control" value="1" min="1">
+                            </div>
+                            <div class="col-md-4 mb-3 d-flex align-items-center">
+                                <div class="form-check">
+                                    <input type="checkbox" id="item_upgrade" class="form-check-input" checked>
+                                    <label class="form-check-label metal-form-label" for="item_upgrade">Permite Upgrade</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Campos específicos para Serviço/Consultoria -->
+                    <div id="campos_servico" style="display:none;">
+                        <hr>
+                        <h6 class="text-info"><i class="bi bi-gear"></i> Configurações de Serviço</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="metal-form-label">Prioridade</label>
+                                <select id="item_prioridade" class="metal-form-select">
+                                    <option value="1">Baixa</option>
+                                    <option value="2" selected>Média</option>
+                                    <option value="3">Alta</option>
+                                    <option value="4">Urgente</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3 d-flex align-items-center">
+                                <div class="form-check">
+                                    <input type="checkbox" id="item_visita" class="form-check-input">
+                                    <label class="form-check-label metal-form-label" for="item_visita">Requer Visita</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3 d-flex align-items-center">
+                                <div class="form-check">
+                                    <input type="checkbox" id="item_equipamento" class="form-check-input">
+                                    <label class="form-check-label metal-form-label" for="item_equipamento">Requer Equipamento</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="metal-form-label">Preço por Hora</label>
+                                <input type="number" step="0.01" id="item_preco_hora" class="metal-form-control" value="0.00" min="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="metal-form-label">Tempo Médio (HH:MM:SS)</label>
+                                <input type="text" id="item_tempo" class="metal-form-control" placeholder="HH:MM:SS">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="metal-form-label">Descrição</label>
+                        <textarea id="item_descricao" class="metal-form-control" rows="3" placeholder="Descreva o item em detalhes..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer metal-modal-footer">
+                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="metal-btn-primary" onclick="submitItemForm()">Salvar Item</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- MODAL: ITEM - DETALHES                     -->
+<!-- ============================================ -->
+<div class="modal fade" id="modalItemDetail" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content metal-modal-content">
+            <div class="modal-header metal-modal-header">
+                <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Detalhes do Item</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="itemDetailContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2 text-muted">Carregando...</p>
+                </div>
+            </div>
+            <div class="modal-footer metal-modal-footer">
+                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="metal-btn-primary" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- MODAL: ITEM - EXCLUIR                      -->
+<!-- ============================================ -->
+<div class="modal fade" id="modalItemDelete" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content metal-modal-content">
+            <div class="modal-header metal-modal-header-danger">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o item <strong id="itemDeleteNome"></strong>?</p>
+                <div class="metal-alert-warning">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    <strong>Esta ação não pode ser desfeita!</strong>
+                </div>
+                <div class="mb-3">
+                    <label class="metal-form-label">Digite <strong>"DELETAR"</strong> para confirmar:</label>
+                    <input type="text" id="itemDeleteConfirm" class="metal-form-control" placeholder="DELETAR">
+                </div>
+            </div>
+            <div class="modal-footer metal-modal-footer">
+                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="metal-btn-danger" id="itemDeleteBtn" onclick="confirmItemDelete()" disabled>Excluir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilos completos do template de faturas */
+    .metal-header {
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .metal-title { color: white; font-weight: 700; font-size: 1.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    .metal-subtitle { color: rgba(255,255,255,0.9) !important; font-size: 0.9rem; }
+    .metal-btn-primary {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .metal-btn-primary:hover { background: rgba(255,255,255,0.25); transform: translateY(-2px); color: white; }
+    .metal-btn-secondary {
+        background: rgba(108,117,125,0.2);
+        border: 1px solid rgba(108,117,125,0.3);
+        color: #6c757d;
+        padding: 8px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    .metal-btn-secondary:hover { background: rgba(108,117,125,0.3); transform: translateY(-2px); color: #5a6268; }
+    .metal-btn-danger {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        border: none;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    
+    .metal-form-control, .metal-form-select {
+        background: rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 10px;
+        padding: 10px 12px;
+        color: #ffffff !important;
+        font-size: 14px;
+        width: 100%;
+    }
+    .metal-form-control:focus, .metal-form-select:focus {
+        border-color: #00d4ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2) !important;
+        outline: none;
+        background: rgba(255,255,255,0.08) !important;
+        color: #ffffff !important;
+    }
+    .metal-form-control::placeholder {
+        color: rgba(255, 255, 255, 0.3) !important;
+    }
+    .metal-form-label { 
+        color: rgba(255, 255, 255, 0.9) !important; 
+        font-weight: 500; 
+        font-size: 0.85rem; 
+        margin-bottom: 0.25rem; 
+        display: block; 
+    }
+
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .form-check-input:checked {
+        background-color: #00d4ff;
+        border-color: #00d4ff;
+    }
+    .form-check-label {
+        color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+        padding-left: 6px;
+    }
+
+    .metal-modal-content { 
+        background: #0a0e1a; 
+        border: 1px solid rgba(0, 212, 255, 0.2); 
+        border-radius: 16px; 
+    }
+    .metal-modal-header { 
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc); 
+        color: white; 
+        border-radius: 16px 16px 0 0; 
+        padding: 15px 20px; 
+    }
+    .metal-modal-header-danger { 
+        background: linear-gradient(135deg, #dc3545, #c82333); 
+        color: white; 
+        border-radius: 16px 16px 0 0; 
+        padding: 15px 20px; 
+    }
+    .metal-modal-footer { 
+        background: rgba(0,0,0,0.2); 
+        border-top: 1px solid rgba(255,255,255,0.05); 
+        padding: 12px 20px; 
+        border-radius: 0 0 16px 16px; 
+    }
+
+    .metal-alert-warning { 
+        background: rgba(255, 193, 7, 0.1); 
+        border-left: 4px solid #ffc107; 
+        padding: 12px; 
+        border-radius: 8px; 
+        margin: 15px 0; 
+        color: #ffffff !important;
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        color: #ffffff !important;
+    }
+    .glass-card:hover { 
+        border-color: rgba(0, 212, 255, 0.15); 
+        box-shadow: 0 8px 32px rgba(0, 212, 255, 0.03); 
+        transform: translateY(-2px); 
+    }
+    .glass-card .display-6 {
+        color: #00d4ff !important;
+    }
+    .glass-card .display-6.text-success {
+        color: #2ed573 !important;
+    }
+    .glass-card .display-6.text-danger {
+        color: #ff4757 !important;
+    }
+    .glass-card .display-6.text-warning {
+        color: #ffa502 !important;
+    }
+    .glass-card .h5 {
+        color: #ffffff !important;
+    }
+    /* COR BRANCA APENAS PARA OS RÓTULOS DOS CARDS */
+    .glass-card .card-label {
+        color: #ffffff !important;
+    }
+
+    /* BOTÃO CRIAR PRIMEIRO ITEM - MESMO ESTILO DO GLASS-CARD */
+    .btn-criar-primeiro {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: white !important;
+        padding: 8px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+    .btn-criar-primeiro:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+        color: white !important;
+    }
+
+    .table {
+        color: #1a1a2e !important;
+    }
+    .table th {
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff !important;
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: rgba(0, 0, 0, 0.2);
+    }
+    .table td {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        vertical-align: middle;
+        color: #1a1a2e !important;
+    }
+    .table-hover tbody tr:hover {
+        background: rgba(0, 0, 0, 0.02);
+    }
+    .table strong {
+        color: #16213e !important;
+        font-weight: 700;
+    }
+    .table .text-muted {
+        color: #6c757d !important;
+    }
+
+    .badge { 
+        padding: 5px 12px; 
+        border-radius: 20px; 
+        font-weight: 600; 
+        font-size: 0.7rem; 
+        text-transform: uppercase; 
+        letter-spacing: 0.5px;
+        color: #ffffff !important;
+    }
+    .bg-success {
+        background-color: #2ed573 !important;
+        color: #ffffff !important;
+    }
+    .bg-warning {
+        background-color: #ffa502 !important;
+        color: #212529 !important;
+    }
+    .bg-danger {
+        background-color: #ff4757 !important;
+        color: #ffffff !important;
+    }
+    .bg-primary {
+        background-color: #00d4ff !important;
+        color: #ffffff !important;
+    }
+    .bg-info {
+        background-color: #00d4ff !important;
+        color: #ffffff !important;
+    }
+    .bg-secondary {
+        background-color: #6c757d !important;
+        color: #ffffff !important;
+    }
+
+    .btn-outline-info {
+        color: #0dcaf0 !important;
+        border-color: #0dcaf0 !important;
+    }
+    .btn-outline-info:hover {
+        background: #0dcaf0 !important;
+        color: #ffffff !important;
+    }
+    .btn-outline-warning {
+        color: #ffc107 !important;
+        border-color: #ffc107 !important;
+    }
+    .btn-outline-warning:hover {
+        background: #ffc107 !important;
+        color: #ffffff !important;
+    }
+    .btn-outline-danger {
+        color: #dc3545 !important;
+        border-color: #dc3545 !important;
+    }
+    .btn-outline-danger:hover {
+        background: #dc3545 !important;
+        color: #ffffff !important;
+    }
+
+    .page-link {
+        color: #1a1a2e !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+        border-color: rgba(0, 0, 0, 0.1) !important;
+    }
+    .page-link:hover {
+        background: rgba(255, 255, 255, 0.9) !important;
+        color: #0dcaf0 !important;
+    }
+    .page-item.active .page-link {
+        background: #0dcaf0 !important;
+        border-color: #0dcaf0 !important;
+        color: #ffffff !important;
+    }
+
+    .fade-in-up { 
+        animation: fadeInUp 0.5s ease forwards; 
+        opacity: 0; 
+    }
+    @keyframes fadeInUp { 
+        from { opacity: 0; transform: translateY(20px); } 
+        to { opacity: 1; transform: translateY(0); } 
+    }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+
+    #loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-body {
+        color: #ffffff !important;
+    }
+    .modal-body strong {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+    .modal-body .badge {
+        color: #ffffff !important;
+    }
+
+    select option {
+        background-color: #1a1a2e !important;
+        color: #ffffff !important;
+    }
+</style>
+
+<script>
+// ============================================
+// VARIÁVEIS GLOBAIS
+// ============================================
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+let currentDeleteId = null;
+let currentItemId = null;
+
+// ============================================
+// PRÉ-VISUALIZAÇÃO DA IMAGEM
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    const inputImagem = document.getElementById('item_imagem');
+    if (inputImagem) {
+        inputImagem.addEventListener('change', function() {
+            const file = this.files[0];
+            const preview = document.getElementById('preview_imagem');
+            const img = document.getElementById('preview_img');
+            
+            if (file) {
+                // Validar tamanho (5MB)
+                const maxSize = 5 * 1024 * 1024;
+                if (file.size > maxSize) {
+                    showMessage('⚠️ A imagem é muito grande! Máximo permitido: 5MB.', 'error');
+                    this.value = '';
+                    preview.style.display = 'none';
+                    img.src = '#';
+                    return;
+                }
+                
+                // Validar tipo
+                const tiposPermitidos = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (!tiposPermitidos.includes(file.type)) {
+                    showMessage('⚠️ Formato não suportado. Use JPG, PNG, GIF ou WebP.', 'error');
+                    this.value = '';
+                    preview.style.display = 'none';
+                    img.src = '#';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    img.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+                img.src = '#';
+            }
+        });
+    }
+});
+
+// ============================================
+// MOSTRAR/OCULTAR CAMPOS POR TIPO
+// ============================================
+function mostrarCamposPorTipo(tipo) {
+    document.getElementById('campos_produto').style.display = tipo === 'produto' ? 'block' : 'none';
+    document.getElementById('campos_software').style.display = tipo === 'software' ? 'block' : 'none';
+    document.getElementById('campos_servico').style.display = (tipo === 'servico' || tipo === 'consultoria') ? 'block' : 'none';
+}
+
+// ============================================
+// ABRIR MODAL CRIAR ITEM
+// ============================================
+function openCreateItemModal() {
+    const modalTitle = document.getElementById('modalItemFormTitle');
+    if (modalTitle) modalTitle.innerHTML = '<i class="bi bi-plus-circle me-2"></i>Novo Item';
+    
+    document.getElementById('item_id').value = '';
+    document.getElementById('item_codigo').value = '';
+    document.getElementById('item_nome').value = '';
+    document.getElementById('item_tipo').value = '';
+    document.getElementById('item_status').value = 'ativo';
+    document.getElementById('item_recorrencia').value = 'unico';
+    document.getElementById('item_preco_venda').value = '0.00';
+    document.getElementById('item_preco_custo').value = '';
+    document.getElementById('item_duracao').value = '';
+    document.getElementById('item_horas').value = '';
+    document.getElementById('item_prioridade').value = '2';
+    document.getElementById('item_usuarios').value = '1';
+    document.getElementById('item_upgrade').checked = true;
+    document.getElementById('item_visita').checked = false;
+    document.getElementById('item_equipamento').checked = false;
+    document.getElementById('item_tempo').value = '';
+    document.getElementById('item_descricao').value = '';
+    document.getElementById('item_stock_inicial').value = '0';
+    document.getElementById('item_stock_minimo').value = '5';
+    document.getElementById('item_peso').value = '';
+    document.getElementById('item_codigo_barras').value = '';
+    document.getElementById('item_dimensoes').value = '';
+    document.getElementById('item_preco_hora').value = '';
+    document.getElementById('item_requer_ativacao').checked = false;
+    
+    // Limpar pré-visualização da imagem
+    document.getElementById('preview_imagem').style.display = 'none';
+    document.getElementById('preview_img').src = '#';
+    document.getElementById('item_imagem').value = '';
+    
+    mostrarCamposPorTipo('');
+    
+    const btnSubmit = document.querySelector('#modalItemForm .btn-primary');
+    if (btnSubmit) btnSubmit.textContent = 'Salvar Item';
+}
+
+// ============================================
+// ABRIR MODAL EDITAR ITEM
+// ============================================
+function openEditItemModal(id) {
+    const modalTitle = document.getElementById('modalItemFormTitle');
+    if (modalTitle) modalTitle.innerHTML = '<i class="bi bi-pencil me-2"></i>Editar Item';
+    
+    document.getElementById('item_id').value = id;
+    showLoading();
+    
+    fetch(`/servicos/api/item/${id}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const s = data.data;
+                document.getElementById('item_codigo').value = s.codigo || '';
+                document.getElementById('item_nome').value = s.nome || '';
+                document.getElementById('item_tipo').value = s.tipo || '';
+                document.getElementById('item_status').value = s.status || 'ativo';
+                document.getElementById('item_recorrencia').value = s.recorrencia || 'unico';
+                document.getElementById('item_preco_venda').value = s.preco_venda || 0;
+                document.getElementById('item_preco_custo').value = s.preco_custo || '';
+                document.getElementById('item_duracao').value = s.duracao_padrao || '';
+                document.getElementById('item_horas').value = s.horas_estimadas || '';
+                document.getElementById('item_prioridade').value = s.nivel_prioridade || 2;
+                document.getElementById('item_usuarios').value = s.numero_usuarios_incluidos || 1;
+                document.getElementById('item_upgrade').checked = s.permite_upgrade || false;
+                document.getElementById('item_visita').checked = s.requer_visita || false;
+                document.getElementById('item_equipamento').checked = s.requer_equipamento || false;
+                document.getElementById('item_tempo').value = s.tempo_medio_execucao || '';
+                document.getElementById('item_descricao').value = s.descricao || '';
+                document.getElementById('item_peso').value = s.peso || '';
+                document.getElementById('item_codigo_barras').value = s.codigo_barras || '';
+                document.getElementById('item_dimensoes').value = s.dimensoes || '';
+                document.getElementById('item_preco_hora').value = s.preco_hora || '';
+                document.getElementById('item_requer_ativacao').checked = s.requer_ativacao || false;
+                
+                // 🔥 EXIBIR IMAGEM ATUAL
+                if (s.imagem_url) {
+                    const preview = document.getElementById('preview_imagem');
+                    const img = document.getElementById('preview_img');
+                    img.src = s.imagem_url;
+                    preview.style.display = 'block';
+                } else {
+                    document.getElementById('preview_imagem').style.display = 'none';
+                    document.getElementById('preview_img').src = '#';
+                }
+                
+                if (s.stocks && s.stocks.length > 0) {
+                    document.getElementById('item_stock_inicial').value = s.stocks[0].quantidade || 0;
+                    document.getElementById('item_stock_minimo').value = s.stocks[0].minimo || 5;
+                }
+                
+                mostrarCamposPorTipo(s.tipo);
+                
+                const btnSubmit = document.querySelector('#modalItemForm .btn-primary');
+                if (btnSubmit) btnSubmit.textContent = 'Atualizar Item';
+            }
+            hideLoading();
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showMessage('Erro ao carregar item', 'error');
+            hideLoading();
+        });
+}
+
+// ============================================
+// SUBMETER FORMULÁRIO - CORRIGIDO (SEMPRE POST)
+// ============================================
+function submitItemForm() {
+    const id = document.getElementById('item_id').value;
+    const codigo = document.getElementById('item_codigo').value.trim();
+    const nome = document.getElementById('item_nome').value.trim();
+    const tipo = document.getElementById('item_tipo').value;
+    const status = document.getElementById('item_status').value;
+    const recorrencia = document.getElementById('item_recorrencia').value;
+    const preco_venda = parseFloat(document.getElementById('item_preco_venda').value) || 0;
+    const preco_custo = parseFloat(document.getElementById('item_preco_custo').value) || null;
+    const duracao_padrao = parseInt(document.getElementById('item_duracao').value) || null;
+    const horas_estimadas = parseFloat(document.getElementById('item_horas').value) || null;
+    const nivel_prioridade = parseInt(document.getElementById('item_prioridade').value) || 1;
+    const numero_usuarios_incluidos = parseInt(document.getElementById('item_usuarios').value) || 1;
+    const permite_upgrade = document.getElementById('item_upgrade').checked;
+    const requer_visita = document.getElementById('item_visita').checked;
+    const requer_equipamento = document.getElementById('item_equipamento').checked;
+    const tempo_medio_execucao = document.getElementById('item_tempo').value || null;
+    const descricao = document.getElementById('item_descricao').value.trim();
+    const peso = parseFloat(document.getElementById('item_peso').value) || null;
+    const codigo_barras = document.getElementById('item_codigo_barras').value.trim() || '';
+    const dimensoes = document.getElementById('item_dimensoes').value.trim() || '';
+    const preco_hora = parseFloat(document.getElementById('item_preco_hora').value) || null;
+    const requer_ativacao = document.getElementById('item_requer_ativacao').checked;
+    const stock_inicial = parseInt(document.getElementById('item_stock_inicial').value) || 0;
+    const stock_minimo = parseInt(document.getElementById('item_stock_minimo').value) || 5;
+    
+    // 🔥 OBTER IMAGEM
+    const imagemInput = document.getElementById('item_imagem');
+    const imagem = imagemInput ? imagemInput.files[0] : null;
+    
+    if (!codigo) {
+        showMessage('Informe o código do item!', 'error');
+        document.getElementById('item_codigo').focus();
+        return;
+    }
+    if (!nome) {
+        showMessage('Informe o nome do item!', 'error');
+        document.getElementById('item_nome').focus();
+        return;
+    }
+    if (!tipo) {
+        showMessage('Selecione o tipo do item!', 'error');
+        document.getElementById('item_tipo').focus();
+        return;
+    }
+    if (preco_venda <= 0) {
+        showMessage('O preço de venda deve ser maior que zero!', 'error');
+        document.getElementById('item_preco_venda').focus();
+        return;
+    }
+    
+    // 🔥 CORRIGIDO: SEMPRE USAR POST PARA TUDO
+    const url = id ? `/servicos/api/item/${id}/editar/` : '/servicos/api/item/criar/';
+    const method = 'POST';  // 🔥 SEMPRE POST!
+    
+    // 🔥 USAR FormData PARA ENVIAR IMAGEM
+    const formData = new FormData();
+    formData.append('codigo', codigo);
+    formData.append('nome', nome);
+    formData.append('tipo', tipo);
+    formData.append('status', status);
+    formData.append('recorrencia', recorrencia);
+    formData.append('preco_venda', preco_venda);
+    formData.append('preco_custo', preco_custo !== null ? preco_custo : '');
+    formData.append('duracao_padrao', duracao_padrao !== null ? duracao_padrao : '');
+    formData.append('horas_estimadas', horas_estimadas !== null ? horas_estimadas : '');
+    formData.append('nivel_prioridade', nivel_prioridade);
+    formData.append('numero_usuarios_incluidos', numero_usuarios_incluidos);
+    formData.append('permite_upgrade', permite_upgrade ? 'true' : 'false');
+    formData.append('requer_visita', requer_visita ? 'true' : 'false');
+    formData.append('requer_equipamento', requer_equipamento ? 'true' : 'false');
+    formData.append('tempo_medio_execucao', tempo_medio_execucao || '');
+    formData.append('descricao', descricao);
+    formData.append('peso', peso !== null ? peso : '');
+    formData.append('codigo_barras', codigo_barras);
+    formData.append('dimensoes', dimensoes);
+    formData.append('preco_hora', preco_hora !== null ? preco_hora : '');
+    formData.append('requer_ativacao', requer_ativacao ? 'true' : 'false');
+    formData.append('stock_inicial', stock_inicial);
+    formData.append('stock_minimo', stock_minimo);
+    
+    // 🔥 ADICIONAR IMAGEM SE EXISTIR
+    if (imagem) {
+        formData.append('imagem', imagem);
+    }
+    
+    // 🔥 CORRIGIDO: Buscar o botão corretamente e verificar se existe
+    const btnSubmit = document.querySelector('#modalItemForm .btn-primary');
+    const btnOriginalText = btnSubmit ? btnSubmit.textContent : 'Salvar Item';
+    
+    if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Salvando...';
+    }
+    
+    showLoading();
+    
+    fetch(url, {
+        method: method,  // 🔥 SEMPRE POST
+        headers: {
+            'X-CSRFToken': csrfToken
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage(data.message || 'Item salvo com sucesso!');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalItemForm'));
+            if (modal) modal.hide();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showMessage(data.error || 'Erro ao salvar item', 'error');
+        }
+        hideLoading();
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = btnOriginalText;
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        showMessage('Erro ao salvar item', 'error');
+        hideLoading();
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = btnOriginalText;
+        }
+    });
+}
+
+// ============================================
+// DETALHES DO ITEM
+// ============================================
+function openItemDetail(id) {
+    const content = document.getElementById('itemDetailContent');
+    if (!content) return;
+    
+    content.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">Carregando...</p></div>';
+    showLoading();
+    
+    fetch(`/servicos/api/item/${id}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const s = data.data;
+                let html = `
+                    <div class="row">
+                        <div class="col-md-6 mb-3"><strong>Código:</strong><br><span class="badge bg-primary">${s.codigo || '-'}</span></div>
+                        <div class="col-md-6 mb-3"><strong>Nome:</strong><br>${s.nome || '-'}</div>
+                        <div class="col-md-6 mb-3"><strong>Tipo:</strong><br>${s.tipo_display || '-'}</div>
+                        <div class="col-md-6 mb-3"><strong>Status:</strong><br><span class="badge ${s.status === 'ativo' ? 'bg-success' : 'bg-secondary'}">${s.status_display || s.status}</span></div>
+                        <div class="col-md-6 mb-3"><strong>Recorrência:</strong><br>${s.recorrencia_display || '-'}</div>
+                        <div class="col-md-6 mb-3"><strong>Preço Venda:</strong><br><span class="text-primary">Kz ${s.preco_venda || 0}</span></div>
+                        ${s.preco_custo ? `<div class="col-md-6 mb-3"><strong>Preço Custo:</strong><br>Kz ${s.preco_custo}</div>` : ''}
+                        ${s.margem_lucro ? `<div class="col-md-6 mb-3"><strong>Margem Lucro:</strong><br>${s.margem_lucro}%</div>` : ''}
+                        ${s.stock_atual !== undefined ? `<div class="col-md-6 mb-3"><strong>Stock Atual:</strong><br><span class="badge ${s.stock_atual <= 0 ? 'bg-danger' : s.stock_atual <= 5 ? 'bg-warning' : 'bg-success'}">${s.stock_atual} un.</span></div>` : ''}
+                        ${s.imagem_url ? `<div class="col-md-6 mb-3"><strong>Imagem:</strong><br><img src="${s.imagem_url}" alt="${s.nome}" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);"></div>` : ''}
+                        ${s.descricao ? `<div class="col-12 mb-3"><strong>Descrição:</strong><br>${s.descricao}</div>` : ''}
+                    </div>
+                `;
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = `<div class="alert alert-danger">${data.error || 'Erro ao carregar detalhes'}</div>`;
+            }
+            hideLoading();
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            content.innerHTML = '<div class="alert alert-danger">Erro ao carregar detalhes do item</div>';
+            hideLoading();
+        });
+}
+
+// ============================================
+// EXCLUIR ITEM
+// ============================================
+function openDeleteItemModal(id, nome) {
+    currentDeleteId = id;
+    document.getElementById('itemDeleteNome').innerText = nome;
+    document.getElementById('itemDeleteConfirm').value = '';
+    document.getElementById('itemDeleteBtn').disabled = true;
+    
+    document.getElementById('itemDeleteConfirm').oninput = function() {
+        document.getElementById('itemDeleteBtn').disabled = this.value.trim().toUpperCase() !== 'DELETAR';
+    };
+}
+
+function confirmItemDelete() {
+    if (!currentDeleteId) return;
+    showLoading();
+    
+    fetch(`/servicos/api/item/${currentDeleteId}/excluir/`, {
+        method: 'DELETE',
+        headers: { 'X-CSRFToken': csrfToken }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage('Item excluído com sucesso!');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalItemDelete'));
+            if (modal) modal.hide();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showMessage(data.error || 'Erro ao excluir item', 'error');
+        }
+        hideLoading();
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        showMessage('Erro ao excluir item', 'error');
+        hideLoading();
+    });
+}
+
+// ============================================
+// UTILITÁRIOS
+// ============================================
+function showLoading() {
+    let overlay = document.getElementById('loading-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'loading-overlay';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:none;justify-content:center;align-items:center;';
+        overlay.innerHTML = '<div class="spinner-border text-light" style="width:3rem;height:3rem;"></div>';
+        document.body.appendChild(overlay);
+    }
+    overlay.style.display = 'flex';
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
+function showMessage(message, type = 'success') {
+    let container = document.getElementById('messages-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'messages-container';
+        container.style.cssText = 'position:fixed;top:80px;right:20px;z-index:9999;max-width:400px;';
+        document.body.appendChild(container);
+    }
+    
+    const alert = document.createElement('div');
+    const alertClass = type === 'success' ? 'success' : 'danger';
+    const icon = type === 'success' ? 'check-circle' : 'exclamation-triangle';
+    alert.className = `alert alert-${alertClass} alert-dismissible fade show`;
+    alert.style.cssText = 'background:rgba(10,14,26,0.95);border:1px solid rgba(0,212,255,0.2);color:#fff;border-radius:12px;padding:12px 20px;margin-bottom:10px;backdrop-filter:blur(10px);';
+    alert.innerHTML = `
+        <i class="bi bi-${icon} me-2" style="color:${type === 'success' ? '#2ed573' : '#ff4757'}"></i>${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter:invert(1);"></button>
+    `;
+    container.appendChild(alert);
+    setTimeout(() => { if (alert.parentNode) alert.remove(); }, 5000);
+}
+</script>
+{% endblock %}

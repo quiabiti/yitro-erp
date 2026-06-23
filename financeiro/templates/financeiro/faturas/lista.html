@@ -1,0 +1,1203 @@
+<!-- financeiro/templates/financeiro/faturas/lista.html -->
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Faturação AGT - {{ block.super }}{% endblock %}
+{% block page_title %}Faturação AGT{% endblock %}
+
+{% block content %}
+<!-- HEADER DA PÁGINA -->
+<div class="metal-header mb-4 fade-in-up">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+        <div>
+            <h1 class="metal-title">
+                <i class="bi bi-receipt me-2"></i> Faturação AGT
+            </h1>
+            <p class="metal-subtitle mt-2">Gerencie as faturas certificadas pela AGT</p>
+        </div>
+        <button type="button" class="metal-btn-primary" data-bs-toggle="modal" data-bs-target="#modalFaturaForm" onclick="openCreateFaturaModal()">
+            <i class="bi bi-plus-circle me-2"></i> Nova Fatura
+        </button>
+    </div>
+</div>
+
+<!-- CARDS ESTATÍSTICOS -->
+<div class="row g-4 mb-4 fade-in-up delay-1">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="glass-card text-center">
+            <div class="display-6 text-primary"><i class="bi bi-receipt"></i></div>
+            <h3 class="h5">{{ total_faturas|default:0 }}</h3>
+            <p class="text-muted small">Total Faturas</p>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="glass-card text-center">
+            <div class="display-6 text-success"><i class="bi bi-check-circle"></i></div>
+            <h3 class="h5">{{ faturas_aprovadas|default:0 }}</h3>
+            <p class="text-muted small">Aprovadas</p>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="glass-card text-center">
+            <div class="display-6 text-warning"><i class="bi bi-clock-history"></i></div>
+            <h3 class="h5">{{ faturas_pendentes|default:0 }}</h3>
+            <p class="text-muted small">Pendentes</p>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="glass-card text-center">
+            <div class="display-6 text-success"><i class="bi bi-currency-dollar"></i></div>
+            <h3 class="h5">Kz {{ total_valor|floatformat:0|default:"0"|intcomma }}</h3>
+            <p class="text-muted small">Valor Total</p>
+        </div>
+    </div>
+</div>
+
+<!-- Tabela de Faturas -->
+<div class="glass-card fade-in-up delay-2">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Nº Fatura</th>
+                    <th>Cliente</th>
+                    <th>Data</th>
+                    <th>Total Bruto</th>
+                    <th>Hash Controlo</th>
+                    <th>Estado</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fatura in faturas %}
+                <tr>
+                    <td><strong>{{ fatura.numero }}</strong></td>
+                    <td>{{ fatura.cliente.nome }}</td>
+                    <td>{{ fatura.data_emissao|date:"d/m/Y" }}</td>
+                    <td>Kz {{ fatura.valor_total|floatformat:2|intcomma }}</td>
+                    <td><code class="small">{{ fatura.hash_controlo|truncatechars:12 }}</code></td>
+                    <td>
+                        <span class="badge {% if fatura.status == 'APROVADA' %}bg-success{% elif fatura.status == 'PENDENTE' %}bg-warning{% else %}bg-danger{% endif %}">
+                            {{ fatura.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalFaturaDetail" onclick="openFaturaDetail({{ fatura.id }})">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modalFaturaForm" onclick="openEditFaturaModal({{ fatura.id }})">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalFaturaDelete" onclick="openDeleteFaturaModal({{ fatura.id }}, '{{ fatura.numero }}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-4">
+                        <i class="bi bi-inbox display-6 d-block text-muted"></i>
+                        <p class="text-muted mt-2">Nenhuma fatura emitida.</p>
+                        <button class="metal-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalFaturaForm" onclick="openCreateFaturaModal()">
+                            <i class="bi bi-plus-circle me-1"></i> Criar Primeira Fatura
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Paginação -->
+    {% if is_paginated %}
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+            {% endif %}
+            <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próximo</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- ============================================ -->
+<!-- MODAL: FATURA - CRIAR/EDITAR                -->
+<!-- ============================================ -->
+<div class="modal fade" id="modalFaturaForm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content metal-modal-content">
+            <div class="modal-header metal-modal-header">
+                <h5 class="modal-title" id="modalFaturaFormTitle">
+                    <i class="bi bi-plus-circle me-2"></i>Nova Fatura
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="faturaForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="fatura_id">
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="metal-form-label">Cliente <span class="text-danger">*</span></label>
+                            <select id="fatura_cliente" class="metal-form-select" required>
+                                <option value="">Selecione...</option>
+                                {% for cliente in clientes %}
+                                <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="metal-form-label">Data Emissão <span class="text-danger">*</span></label>
+                            <input type="date" id="fatura_data" class="metal-form-control" value="{{ today|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="metal-form-label">Nº Fatura</label>
+                            <input type="text" id="fatura_numero" class="metal-form-control" placeholder="Automático" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="metal-form-label">Status</label>
+                            <select id="fatura_status" class="metal-form-select">
+                                <option value="PENDENTE">Pendente</option>
+                                <option value="APROVADA">Aprovada</option>
+                                <option value="REJEITADA">Rejeitada</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-primary"><i class="bi bi-box"></i> Itens da Fatura</h6>
+                        <!-- Botão que abre o modal de item -->
+                        <button type="button" class="metal-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalItemForm">
+                            <i class="bi bi-plus-circle"></i> Adicionar Item
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Qtd</th>
+                                    <th>Preço Unit.</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="itensContainer">
+                                <!-- Itens serão adicionados via JavaScript -->
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                    <td><strong id="totalFatura">Kz 0.00</strong></td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="metal-form-label">Observações</label>
+                        <textarea id="fatura_obs" class="metal-form-control" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer metal-modal-footer">
+                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="metal-btn-primary" onclick="submitFaturaForm()">Salvar Fatura</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- MODAL: ITEM - ADICIONAR/EDITAR              -->
+<!-- ============================================ -->
+<div class="modal fade" id="modalItemForm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content metal-modal-content">
+            <div class="modal-header metal-modal-header">
+                <h5 class="modal-title" id="modalItemFormTitle">
+                    <i class="bi bi-box me-2"></i>Adicionar Item
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="fecharModalItem()"></button>
+            </div>
+            <div class="modal-body">
+                <form id="itemForm">
+                    <input type="hidden" id="item_index" value="-1">
+                    
+                    <div class="mb-3">
+                        <label class="metal-form-label">Produto <span class="text-danger">*</span></label>
+                        <input type="text" id="item_produto" class="metal-form-control" placeholder="Nome do produto/serviço" required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="metal-form-label">Quantidade <span class="text-danger">*</span></label>
+                            <input type="number" id="item_quantidade" class="metal-form-control" value="1" min="0.01" step="0.01" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="metal-form-label">Preço Unitário (Kz) <span class="text-danger">*</span></label>
+                            <input type="number" id="item_preco" class="metal-form-control" value="0.00" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer metal-modal-footer">
+                <button type="button" class="metal-btn-secondary" onclick="fecharModalItem()">Cancelar</button>
+                <button type="button" class="metal-btn-primary" onclick="confirmarItem()">Adicionar Item</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- MODAL: FATURA - DETALHES                     -->
+<!-- ============================================ -->
+<div class="modal fade" id="modalFaturaDetail" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content metal-modal-content">
+            <div class="modal-header metal-modal-header">
+                <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Detalhes da Fatura</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="faturaDetailContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2 text-muted">Carregando...</p>
+                </div>
+            </div>
+            <div class="modal-footer metal-modal-footer">
+                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="metal-btn-primary" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- MODAL: FATURA - EXCLUIR                     -->
+<!-- ============================================ -->
+<div class="modal fade" id="modalFaturaDelete" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content metal-modal-content">
+            <div class="modal-header metal-modal-header-danger">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir a fatura <strong id="faturaDeleteNome"></strong>?</p>
+                <div class="metal-alert-warning">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    <strong>Esta ação não pode ser desfeita!</strong>
+                </div>
+                <div class="mb-3">
+                    <label class="metal-form-label">Digite <strong>"DELETAR"</strong> para confirmar:</label>
+                    <input type="text" id="faturaDeleteConfirm" class="metal-form-control" placeholder="DELETAR">
+                </div>
+            </div>
+            <div class="modal-footer metal-modal-footer">
+                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="metal-btn-danger" id="faturaDeleteBtn" onclick="confirmFaturaDelete()" disabled>Excluir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .metal-header {
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .metal-title { color: white; font-weight: 700; font-size: 1.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    .metal-subtitle { color: rgba(255,255,255,0.9) !important; font-size: 0.9rem; }
+    .metal-btn-primary {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .metal-btn-primary:hover { background: rgba(255,255,255,0.25); transform: translateY(-2px); color: white; }
+    .metal-btn-secondary {
+        background: rgba(108,117,125,0.2);
+        border: 1px solid rgba(108,117,125,0.3);
+        color: #6c757d;
+        padding: 8px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    .metal-btn-secondary:hover { background: rgba(108,117,125,0.3); transform: translateY(-2px); color: #5a6268; }
+    .metal-btn-danger {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        border: none;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    
+    /* ============================================ */
+    /* CORREÇÃO DE VISIBILIDADE DOS CLIENTES        */
+    /* ============================================ */
+    
+    /* Select de clientes */
+    #fatura_cliente {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    }
+
+    #fatura_cliente option {
+        background-color: #1a1a2e !important;
+        color: #ffffff !important;
+        padding: 8px 12px !important;
+    }
+
+    #fatura_cliente option:hover {
+        background-color: rgba(0, 212, 255, 0.2) !important;
+    }
+
+    #fatura_cliente:focus {
+        border-color: #00d4ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2) !important;
+    }
+
+    /* Inputs e selects */
+    .metal-form-control, .metal-form-select {
+        background: rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 10px;
+        padding: 10px 12px;
+        color: #ffffff !important;
+        font-size: 14px;
+        width: 100%;
+    }
+    
+    .metal-form-control:focus, .metal-form-select:focus {
+        border-color: #00d4ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2) !important;
+        outline: none;
+        background: rgba(255,255,255,0.08) !important;
+        color: #ffffff !important;
+    }
+    
+    .metal-form-control::placeholder {
+        color: rgba(255, 255, 255, 0.3) !important;
+    }
+
+    /* Labels */
+    .metal-form-label { 
+        color: rgba(255, 255, 255, 0.9) !important; 
+        font-weight: 500; 
+        font-size: 0.85rem; 
+        margin-bottom: 0.25rem; 
+        display: block; 
+    }
+
+    /* Placeholder do select */
+    #fatura_cliente option[value=""] {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    /* Modal body */
+    .modal-body {
+        color: #ffffff !important;
+    }
+
+    /* Texto dentro do modal */
+    .modal-body h6 {
+        color: #00d4ff !important;
+    }
+
+    .modal-body .text-primary {
+        color: #00d4ff !important;
+    }
+
+    /* Tabela de itens no modal */
+    .modal-body .table {
+        color: #ffffff !important;
+    }
+
+    .modal-body .table th {
+        color: rgba(255, 255, 255, 0.6) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .modal-body .table td {
+        color: #ffffff !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+    }
+
+    .modal-body .table .text-muted {
+        color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* Inputs numéricos dentro da tabela */
+    .modal-body .table input[type="number"] {
+        background-color: rgba(255, 255, 255, 0.06) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .modal-body .table input[type="number"]:focus {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border-color: #00d4ff !important;
+        color: #ffffff !important;
+    }
+
+    /* Botões dentro do modal */
+    .modal-body .btn-outline-primary {
+        color: #00d4ff !important;
+        border-color: rgba(0, 212, 255, 0.3) !important;
+    }
+
+    .modal-body .btn-outline-primary:hover {
+        background-color: rgba(0, 212, 255, 0.15) !important;
+        color: #ffffff !important;
+    }
+
+    .modal-body .btn-outline-warning {
+        color: #ffc107 !important;
+        border-color: rgba(255, 193, 7, 0.3) !important;
+    }
+
+    .modal-body .btn-outline-warning:hover {
+        background-color: rgba(255, 193, 7, 0.15) !important;
+        color: #ffffff !important;
+    }
+
+    .modal-body .btn-outline-danger {
+        color: #ff4757 !important;
+        border-color: rgba(255, 71, 87, 0.3) !important;
+    }
+
+    .modal-body .btn-outline-danger:hover {
+        background-color: rgba(255, 71, 87, 0.15) !important;
+        color: #ffffff !important;
+    }
+
+    /* Total da fatura */
+    #totalFatura {
+        color: #00d4ff !important;
+        font-weight: 700;
+    }
+
+    /* Texto dentro dos selects (para navegadores WebKit) */
+    select option {
+        background-color: #1a1a2e !important;
+        color: #ffffff !important;
+    }
+
+    /* Firefox */
+    select:-moz-focusring {
+        color: #ffffff !important;
+        text-shadow: 0 0 0 #ffffff !important;
+    }
+
+    /* Corrigir cor do texto no modal de detalhes */
+    #faturaDetailContent {
+        color: #ffffff !important;
+    }
+
+    #faturaDetailContent strong {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    #faturaDetailContent .badge {
+        color: #ffffff !important;
+    }
+
+    /* Mensagens */
+    #messages-container .alert {
+        background: rgba(10, 14, 26, 0.95) !important;
+        border: 1px solid rgba(0, 212, 255, 0.2) !important;
+        color: #ffffff !important;
+    }
+
+    #messages-container .alert-success {
+        border-color: rgba(46, 213, 115, 0.3) !important;
+    }
+
+    #messages-container .alert-danger {
+        border-color: rgba(255, 71, 87, 0.3) !important;
+    }
+
+    /* Links dentro do modal */
+    .modal-body a {
+        color: #00d4ff !important;
+    }
+
+    .modal-body a:hover {
+        color: #7b2ffc !important;
+    }
+
+    /* Texto de ajuda */
+    .text-muted {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    .text-muted a {
+        color: #00d4ff !important;
+    }
+
+    /* Glass card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        color: #ffffff !important;
+    }
+    
+    .glass-card:hover { 
+        border-color: rgba(0, 212, 255, 0.15); 
+        box-shadow: 0 8px 32px rgba(0, 212, 255, 0.03); 
+        transform: translateY(-2px); 
+    }
+
+    .glass-card .display-6 {
+        color: #00d4ff !important;
+    }
+
+    .glass-card .display-6.text-success {
+        color: #2ed573 !important;
+    }
+
+    .glass-card .display-6.text-danger {
+        color: #ff4757 !important;
+    }
+
+    .glass-card .display-6.text-warning {
+        color: #ffa502 !important;
+    }
+
+    .glass-card .h5 {
+        color: #ffffff !important;
+    }
+
+    /* ============================================ */
+    /* CORREÇÃO PARA TABELA - CABEÇALHOS BRANCOS, DADOS ESCUROS */
+    /* ============================================ */
+    .table {
+        color: #1a1a2e !important;
+    }
+    .table th {
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff !important; /* CABEÇALHOS BRANCOS */
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: rgba(0, 0, 0, 0.2);
+    }
+    .table td {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        vertical-align: middle;
+        color: #1a1a2e !important; /* DADOS ESCUROS */
+    }
+    .table-hover tbody tr:hover {
+        background: rgba(0, 0, 0, 0.02);
+    }
+    .table strong {
+        color: #16213e !important;
+        font-weight: 700;
+    }
+    .table .text-muted {
+        color: #6c757d !important;
+    }
+    
+    /* CODE - manter destacado */
+    code { 
+        background: rgba(0,0,0,0.08) !important;
+        padding: 2px 8px; 
+        border-radius: 4px; 
+        color: #00d4ff !important;
+        font-size: 0.8rem; 
+        font-weight: 600;
+    }
+
+    /* BADGES - mantidas coloridas com texto branco */
+    .badge { 
+        padding: 5px 12px; 
+        border-radius: 20px; 
+        font-weight: 600; 
+        font-size: 0.7rem; 
+        text-transform: uppercase; 
+        letter-spacing: 0.5px;
+        color: #ffffff !important;
+    }
+
+    .bg-success {
+        background-color: #2ed573 !important;
+        color: #ffffff !important;
+    }
+
+    .bg-warning {
+        background-color: #ffa502 !important;
+        color: #212529 !important;
+    }
+
+    .bg-danger {
+        background-color: #ff4757 !important;
+        color: #ffffff !important;
+    }
+
+    .bg-primary {
+        background-color: #00d4ff !important;
+        color: #ffffff !important;
+    }
+
+    /* BOTÕES DE AÇÃO COM CORES */
+    .btn-outline-info {
+        color: #0dcaf0 !important;
+        border-color: #0dcaf0 !important;
+    }
+    .btn-outline-info:hover {
+        background: #0dcaf0 !important;
+        color: #ffffff !important;
+    }
+    
+    .btn-outline-warning {
+        color: #ffc107 !important;
+        border-color: #ffc107 !important;
+    }
+    .btn-outline-warning:hover {
+        background: #ffc107 !important;
+        color: #ffffff !important;
+    }
+    
+    .btn-outline-danger {
+        color: #dc3545 !important;
+        border-color: #dc3545 !important;
+    }
+    .btn-outline-danger:hover {
+        background: #dc3545 !important;
+        color: #ffffff !important;
+    }
+
+    /* PAGINAÇÃO */
+    .page-link {
+        color: #1a1a2e !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+        border-color: rgba(0, 0, 0, 0.1) !important;
+    }
+    .page-link:hover {
+        background: rgba(255, 255, 255, 0.9) !important;
+        color: #0dcaf0 !important;
+    }
+    .page-item.active .page-link {
+        background: #0dcaf0 !important;
+        border-color: #0dcaf0 !important;
+        color: #ffffff !important;
+    }
+
+    /* Modal */
+    .metal-modal-content { 
+        background: #0a0e1a; 
+        border: 1px solid rgba(0, 212, 255, 0.2); 
+        border-radius: 16px; 
+    }
+    
+    .metal-modal-header { 
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc); 
+        color: white; 
+        border-radius: 16px 16px 0 0; 
+        padding: 15px 20px; 
+    }
+    
+    .metal-modal-header-danger { 
+        background: linear-gradient(135deg, #dc3545, #c82333); 
+        color: white; 
+        border-radius: 16px 16px 0 0; 
+        padding: 15px 20px; 
+    }
+    
+    .metal-modal-footer { 
+        background: rgba(0,0,0,0.2); 
+        border-top: 1px solid rgba(255,255,255,0.05); 
+        padding: 12px 20px; 
+        border-radius: 0 0 16px 16px; 
+    }
+
+    /* Alert warning */
+    .metal-alert-warning { 
+        background: rgba(255, 193, 7, 0.1); 
+        border-left: 4px solid #ffc107; 
+        padding: 12px; 
+        border-radius: 8px; 
+        margin: 15px 0; 
+        color: #ffffff !important;
+    }
+
+    /* Animações */
+    .fade-in-up { 
+        animation: fadeInUp 0.5s ease forwards; 
+        opacity: 0; 
+    }
+    
+    @keyframes fadeInUp { 
+        from { opacity: 0; transform: translateY(20px); } 
+        to { opacity: 1; transform: translateY(0); } 
+    }
+    
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+
+    /* Scrollbar do modal */
+    .modal-body::-webkit-scrollbar {
+        width: 4px;
+    }
+    .modal-body::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .modal-body::-webkit-scrollbar-thumb {
+        background: rgba(0, 212, 255, 0.3);
+        border-radius: 2px;
+    }
+
+    /* Loading overlay */
+    #loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+
+<script>
+// ============================================
+// VARIÁVEIS GLOBAIS
+// ============================================
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+let itensFatura = [];
+let currentDeleteId = null;
+
+// ============================================
+// FUNÇÕES DO MODAL DE ITEM
+// ============================================
+function abrirModalItem(index = -1) {
+    const modalTitle = document.getElementById('modalItemFormTitle');
+    const itemIndex = document.getElementById('item_index');
+    const itemProduto = document.getElementById('item_produto');
+    const itemQuantidade = document.getElementById('item_quantidade');
+    const itemPreco = document.getElementById('item_preco');
+    const btnPrimary = document.querySelector('#modalItemForm .btn-primary');
+    
+    if (!modalTitle || !itemIndex || !itemProduto || !itemQuantidade || !itemPreco || !btnPrimary) {
+        console.error('Elementos do modal de item não encontrados!');
+        showMessage('Erro ao abrir o formulário de item.', 'error');
+        return;
+    }
+    
+    if (index >= 0 && index < itensFatura.length) {
+        const item = itensFatura[index];
+        modalTitle.innerHTML = '<i class="bi bi-pencil me-2"></i>Editar Item';
+        itemIndex.value = index;
+        itemProduto.value = item.produto_nome || '';
+        itemQuantidade.value = item.quantidade || 1;
+        itemPreco.value = item.preco_unitario || 0;
+        btnPrimary.textContent = 'Atualizar Item';
+    } else {
+        modalTitle.innerHTML = '<i class="bi bi-plus-circle me-2"></i>Adicionar Item';
+        itemIndex.value = '-1';
+        itemProduto.value = '';
+        itemQuantidade.value = '1';
+        itemPreco.value = '0.00';
+        btnPrimary.textContent = 'Adicionar Item';
+    }
+    
+    // Abrir modal via Bootstrap
+    const modalElement = document.getElementById('modalItemForm');
+    if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
+}
+
+function fecharModalItem() {
+    const modalElement = document.getElementById('modalItemForm');
+    if (modalElement) {
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        if (modal) modal.hide();
+    }
+}
+
+function confirmarItem() {
+    const itemIndex = document.getElementById('item_index');
+    const itemProduto = document.getElementById('item_produto');
+    const itemQuantidade = document.getElementById('item_quantidade');
+    const itemPreco = document.getElementById('item_preco');
+    
+    if (!itemIndex || !itemProduto || !itemQuantidade || !itemPreco) {
+        showMessage('Erro ao processar o item.', 'error');
+        return;
+    }
+    
+    const index = parseInt(itemIndex.value);
+    const produto = itemProduto.value.trim();
+    const quantidade = parseFloat(itemQuantidade.value) || 0;
+    const preco = parseFloat(itemPreco.value) || 0;
+    
+    if (!produto) {
+        showMessage('Informe o nome do produto!', 'error');
+        return;
+    }
+    if (quantidade <= 0) {
+        showMessage('A quantidade deve ser maior que zero!', 'error');
+        return;
+    }
+    if (preco < 0) {
+        showMessage('O preço não pode ser negativo!', 'error');
+        return;
+    }
+    
+    const item = {
+        id: Date.now(),
+        produto_nome: produto,
+        quantidade: quantidade,
+        preco_unitario: preco,
+        total: quantidade * preco
+    };
+    
+    if (index >= 0 && index < itensFatura.length) {
+        itensFatura[index] = item;
+    } else {
+        itensFatura.push(item);
+    }
+    
+    fecharModalItem();
+    renderizarItens();
+    atualizarTotal();
+}
+
+// ============================================
+// ABRIR MODAL CRIAR FATURA
+// ============================================
+function openCreateFaturaModal() {
+    const modalTitle = document.getElementById('modalFaturaFormTitle');
+    if (modalTitle) modalTitle.innerHTML = '<i class="bi bi-plus-circle me-2"></i>Nova Fatura';
+    
+    document.getElementById('fatura_id').value = '';
+    document.getElementById('fatura_cliente').value = '';
+    document.getElementById('fatura_numero').value = '';
+    document.getElementById('fatura_status').value = 'PENDENTE';
+    document.getElementById('fatura_obs').value = '';
+    document.getElementById('fatura_data').value = new Date().toISOString().split('T')[0];
+    
+    itensFatura = [];
+    renderizarItens();
+    atualizarTotal();
+}
+
+// ============================================
+// ABRIR MODAL EDITAR FATURA
+// ============================================
+function openEditFaturaModal(id) {
+    document.getElementById('modalFaturaFormTitle').innerHTML = '<i class="bi bi-pencil me-2"></i>Editar Fatura';
+    document.getElementById('fatura_id').value = id;
+    showLoading();
+    
+    fetch(`/financeiro/api/faturas/${id}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const f = data.fatura;
+                document.getElementById('fatura_cliente').value = f.cliente_id || '';
+                document.getElementById('fatura_numero').value = f.numero || '';
+                document.getElementById('fatura_status').value = f.status || 'PENDENTE';
+                document.getElementById('fatura_data').value = f.data_emissao || '';
+                document.getElementById('fatura_obs').value = f.observacoes || '';
+                itensFatura = f.itens || [];
+                renderizarItens();
+                atualizarTotal();
+            }
+            hideLoading();
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showMessage('Erro ao carregar fatura', 'error');
+            hideLoading();
+        });
+}
+
+// ============================================
+// REMOVER ITEM
+// ============================================
+function removerItem(index) {
+    if (confirm('Tem certeza que deseja remover este item?')) {
+        itensFatura.splice(index, 1);
+        renderizarItens();
+        atualizarTotal();
+    }
+}
+
+// ============================================
+// RENDERIZAR ITENS
+// ============================================
+function renderizarItens() {
+    const container = document.getElementById('itensContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (itensFatura.length === 0) {
+        container.innerHTML = `
+            <tr><td colspan="5" class="text-center py-3 text-muted">
+                <i class="bi bi-inbox"></i> Nenhum item adicionado
+            </td></tr>
+        `;
+        return;
+    }
+    
+    itensFatura.forEach((item, index) => {
+        container.innerHTML += `
+            <tr>
+                <td><strong>${item.produto_nome || 'Produto'}</strong></td>
+                <td>${item.quantidade}</td>
+                <td>Kz ${item.preco_unitario.toFixed(2)}</td>
+                <td>Kz ${item.total.toFixed(2)}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-warning me-1" onclick="abrirModalItem(${index})">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="removerItem(${index})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+// ============================================
+// ATUALIZAR TOTAL
+// ============================================
+function atualizarTotal() {
+    const totalElement = document.getElementById('totalFatura');
+    if (!totalElement) return;
+    const total = itensFatura.reduce((sum, item) => sum + item.total, 0);
+    totalElement.textContent = `Kz ${total.toFixed(2)}`;
+}
+
+// ============================================
+// SUBMETER FORMULÁRIO
+// ============================================
+function submitFaturaForm() {
+    const id = document.getElementById('fatura_id');
+    const cliente = document.getElementById('fatura_cliente');
+    const data = document.getElementById('fatura_data');
+    const status = document.getElementById('fatura_status');
+    const obs = document.getElementById('fatura_obs');
+    
+    if (!id || !cliente || !data || !status || !obs) {
+        showMessage('Erro ao submeter o formulário.', 'error');
+        return;
+    }
+    
+    const url = id.value ? `/financeiro/api/faturas/${id.value}/editar/` : '/financeiro/api/faturas/';
+    
+    const formData = {
+        cliente_id: cliente.value,
+        data_emissao: data.value,
+        status: status.value,
+        observacoes: obs.value,
+        itens: itensFatura.map(item => ({
+            produto_nome: item.produto_nome,
+            quantidade: item.quantidade,
+            preco_unitario: item.preco_unitario
+        }))
+    };
+    
+    if (!formData.cliente_id) {
+        showMessage('Selecione um cliente!', 'error');
+        return;
+    }
+    if (itensFatura.length === 0) {
+        showMessage('Adicione pelo menos um item!', 'error');
+        return;
+    }
+    
+    showLoading();
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showMessage(data.message);
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalFaturaForm'));
+            if (modal) modal.hide();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showMessage(data.error || 'Erro ao salvar fatura', 'error');
+        }
+        hideLoading();
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        showMessage('Erro ao salvar fatura', 'error');
+        hideLoading();
+    });
+}
+
+// ============================================
+// DETALHES DA FATURA
+// ============================================
+function openFaturaDetail(id) {
+    const content = document.getElementById('faturaDetailContent');
+    if (!content) return;
+    content.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">Carregando...</p></div>';
+    showLoading();
+    
+    fetch(`/financeiro/api/faturas/${id}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const f = data.fatura;
+                content.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6 mb-3"><strong>Nº Fatura:</strong><br><span class="badge bg-primary">${f.numero}</span></div>
+                        <div class="col-md-6 mb-3"><strong>Data Emissão:</strong><br>${f.data_emissao_display || '-'}</div>
+                        <div class="col-md-6 mb-3"><strong>Cliente:</strong><br>${f.cliente_nome || '-'}</div>
+                        <div class="col-md-6 mb-3"><strong>Status:</strong><br><span class="badge ${f.status === 'APROVADA' ? 'bg-success' : f.status === 'PENDENTE' ? 'bg-warning' : 'bg-danger'}">${f.status_display || f.status}</span></div>
+                        <div class="col-12 mb-3"><strong>Itens:</strong>
+                            <div class="table-responsive mt-2">
+                                <table class="table table-sm">
+                                    <thead><tr><th>Produto</th><th class="text-center">Qtd</th><th class="text-end">Preço Unit.</th><th class="text-end">Total</th></tr></thead>
+                                    <tbody>${f.itens ? f.itens.map(item => `<tr><td>${item.produto_nome}</td><td class="text-center">${item.quantidade}</td><td class="text-end">Kz ${item.preco_unitario.toFixed(2)}</td><td class="text-end">Kz ${item.total.toFixed(2)}</td></tr>`).join('') : '<tr><td colspan="4" class="text-center text-muted">Nenhum item</td></tr>'}</tbody>
+                                    <tfoot><tr><th colspan="3" class="text-end">Total:</th><th class="text-end">Kz ${f.total_geral || '0.00'}</th></tr></tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        ${f.hash_controlo ? `<div class="col-12 mb-3"><strong>Hash de Controlo:</strong><br><code>${f.hash_controlo}</code></div>` : ''}
+                        ${f.observacoes ? `<div class="col-12 mb-3"><strong>Observações:</strong><br>${f.observacoes}</div>` : ''}
+                    </div>
+                `;
+            } else {
+                content.innerHTML = '<div class="alert alert-danger">Erro ao carregar detalhes da fatura</div>';
+            }
+            hideLoading();
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            content.innerHTML = '<div class="alert alert-danger">Erro ao carregar detalhes da fatura</div>';
+            hideLoading();
+        });
+}
+
+// ============================================
+// EXCLUIR FATURA
+// ============================================
+function openDeleteFaturaModal(id, numero) {
+    currentDeleteId = id;
+    document.getElementById('faturaDeleteNome').innerText = numero;
+    document.getElementById('faturaDeleteConfirm').value = '';
+    document.getElementById('faturaDeleteBtn').disabled = true;
+    
+    document.getElementById('faturaDeleteConfirm').oninput = function() {
+        document.getElementById('faturaDeleteBtn').disabled = this.value.trim().toUpperCase() !== 'DELETAR';
+    };
+}
+
+function confirmFaturaDelete() {
+    if (!currentDeleteId) return;
+    showLoading();
+    
+    fetch(`/financeiro/api/faturas/${currentDeleteId}/excluir/`, {
+        method: 'DELETE',
+        headers: { 'X-CSRFToken': csrfToken }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showMessage(data.message);
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalFaturaDelete'));
+            if (modal) modal.hide();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showMessage(data.error || 'Erro ao excluir fatura', 'error');
+        }
+        hideLoading();
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        showMessage('Erro ao excluir fatura', 'error');
+        hideLoading();
+    });
+}
+
+// ============================================
+// UTILITÁRIOS
+// ============================================
+function showLoading() {
+    let overlay = document.getElementById('loading-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'loading-overlay';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:none;justify-content:center;align-items:center;';
+        overlay.innerHTML = '<div class="spinner-border text-light" style="width:3rem;height:3rem;"></div>';
+        document.body.appendChild(overlay);
+    }
+    overlay.style.display = 'flex';
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
+function showMessage(message, type = 'success') {
+    let container = document.getElementById('messages-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'messages-container';
+        container.style.cssText = 'position:fixed;top:80px;right:20px;z-index:9999;max-width:400px;';
+        document.body.appendChild(container);
+    }
+    
+    const alert = document.createElement('div');
+    const alertClass = type === 'success' ? 'success' : 'danger';
+    const icon = type === 'success' ? 'check-circle' : 'exclamation-triangle';
+    alert.className = `alert alert-${alertClass} alert-dismissible fade show`;
+    alert.style.cssText = 'background:rgba(10,14,26,0.95);border:1px solid rgba(0,212,255,0.2);color:#fff;border-radius:12px;padding:12px 20px;margin-bottom:10px;backdrop-filter:blur(10px);';
+    alert.innerHTML = `
+        <i class="bi bi-${icon} me-2" style="color:${type === 'success' ? '#2ed573' : '#ff4757'}"></i>${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter:invert(1);"></button>
+    `;
+    container.appendChild(alert);
+    setTimeout(() => { if (alert.parentNode) alert.remove(); }, 5000);
+}
+</script>
+{% endblock %}

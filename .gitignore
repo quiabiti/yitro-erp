@@ -1,0 +1,14 @@
+venv/
+env/
+*.pyc
+__pycache__/
+db.sqlite3
+media/
+staticfiles/
+.env
+.DS_Store
+*.log
+*.sqlite3
+*.sqlite
+migrations/
+!*/migrations/__init__.py

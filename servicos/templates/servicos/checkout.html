@@ -1,0 +1,773 @@
+<!-- servicos/templates/servicos/checkout.html -->
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Checkout - {{ block.super }}{% endblock %}
+{% block page_title %}Finalizar Compra{% endblock %}
+
+{% block content %}
+<!-- HEADER DA PÁGINA -->
+<div class="metal-header mb-4 fade-in-up">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+        <div>
+            <h1 class="metal-title">
+                <i class="bi bi-credit-card me-2"></i> Finalizar Compra
+            </h1>
+            <p class="metal-subtitle mt-2">Preencha seus dados e confirme o pedido</p>
+        </div>
+        <a href="{% url 'servicos:carrinho' %}" class="metal-btn-secondary">
+            <i class="bi bi-arrow-left me-2"></i> Voltar ao Carrinho
+        </a>
+    </div>
+</div>
+
+<form method="POST" action="{% url 'servicos:checkout' %}" id="formCheckout">
+    {% csrf_token %}
+    
+    <div class="row g-4 fade-in-up delay-1">
+        <!-- ITENS DO PEDIDO -->
+        <div class="col-12 col-lg-8">
+            <div class="glass-card">
+                <h6 class="mb-3" style="color: #ffffff;">
+                    <i class="bi bi-list-check me-2"></i> Itens do Pedido
+                </h6>
+                
+                {% for item_data in itens_carrinho %}
+                <div class="checkout-item">
+                    <div class="checkout-item-imagem">
+                        {% if item_data.item.imagem %}
+                        <img src="{{ item_data.item.imagem.url }}" alt="{{ item_data.item.nome }}">
+                        {% else %}
+                        <i class="bi bi-image"></i>
+                        {% endif %}
+                    </div>
+                    <div class="checkout-item-info">
+                        <div class="nome">{{ item_data.item.nome }}</div>
+                        <div class="codigo">{{ item_data.item.codigo }}</div>
+                        <div>
+                            <span class="preco">Kz {{ item_data.item.preco_venda|floatformat:2|intcomma }}</span>
+                            <span class="badge-tipo {{ item_data.item.tipo }}">
+                                {{ item_data.item.get_tipo_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="checkout-item-qtd">
+                        <span class="qtd-label">Qtd</span>
+                        <span class="qtd-valor">{{ item_data.quantidade }}</span>
+                    </div>
+                    <div class="checkout-item-subtotal">
+                        <span class="subtotal-label">Subtotal</span>
+                        <span class="subtotal-valor">Kz {{ item_data.subtotal|floatformat:2|intcomma }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- DADOS DO CLIENTE -->
+            <div class="glass-card mt-4">
+                <h6 class="mb-3" style="color: #ffffff;">
+                    <i class="bi bi-person me-2"></i> Dados do Cliente
+                </h6>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="metal-form-label">Nome Completo <span class="text-danger">*</span></label>
+                        <input type="text" name="nome" id="nome" class="metal-form-control" placeholder="Seu nome completo" required 
+                               value="{{ user.get_full_name|default:user.username|default:'' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="metal-form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" name="email" id="email" class="metal-form-control" placeholder="seu@email.com" required
+                               value="{{ user.email|default:'' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="metal-form-label">Telefone <span class="text-danger">*</span></label>
+                        <input type="tel" name="telefone" id="telefone" class="metal-form-control" placeholder="+244 900 000 000" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="metal-form-label">NIF</label>
+                        <input type="text" name="nif" id="nif" class="metal-form-control" placeholder="Número de contribuinte">
+                    </div>
+                    <div class="col-12">
+                        <label class="metal-form-label">Endereço de Entrega <span class="text-danger">*</span></label>
+                        <textarea name="endereco" id="endereco" class="metal-form-control" rows="2" placeholder="Rua, número, bairro, município, província" required></textarea>
+                    </div>
+                    <div class="col-12">
+                        <label class="metal-form-label">Complemento (opcional)</label>
+                        <input type="text" name="complemento" id="complemento" class="metal-form-control" placeholder="Ponto de referência, bloco, apartamento...">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- OBSERVAÇÕES -->
+            <div class="glass-card mt-4">
+                <h6 class="mb-3" style="color: #ffffff;">
+                    <i class="bi bi-chat me-2"></i> Observações
+                </h6>
+                <textarea name="observacoes" id="observacoes" class="metal-form-control" rows="2" placeholder="Alguma observação sobre o pedido?"></textarea>
+            </div>
+            
+            <!-- ACEITE DOS TERMOS -->
+            <div class="glass-card mt-4">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="aceitoTermos" name="aceito_termos" required>
+                    <label class="form-check-label" for="aceitoTermos" style="color: rgba(255,255,255,0.7); font-size: 0.85rem;">
+                        Li e aceito os <a href="#" style="color: #00d4ff;">Termos e Condições</a> e a 
+                        <a href="#" style="color: #00d4ff;">Política de Privacidade</a>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- RESUMO DO PEDIDO -->
+        <div class="col-12 col-lg-4">
+            <div class="glass-card checkout-resumo" style="position: sticky; top: 20px;">
+                <h6 class="mb-3" style="color: #ffffff;">
+                    <i class="bi bi-receipt me-2"></i> Resumo do Pedido
+                </h6>
+                
+                <div class="resumo-linha">
+                    <span>Subtotal</span>
+                    <span>Kz {{ total|floatformat:2|intcomma }}</span>
+                </div>
+                
+                <div class="resumo-linha">
+                    <span>Itens</span>
+                    <span>{{ total_itens }}</span>
+                </div>
+                
+                <div class="resumo-linha">
+                    <span>Taxa de Entrega</span>
+                    <span style="color: #2ed573;">Grátis</span>
+                </div>
+                
+                <hr style="border-color: rgba(255,255,255,0.05);">
+                
+                <div class="resumo-total">
+                    <span>Total</span>
+                    <span class="total-valor">Kz {{ total|floatformat:2|intcomma }}</span>
+                </div>
+                
+                <div class="d-grid gap-2 mt-3">
+                    <button type="button" class="metal-btn-primary w-100" id="btnWhatsapp" style="justify-content: center; padding: 14px; font-size: 1.1rem;">
+                        <i class="bi bi-whatsapp me-2"></i> Enviar Pedido
+                    </button>
+                    <button type="button" class="metal-btn-secondary w-100" onclick="window.location.href='{% url 'servicos:carrinho' %}'" style="justify-content: center;">
+                        <i class="bi bi-arrow-left me-2"></i> Voltar
+                    </button>
+                </div>
+                
+                <p style="font-size: 0.6rem; color: rgba(255,255,255,0.15); text-align: center; margin-top: 12px; letter-spacing: 0.3px;">
+                    🔒 Compra segura • Suporte 24h • Entrega em até 3 dias úteis
+                </p>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- ============================================ -->
+<!-- ESTILOS                                      -->
+<!-- ============================================ -->
+<style>
+    .metal-header {
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .metal-title { color: white; font-weight: 700; font-size: 1.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    .metal-subtitle { color: rgba(255,255,255,0.9) !important; font-size: 0.9rem; }
+    
+    .metal-btn-primary {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        border: none;
+    }
+    .metal-btn-primary:hover { 
+        background: rgba(255,255,255,0.25); 
+        transform: translateY(-2px); 
+        color: white; 
+        text-decoration: none;
+    }
+    .metal-btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .metal-btn-secondary {
+        background: rgba(108,117,125,0.2);
+        border: 1px solid rgba(108,117,125,0.3);
+        color: #6c757d;
+        padding: 8px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: none;
+    }
+    .metal-btn-secondary:hover { 
+        background: rgba(108,117,125,0.3); 
+        transform: translateY(-2px); 
+        color: #5a6268; 
+        text-decoration: none;
+    }
+    
+    .glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        color: #ffffff !important;
+    }
+    .glass-card:hover { 
+        border-color: rgba(0, 212, 255, 0.15); 
+        box-shadow: 0 8px 32px rgba(0, 212, 255, 0.03); 
+        transform: translateY(-2px); 
+    }
+    
+    .metal-form-control {
+        background: rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 10px;
+        padding: 10px 12px;
+        color: #ffffff !important;
+        font-size: 14px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    .metal-form-control:focus {
+        border-color: #00d4ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2) !important;
+        outline: none;
+        background: rgba(255,255,255,0.08) !important;
+        color: #ffffff !important;
+    }
+    .metal-form-control::placeholder {
+        color: rgba(255, 255, 255, 0.3) !important;
+    }
+    .metal-form-control:required {
+        border-color: rgba(0, 212, 255, 0.2);
+    }
+    .metal-form-label { 
+        color: rgba(255, 255, 255, 0.8) !important; 
+        font-weight: 500; 
+        font-size: 0.85rem; 
+        margin-bottom: 0.25rem; 
+        display: block; 
+    }
+    .text-danger {
+        color: #ff4757 !important;
+    }
+    
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .form-check-input:checked {
+        background-color: #00d4ff;
+        border-color: #00d4ff;
+    }
+    .form-check-label {
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        padding-left: 6px;
+    }
+    
+    .fade-in-up { 
+        animation: fadeInUp 0.5s ease forwards; 
+        opacity: 0; 
+    }
+    @keyframes fadeInUp { 
+        from { opacity: 0; transform: translateY(20px); } 
+        to { opacity: 1; transform: translateY(0); } 
+    }
+    .delay-1 { animation-delay: 0.1s; }
+    
+    .badge-tipo {
+        font-size: 0.5rem;
+        padding: 2px 8px;
+        border-radius: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        font-weight: 600;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .badge-tipo.produto { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
+    .badge-tipo.servico { background: rgba(46, 213, 115, 0.15); color: #2ed573; }
+    .badge-tipo.software { background: rgba(123, 47, 252, 0.15); color: #7b2ffc; }
+    .badge-tipo.consultoria { background: rgba(255, 165, 2, 0.15); color: #ffa502; }
+    
+    /* ===== CHECKOUT ITEMS ===== */
+    .checkout-item {
+        display: flex;
+        gap: 14px;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        align-items: center;
+    }
+    .checkout-item:last-child {
+        border-bottom: none;
+    }
+    
+    .checkout-item-imagem {
+        width: 60px;
+        min-height: 60px;
+        max-height: 60px;
+        border-radius: 10px;
+        object-fit: cover;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        flex-shrink: 0;
+        background: rgba(255, 255, 255, 0.02);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .checkout-item-imagem img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .checkout-item-imagem i {
+        font-size: 1.8rem;
+        color: rgba(255, 255, 255, 0.06);
+    }
+    
+    .checkout-item-info {
+        flex: 1;
+        min-width: 0;
+    }
+    .checkout-item-info .nome {
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin: 0;
+        line-height: 1.3;
+    }
+    .checkout-item-info .codigo {
+        color: rgba(255, 255, 255, 0.2);
+        font-size: 0.65rem;
+        font-family: monospace;
+    }
+    .checkout-item-info .preco {
+        color: #00d4ff;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-right: 8px;
+    }
+    
+    .checkout-item-qtd {
+        text-align: center;
+        padding: 0 12px;
+        min-width: 50px;
+    }
+    .checkout-item-qtd .qtd-label {
+        color: rgba(255, 255, 255, 0.2);
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        display: block;
+        letter-spacing: 0.5px;
+    }
+    .checkout-item-qtd .qtd-valor {
+        color: #fff;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .checkout-item-subtotal {
+        text-align: right;
+        min-width: 90px;
+    }
+    .checkout-item-subtotal .subtotal-label {
+        color: rgba(255, 255, 255, 0.2);
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        display: block;
+        letter-spacing: 0.5px;
+    }
+    .checkout-item-subtotal .subtotal-valor {
+        color: #00d4ff;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+    
+    /* ===== RESUMO ===== */
+    .checkout-resumo {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 1.5rem;
+    }
+    .resumo-linha {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+    }
+    .resumo-linha span:last-child {
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 500;
+    }
+    .resumo-total {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+    .resumo-total span:first-child {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    .resumo-total .total-valor {
+        color: #00d4ff;
+        font-size: 1.3rem;
+    }
+    
+    /* ===== TOAST ===== */
+    .toast-message {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.9);
+        backdrop-filter: blur(10px);
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        z-index: 9999;
+        display: none;
+        max-width: 90%;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+    .toast-message.success {
+        border-color: rgba(46, 213, 115, 0.3);
+    }
+    .toast-message.error {
+        border-color: rgba(255, 71, 87, 0.3);
+    }
+    
+    /* ===== RESPONSIVO ===== */
+    @media (max-width: 768px) {
+        .metal-header {
+            padding: 1rem 1.25rem;
+        }
+        .metal-title {
+            font-size: 1.2rem;
+        }
+        .metal-subtitle {
+            font-size: 0.8rem;
+        }
+        .glass-card {
+            padding: 1rem;
+        }
+        
+        .checkout-item {
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px 0;
+        }
+        .checkout-item-imagem {
+            width: 50px;
+            min-height: 50px;
+            max-height: 50px;
+        }
+        .checkout-item-info .nome {
+            font-size: 0.85rem;
+        }
+        .checkout-item-info .preco {
+            font-size: 0.8rem;
+        }
+        .checkout-item-qtd {
+            padding: 0 6px;
+            min-width: 40px;
+        }
+        .checkout-item-qtd .qtd-valor {
+            font-size: 0.9rem;
+        }
+        .checkout-item-subtotal {
+            min-width: 70px;
+        }
+        .checkout-item-subtotal .subtotal-valor {
+            font-size: 0.85rem;
+        }
+        
+        .checkout-resumo {
+            position: static !important;
+            margin-top: 1rem;
+        }
+        .resumo-total .total-valor {
+            font-size: 1.1rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .metal-header {
+            padding: 0.75rem 1rem;
+        }
+        .metal-title {
+            font-size: 1rem;
+        }
+        .glass-card {
+            padding: 0.75rem;
+        }
+        .checkout-item {
+            padding: 8px 0;
+            gap: 6px;
+        }
+        .checkout-item-imagem {
+            width: 40px;
+            min-height: 40px;
+            max-height: 40px;
+        }
+        .checkout-item-info .nome {
+            font-size: 0.75rem;
+        }
+        .checkout-item-info .codigo {
+            font-size: 0.55rem;
+        }
+        .checkout-item-subtotal .subtotal-valor {
+            font-size: 0.75rem;
+        }
+        .form-check-label {
+            font-size: 0.75rem;
+        }
+    }
+</style>
+
+<!-- Toast -->
+<div class="toast-message" id="toastMessage"></div>
+
+<script>
+    // ============================================
+    // CONFIGURAÇÕES
+    // ============================================
+    const NUMERO_WHATSAPP = '244900000000'; // 🔥 ALTERE PARA O NÚMERO DA EMPRESA
+    
+    // ============================================
+    // VALIDAR FORMULÁRIO
+    // ============================================
+    function validarFormulario() {
+        const nome = document.getElementById('nome').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const telefone = document.getElementById('telefone').value.trim();
+        const endereco = document.getElementById('endereco').value.trim();
+        const termos = document.getElementById('aceitoTermos').checked;
+        
+        if (!nome) {
+            showToast('error', 'Por favor, informe seu nome completo');
+            document.getElementById('nome').focus();
+            return false;
+        }
+        
+        if (!email) {
+            showToast('error', 'Por favor, informe seu email');
+            document.getElementById('email').focus();
+            return false;
+        }
+        
+        if (!telefone) {
+            showToast('error', 'Por favor, informe seu telefone');
+            document.getElementById('telefone').focus();
+            return false;
+        }
+        
+        if (!endereco) {
+            showToast('error', 'Por favor, informe o endereço de entrega');
+            document.getElementById('endereco').focus();
+            return false;
+        }
+        
+        if (!termos) {
+            showToast('error', 'Você precisa aceitar os Termos e Condições');
+            document.getElementById('aceitoTermos').focus();
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // ============================================
+    // UTILITÁRIOS
+    // ============================================
+    function limparNumeroTelefone(telefone) {
+        return telefone.replace(/[\s\(\)\-\.\+]/g, '');
+    }
+    
+    function getDadosFormulario() {
+        return {
+            nome: document.getElementById('nome').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            telefone: document.getElementById('telefone').value.trim(),
+            nif: document.getElementById('nif').value.trim(),
+            endereco: document.getElementById('endereco').value.trim(),
+            complemento: document.getElementById('complemento').value.trim(),
+            observacoes: document.getElementById('observacoes').value.trim(),
+            itens: [
+                {% for item_data in itens_carrinho %}
+                {
+                    nome: '{{ item_data.item.nome }}',
+                    quantidade: {{ item_data.quantidade }},
+                    preco: {{ item_data.item.preco_venda|stringformat:"f" }},
+                    subtotal: {{ item_data.subtotal|stringformat:"f" }}
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
+            total: {{ total|stringformat:"f" }}
+        };
+    }
+    
+    function formatarMensagemWhatsApp() {
+        const dados = getDadosFormulario();
+        
+        let itensLista = '';
+        for (let item of dados.itens) {
+            itensLista += `- ${item.nome} (x${item.quantidade}) - Kz ${parseFloat(item.subtotal).toFixed(2).replace('.', ',')}\n`;
+        }
+        
+        let mensagem = `🛒 *NOVO PEDIDO - YITRO*\n\n`;
+        mensagem += `*👤 Cliente:*\n`;
+        mensagem += `Nome: ${dados.nome}\n`;
+        mensagem += `Email: ${dados.email}\n`;
+        mensagem += `Telefone: ${dados.telefone}\n`;
+        if (dados.nif) mensagem += `NIF: ${dados.nif}\n`;
+        mensagem += `\n*📦 Endereço de Entrega:*\n${dados.endereco}`;
+        if (dados.complemento) mensagem += `\nComplemento: ${dados.complemento}`;
+        mensagem += `\n\n*📋 Itens do Pedido:*\n${itensLista}`;
+        mensagem += `\n*💰 Total:* Kz ${parseFloat(dados.total).toFixed(2).replace('.', ',')}`;
+        mensagem += `\n*📦 Taxa de Entrega:* Grátis`;
+        if (dados.observacoes) mensagem += `\n\n*📝 Observações:*\n${dados.observacoes}`;
+        mensagem += `\n\n🔒 *Compra segura* | Suporte 24h`;
+        
+        return mensagem;
+    }
+    
+    function showToast(type, message) {
+        const toast = document.getElementById('toastMessage');
+        toast.className = 'toast-message ' + type;
+        toast.textContent = message;
+        toast.style.display = 'block';
+        clearTimeout(toast._timeout);
+        toast._timeout = setTimeout(() => {
+            toast.style.display = 'none';
+        }, 4000);
+    }
+    
+    function getCsrfToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+    }
+    
+    // ============================================
+    // ENVIAR PEDIDO COM PDF + WHATSAPP
+    // ============================================
+    document.getElementById('btnWhatsapp').addEventListener('click', function() {
+        const btn = this;
+        
+        // Validar formulário
+        if (!validarFormulario()) {
+            return;
+        }
+        
+        // Mostrar loading
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Gerando PDF...';
+        
+        // Obter dados
+        const dados = getDadosFormulario();
+        
+        // 1. GERAR PDF
+        fetch('/servicos/api/gerar-pdf-pedido/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify(dados)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.error || 'Erro ao gerar PDF');
+                });
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            // 2. BAIXAR PDF
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Pedido_${dados.nome}_${new Date().toISOString().slice(0,10)}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            
+            // 3. ABRIR WHATSAPP
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Abrindo WhatsApp...';
+            
+            const mensagem = formatarMensagemWhatsApp();
+            const mensagemCodificada = encodeURIComponent(mensagem);
+            const numero = limparNumeroTelefone(NUMERO_WHATSAPP);
+            const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numero}&text=${mensagemCodificada}`;
+            
+            // 4. LIMPAR CARRINHO
+            return fetch('/servicos/carrinho/limpar/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                }
+            })
+            .then(() => {
+                // Abrir WhatsApp
+                window.open(urlWhatsApp, '_blank');
+                
+                // Restaurar botão
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-whatsapp me-2"></i> Enviar Pedido';
+                
+                showToast('success', '🎉 PDF gerado! Pedido enviado para o WhatsApp!');
+                
+                setTimeout(() => {
+                    window.location.href = '/servicos/';
+                }, 3000);
+            });
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showToast('error', error.message || 'Erro ao processar pedido');
+            
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-whatsapp me-2"></i> Enviar Pedido';
+        });
+    });
+</script>
+{% endblock %}

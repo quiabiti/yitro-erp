@@ -1,0 +1,716 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Clientes - {{ block.super }}{% endblock %}
+{% block page_title %}Clientes{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- HEADER -->
+    <div class="metal-header mb-4 fade-in-up">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <div>
+                <h1 class="metal-title">
+                    <i class="bi bi-people me-2"></i> Clientes
+                </h1>
+                <p class="metal-subtitle mt-2">Gerencie os clientes da sua empresa</p>
+            </div>
+            <button type="button" class="metal-btn-primary" data-bs-toggle="modal" data-bs-target="#modalClienteForm" onclick="openCreateClienteModal()">
+                <i class="bi bi-plus-circle me-2"></i> Novo Cliente
+            </button>
+        </div>
+    </div>
+
+    <!-- CARDS ESTATÍSTICOS -->
+    <div class="row g-4 mb-4 fade-in-up delay-1">
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="glass-card text-center">
+                <div class="display-6 text-primary"><i class="bi bi-people"></i></div>
+                <h3 class="h5">{{ total_clientes|default:0 }}</h3>
+                <p class="text-muted small">Total de Clientes</p>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="glass-card text-center">
+                <div class="display-6 text-success"><i class="bi bi-check-circle"></i></div>
+                <h3 class="h5">{{ clientes_ativos|default:0 }}</h3>
+                <p class="text-muted small">Clientes Ativos</p>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="glass-card text-center">
+                <div class="display-6 text-danger"><i class="bi bi-x-circle"></i></div>
+                <h3 class="h5">{{ clientes_inativos|default:0 }}</h3>
+                <p class="text-muted small">Clientes Inativos</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PESQUISA -->
+    <div class="glass-card mb-4 fade-in-up delay-2">
+        <form method="get" action="{% url 'financeiro:clientes_lista' %}" class="row g-3">
+            <div class="col-12 col-md-9">
+                <input type="text" name="q" class="metal-form-control" placeholder="Pesquisar por nome, NIF ou email..." value="{{ search_query|default:'' }}">
+            </div>
+            <div class="col-12 col-md-3 d-flex gap-2">
+                <button type="submit" class="metal-btn-primary flex-grow-1">
+                    <i class="bi bi-search me-1"></i> Filtrar
+                </button>
+                <a href="{% url 'financeiro:clientes_lista' %}" class="metal-btn-secondary flex-grow-1 text-center">
+                    <i class="bi bi-eraser me-1"></i> Limpar
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- TABELA - SEM FUNDO BRANCO -->
+    <div class="glass-card fade-in-up delay-3">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>NIF</th>
+                        <th>Telefone</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cliente in clientes %}
+                    <tr>
+                        <td><strong>{{ cliente.nome }}</strong></td>
+                        <td>{{ cliente.nif|default:"-" }}</td>
+                        <td>{{ cliente.telefone|default:"-" }}</td>
+                        <td>{{ cliente.email|default:"-" }}</td>
+                        <td>
+                            <span class="badge {% if cliente.ativo %}bg-success{% else %}bg-danger{% endif %}">
+                                {% if cliente.ativo %}Ativo{% else %}Inativo{% endif %}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalClienteDetail" onclick="openClienteDetail({{ cliente.id }})">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modalClienteForm" onclick="openEditClienteModal({{ cliente.id }})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalClienteDelete" onclick="openDeleteClienteModal({{ cliente.id }}, '{{ cliente.nome }}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="bi bi-inbox display-6 d-block text-muted"></i>
+                            <p class="text-muted mt-2">Nenhum cliente cadastrado.</p>
+                            <button class="metal-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalClienteForm" onclick="openCreateClienteModal()">
+                                <i class="bi bi-plus-circle me-1"></i> Criar Primeiro Cliente
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if is_paginated %}
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Anterior</a></li>
+                {% endif %}
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Próximo</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- MODAL: CLIENTE - CRIAR/EDITAR                -->
+<!-- ============================================ -->
+<div class="modal fade" id="modalClienteForm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content metal-modal-content">
+            <div class="modal-header metal-modal-header">
+                <h5 class="modal-title" id="modalClienteFormTitle">
+                    <i class="bi bi-plus-circle me-2"></i>Novo Cliente
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="clienteForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="cliente_id" value="">
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="metal-form-label">Nome <span class="text-danger">*</span></label>
+                            <input type="text" id="cliente_nome" class="metal-form-control" placeholder="Nome completo" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="metal-form-label">NIF <span class="text-danger">*</span></label>
+                            <input type="text" id="cliente_nif" class="metal-form-control" placeholder="NIF" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="metal-form-label">Telefone</label>
+                            <input type="text" id="cliente_telefone" class="metal-form-control" placeholder="Telefone">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="metal-form-label">Email</label>
+                            <input type="email" id="cliente_email" class="metal-form-control" placeholder="Email">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="metal-form-label">Endereço</label>
+                            <textarea id="cliente_endereco" class="metal-form-control" rows="2" placeholder="Endereço"></textarea>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <div class="metal-form-check">
+                                <input type="checkbox" id="cliente_ativo" class="metal-form-check-input" checked>
+                                <label class="metal-form-check-label">Ativo</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer metal-modal-footer">
+                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="metal-btn-primary" onclick="submitClienteForm()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- MODAL: CLIENTE - DETALHES                    -->
+<!-- ============================================ -->
+<div class="modal fade" id="modalClienteDetail" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content metal-modal-content">
+            <div class="modal-header metal-modal-header">
+                <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Detalhes do Cliente</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="clienteDetailContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2 text-muted">Carregando...</p>
+                </div>
+            </div>
+            <div class="modal-footer metal-modal-footer">
+                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- MODAL: CLIENTE - EXCLUIR                     -->
+<!-- ============================================ -->
+<div class="modal fade" id="modalClienteDelete" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content metal-modal-content">
+            <div class="modal-header metal-modal-header-danger">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o cliente <strong id="clienteDeleteNome"></strong>?</p>
+                <div class="metal-alert-warning">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    <strong>Esta ação não pode ser desfeita!</strong>
+                </div>
+                <div class="mb-3">
+                    <label class="metal-form-label">Digite <strong>"DELETAR"</strong> para confirmar:</label>
+                    <input type="text" id="clienteDeleteConfirm" class="metal-form-control" placeholder="DELETAR">
+                </div>
+            </div>
+            <div class="modal-footer metal-modal-footer">
+                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="metal-btn-danger" id="clienteDeleteBtn" onclick="confirmClienteDelete()" disabled>Excluir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .metal-header {
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .metal-title { color: white; font-weight: 700; font-size: 1.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    .metal-subtitle { color: rgba(255,255,255,0.9) !important; font-size: 0.9rem; }
+    .metal-btn-primary {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    .metal-btn-primary:hover { background: rgba(255,255,255,0.25); transform: translateY(-2px); color: white; }
+    .metal-btn-secondary {
+        background: rgba(108,117,125,0.2);
+        border: 1px solid rgba(108,117,125,0.3);
+        color: #6c757d;
+        padding: 8px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    .metal-btn-secondary:hover { background: rgba(108,117,125,0.3); transform: translateY(-2px); color: #5a6268; }
+    .metal-btn-danger {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        border: none;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    
+    .metal-form-control {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 10px;
+        padding: 10px 12px;
+        color: white;
+        font-size: 14px;
+        width: 100%;
+    }
+    .metal-form-control:focus {
+        border-color: #00d4ff;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+        outline: none;
+        background: rgba(255,255,255,0.08);
+        color: white;
+    }
+    .metal-form-label {
+        color: rgba(255,255,255,0.8);
+        font-weight: 500;
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+    .metal-form-check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .metal-form-check-input {
+        width: 18px;
+        height: 18px;
+        accent-color: #00d4ff;
+        cursor: pointer;
+    }
+    .metal-form-check-label {
+        color: rgba(255,255,255,0.7);
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+    
+    .metal-modal-content {
+        background: #0a0e1a;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 16px;
+    }
+    .metal-modal-header {
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+        color: white;
+        border-radius: 16px 16px 0 0;
+        padding: 15px 20px;
+    }
+    .metal-modal-header-danger {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+        border-radius: 16px 16px 0 0;
+        padding: 15px 20px;
+    }
+    .metal-modal-footer {
+        background: rgba(0,0,0,0.2);
+        border-top: 1px solid rgba(255,255,255,0.05);
+        padding: 12px 20px;
+        border-radius: 0 0 16px 16px;
+    }
+    .metal-alert-warning {
+        background: rgba(255, 193, 7, 0.1);
+        border-left: 4px solid #ffc107;
+        padding: 12px;
+        border-radius: 8px;
+        margin: 15px 0;
+    }
+    
+    .glass-card {
+        background: rgba(255, 255, 255, 0.03) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        color: #ffffff !important;
+    }
+    .glass-card:hover {
+        border-color: rgba(0,212,255,0.15);
+        box-shadow: 0 8px 32px rgba(0,212,255,0.03);
+        transform: translateY(-2px);
+    }
+    
+    /* CORREÇÃO DE CONTRASTE PARA TEXTOS DENTRO DOS CARDS */
+    .glass-card .text-muted {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+    .glass-card .h5, 
+    .glass-card h3, 
+    .glass-card h5 {
+        color: #ffffff !important;
+        font-weight: 600;
+    }
+    .glass-card .display-6 {
+        color: #ffffff !important;
+    }
+    .glass-card .text-primary { 
+        color: #00d4ff !important; 
+    }
+    .glass-card .text-success { 
+        color: #2ed573 !important; 
+    }
+    .glass-card .text-danger { 
+        color: #ff4757 !important; 
+    }
+    
+    /* CORREÇÃO PARA TABELA - CABEÇALHOS BRANCOS, DADOS ESCUROS */
+    .table {
+        color: #1a1a2e !important;
+    }
+    .table th {
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff !important; /* CABEÇALHOS BRANCOS */
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: rgba(0, 0, 0, 0.2);
+    }
+    .table td {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        vertical-align: middle;
+        color: #1a1a2e !important; /* DADOS ESCUROS */
+    }
+    .table-hover tbody tr:hover {
+        background: rgba(0, 0, 0, 0.02);
+    }
+    .table strong {
+        color: #16213e !important;
+        font-weight: 700;
+    }
+    .table .text-muted {
+        color: #6c757d !important;
+    }
+    
+    /* BADGES - mantidas coloridas */
+    .badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #ffffff !important;
+    }
+    .bg-success {
+        background-color: #2ed573 !important;
+        color: #ffffff !important;
+    }
+    .bg-danger {
+        background-color: #ff4757 !important;
+        color: #ffffff !important;
+    }
+    
+    /* BOTÕES DE AÇÃO COM CORES */
+    .btn-outline-info {
+        color: #0dcaf0 !important;
+        border-color: #0dcaf0 !important;
+    }
+    .btn-outline-info:hover {
+        background: #0dcaf0 !important;
+        color: #ffffff !important;
+    }
+    
+    .btn-outline-warning {
+        color: #ffc107 !important;
+        border-color: #ffc107 !important;
+    }
+    .btn-outline-warning:hover {
+        background: #ffc107 !important;
+        color: #ffffff !important;
+    }
+    
+    .btn-outline-danger {
+        color: #dc3545 !important;
+        border-color: #dc3545 !important;
+    }
+    .btn-outline-danger:hover {
+        background: #dc3545 !important;
+        color: #ffffff !important;
+    }
+    
+    /* PAGINAÇÃO */
+    .page-link {
+        color: #1a1a2e !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+        border-color: rgba(0, 0, 0, 0.1) !important;
+    }
+    .page-link:hover {
+        background: rgba(255, 255, 255, 0.9) !important;
+        color: #0dcaf0 !important;
+    }
+    .page-item.active .page-link {
+        background: #0dcaf0 !important;
+        border-color: #0dcaf0 !important;
+        color: #ffffff !important;
+    }
+    
+    /* ANIMAÇÕES */
+    .fade-in-up {
+        animation: fadeInUp 0.5s ease forwards;
+        opacity: 0;
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    
+    /* LOADING */
+    #loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    /* MENSAGENS */
+    #messages-container .alert {
+        background: rgba(10, 14, 26, 0.95) !important;
+        border: 1px solid rgba(0, 212, 255, 0.2) !important;
+        color: #ffffff !important;
+    }
+    #messages-container .alert-success {
+        border-color: rgba(46, 213, 115, 0.3) !important;
+    }
+    #messages-container .alert-danger {
+        border-color: rgba(255, 71, 87, 0.3) !important;
+    }
+</style>
+
+<script>
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+let currentDeleteId = null;
+
+function openCreateClienteModal() {
+    document.getElementById('modalClienteFormTitle').innerHTML = '<i class="bi bi-plus-circle me-2"></i>Novo Cliente';
+    document.getElementById('cliente_id').value = '';
+    document.getElementById('cliente_nome').value = '';
+    document.getElementById('cliente_nif').value = '';
+    document.getElementById('cliente_telefone').value = '';
+    document.getElementById('cliente_email').value = '';
+    document.getElementById('cliente_endereco').value = '';
+    document.getElementById('cliente_ativo').checked = true;
+}
+
+function openEditClienteModal(id) {
+    document.getElementById('modalClienteFormTitle').innerHTML = '<i class="bi bi-pencil me-2"></i>Editar Cliente';
+    document.getElementById('cliente_id').value = id;
+    showLoading();
+    fetch(`/financeiro/clientes/api/${id}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const c = data.cliente;
+                document.getElementById('cliente_nome').value = c.nome || '';
+                document.getElementById('cliente_nif').value = c.nif || '';
+                document.getElementById('cliente_telefone').value = c.telefone || '';
+                document.getElementById('cliente_email').value = c.email || '';
+                document.getElementById('cliente_endereco').value = c.endereco || '';
+                document.getElementById('cliente_ativo').checked = c.ativo || false;
+            }
+            hideLoading();
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showMessage('Erro ao carregar cliente', 'error');
+            hideLoading();
+        });
+}
+
+function submitClienteForm() {
+    const id = document.getElementById('cliente_id').value;
+    const url = id ? `/financeiro/clientes/api/${id}/editar/` : '/financeiro/clientes/api/';
+    
+    const formData = {
+        nome: document.getElementById('cliente_nome').value,
+        nif: document.getElementById('cliente_nif').value,
+        telefone: document.getElementById('cliente_telefone').value,
+        email: document.getElementById('cliente_email').value,
+        endereco: document.getElementById('cliente_endereco').value,
+        ativo: document.getElementById('cliente_ativo').checked
+    };
+    
+    if (!formData.nome || !formData.nif) {
+        showMessage('Nome e NIF são obrigatórios!', 'error');
+        return;
+    }
+    
+    showLoading();
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showMessage(data.message);
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalClienteForm'));
+            if (modal) modal.hide();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showMessage(data.error || 'Erro ao salvar cliente', 'error');
+        }
+        hideLoading();
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        showMessage('Erro ao salvar cliente', 'error');
+        hideLoading();
+    });
+}
+
+function openClienteDetail(id) {
+    const content = document.getElementById('clienteDetailContent');
+    content.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">Carregando...</p></div>';
+    showLoading();
+    fetch(`/financeiro/clientes/api/${id}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const c = data.cliente;
+                content.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6 mb-3"><strong style="color: #1a1a2e !important;">Nome:</strong><br>${c.nome || '-'}</div>
+                        <div class="col-md-6 mb-3"><strong style="color: #1a1a2e !important;">NIF:</strong><br>${c.nif || '-'}</div>
+                        <div class="col-md-6 mb-3"><strong style="color: #1a1a2e !important;">Telefone:</strong><br>${c.telefone || '-'}</div>
+                        <div class="col-md-6 mb-3"><strong style="color: #1a1a2e !important;">Email:</strong><br>${c.email || '-'}</div>
+                        <div class="col-12 mb-3"><strong style="color: #1a1a2e !important;">Endereço:</strong><br>${c.endereco || '-'}</div>
+                        <div class="col-md-6 mb-3"><strong style="color: #1a1a2e !important;">Status:</strong><br><span class="badge ${c.ativo ? 'bg-success' : 'bg-danger'}" style="color: #ffffff !important;">${c.ativo ? 'Ativo' : 'Inativo'}</span></div>
+                        <div class="col-md-6 mb-3"><strong style="color: #1a1a2e !important;">Data Cadastro:</strong><br>${c.data_criacao || '-'}</div>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = '<div class="alert alert-danger">Erro ao carregar detalhes do cliente</div>';
+            }
+            hideLoading();
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            content.innerHTML = '<div class="alert alert-danger">Erro ao carregar detalhes do cliente</div>';
+            hideLoading();
+        });
+}
+
+function openDeleteClienteModal(id, nome) {
+    currentDeleteId = id;
+    document.getElementById('clienteDeleteNome').innerText = nome;
+    document.getElementById('clienteDeleteConfirm').value = '';
+    document.getElementById('clienteDeleteBtn').disabled = true;
+    document.getElementById('clienteDeleteConfirm').oninput = function() {
+        document.getElementById('clienteDeleteBtn').disabled = this.value.trim().toUpperCase() !== 'DELETAR';
+    };
+}
+
+function confirmClienteDelete() {
+    if (!currentDeleteId) return;
+    showLoading();
+    fetch(`/financeiro/clientes/api/${currentDeleteId}/excluir/`, {
+        method: 'DELETE',
+        headers: { 'X-CSRFToken': csrfToken }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showMessage(data.message);
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalClienteDelete'));
+            if (modal) modal.hide();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showMessage(data.error || 'Erro ao excluir cliente', 'error');
+        }
+        hideLoading();
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        showMessage('Erro ao excluir cliente', 'error');
+        hideLoading();
+    });
+}
+
+function showLoading() {
+    let overlay = document.getElementById('loading-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'loading-overlay';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:none;justify-content:center;align-items:center;';
+        overlay.innerHTML = '<div class="spinner-border text-light" style="width:3rem;height:3rem;"></div>';
+        document.body.appendChild(overlay);
+    }
+    overlay.style.display = 'flex';
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
+function showMessage(message, type = 'success') {
+    let container = document.getElementById('messages-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'messages-container';
+        container.style.cssText = 'position:fixed;top:80px;right:20px;z-index:9999;max-width:400px;';
+        document.body.appendChild(container);
+    }
+    const alert = document.createElement('div');
+    const alertClass = type === 'success' ? 'success' : 'danger';
+    const icon = type === 'success' ? 'check-circle' : 'exclamation-triangle';
+    alert.className = `alert alert-${alertClass} alert-dismissible fade show`;
+    alert.style.cssText = 'background:rgba(10,14,26,0.95);border:1px solid rgba(0,212,255,0.2);color:#fff;border-radius:12px;padding:12px 20px;margin-bottom:10px;backdrop-filter:blur(10px);';
+    alert.innerHTML = `<i class="bi bi-${icon} me-2" style="color:${type === 'success' ? '#2ed573' : '#ff4757'}"></i>${message}<button type="button" class="btn-close" data-bs-dismiss="alert" style="filter:invert(1);"></button>`;
+    container.appendChild(alert);
+    setTimeout(() => { if (alert.parentNode) alert.remove(); }, 5000);
+}
+</script>
+{% endblock %}
