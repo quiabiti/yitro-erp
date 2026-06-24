@@ -1,6 +1,8 @@
+# core/settings.py
 import os
 from pathlib import Path
 import environ
+import dj_database_url  # 🔥 ADICIONAR ESTE IMPORT
 
 # Inicializar variáveis de ambiente
 env = environ.Env(
@@ -43,7 +45,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 🔥 MIDDLEWARES PERSONALIZADOS
     'core.middleware.ConfiguracaoMiddleware',
     'core.middleware.ContadorTentativasLoginMiddleware',
 ]
@@ -62,7 +63,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
-                # 🔥 CONTEXT PROCESSORS PERSONALIZADOS
                 'core.context_processors.configuracao_sistema',
                 'core.context_processors.configuracao_moeda',
             ],
@@ -72,10 +72,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# Configuração da Base de Dados
-DATABASES = {
-    'default': env.db('DATABASE_URL', default='sqlite:///db.sqlite3')
-}
+# 🔥 CONFIGURAÇÃO DA BASE DE DADOS - CORRIGIDA
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=False
+        )
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 AUTH_USER_MODEL = 'autenticacao.Usuario'
 
@@ -100,19 +113,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ============================================
-# 🔥 CONFIGURAÇÕES DE UPLOAD DE IMAGENS
-# ============================================
-# Aumentar limite de upload para imagens (em bytes)
-DATA_UPLOAD_MAX_MEMORY_SIZE = 20971520  # 20 MB
-FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520  # 20 MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 20971520
+FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520
+MAX_UPLOAD_SIZE = 20971520
 
-# Tamanho máximo para upload de arquivos (em bytes)
-MAX_UPLOAD_SIZE = 20971520  # 20 MB
-
-# ============================================
-# 🔥 CONFIGURAÇÕES DE AUTENTICAÇÃO
-# ============================================
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
@@ -121,9 +125,6 @@ SESSION_COOKIE_AGE = 1209600
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
-# ============================================
-# 🔥 CONFIGURAÇÕES DE CACHE
-# ============================================
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
@@ -132,9 +133,6 @@ CACHES = {
     }
 }
 
-# ============================================
-# 🔥 CONFIGURAÇÕES DE LOGGING (SEM ARQUIVO)
-# ============================================
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -172,10 +170,7 @@ LOGGING = {
     },
 }
 
-# ============================================
-# 🔥 CONFIGURAÇÃO DE EMAIL
-# ============================================
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Para testes
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
