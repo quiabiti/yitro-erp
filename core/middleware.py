@@ -2,6 +2,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.utils import timezone
+from django.db import OperationalError
 import pytz
 from servicos.models import ConfiguracaoSistema
 
@@ -12,8 +13,15 @@ class ConfiguracaoMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # Buscar configurações
-        config = ConfiguracaoSistema.objects.first()
+        # 🔥 Tenta buscar configurações, mas não quebra se a tabela não existir
+        config = None
+        try:
+            config = ConfiguracaoSistema.objects.first()
+        except OperationalError:
+            # Tabela ainda não existe - ignorar
+            pass
+        except Exception:
+            pass
         
         if config:
             # 1. Modo de Manutenção
@@ -47,9 +55,16 @@ class ContadorTentativasLoginMiddleware:
     def __call__(self, request):
         # Verificar se é uma tentativa de login
         if request.path == '/auth/login/' and request.method == 'POST':
-            # Obter configurações
-            config = ConfiguracaoSistema.objects.first()
-            max_tentativas = config.tentativas_login if config else 5
+            # 🔥 Tenta buscar configurações, mas não quebra se a tabela não existir
+            max_tentativas = 5
+            try:
+                config = ConfiguracaoSistema.objects.first()
+                if config:
+                    max_tentativas = config.tentativas_login
+            except OperationalError:
+                pass
+            except Exception:
+                pass
             
             # Contar tentativas na sessão
             if not request.session.get('login_attempts'):
