@@ -153,8 +153,10 @@ def dashboard_servicos(request):
         'total_carrinho': total_carrinho,
         'total_carrinho_itens': len(carrinho_itens),
     }
-    return render(request, 'servicos/dashboard.html', context)
     
+    # 🔥 SEMPRE RETORNAR O RENDER
+    return render(request, 'servicos/dashboard.html', context)    
+
 
 @login_required
 def relatorios(request):
