@@ -2,7 +2,7 @@
 import os
 from pathlib import Path
 import environ
-import dj_database_url  # 🔥 ADICIONAR ESTE IMPORT
+import dj_database_url
 
 # Inicializar variáveis de ambiente
 env = environ.Env(
@@ -37,8 +37,10 @@ INSTALLED_APPS = [
     'core',
 ]
 
+# 🔥 ADICIONAR WHITENOISE AO MIDDLEWARE
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # 🔥 ADICIONE ESTA LINHA
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -72,7 +74,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# 🔥 CONFIGURAÇÃO DA BASE DE DADOS - CORRIGIDA
+# Configuração da Base de Dados
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
     DATABASES = {
@@ -104,11 +106,15 @@ TIME_ZONE = 'Africa/Luanda'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+# 🔥 CONFIGURAÇÃO DE ARQUIVOS ESTÁTICOS - CORRIGIDA
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-MEDIA_URL = 'media/'
+# 🔥 WHITENOISE PARA SERVER ARQUIVOS ESTÁTICOS
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
