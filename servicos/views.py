@@ -41,6 +41,7 @@ User = get_user_model()
 # DASHBOARDS
 # ============================================
 
+# servicos/views.py
 @login_required
 def dashboard_servicos(request):
     """Dashboard principal - Vitrine de Produtos e Serviços"""
@@ -65,16 +66,6 @@ def dashboard_servicos(request):
                 'stock': stock_total
             })
     
-# servicos/views.py - Adicione esta função
-
-@login_required
-def relatorios(request):
-    """Página de relatórios"""
-    context = {
-        'titulo': 'Relatórios',
-    }
-    return render(request, 'servicos/relatorios.html', context)
-
     # ============================================
     # ESTATÍSTICAS
     # ============================================
@@ -136,44 +127,42 @@ def relatorios(request):
     total_carrinho = request.session.get('carrinho_total', 0)
     
     # ============================================
-    # CONTEXTO
+    # CONTEXTO - 🔥 GARANTIR QUE SEMPRE RETORNA ALGO
     # ============================================
     context = {
-        # Itens para vitrine
         'itens': itens,
         'produtos': produtos,
         'servicos': servicos,
         'softwares': softwares,
         'produtos_com_stock': produtos_com_stock,
         'destaque': destaque,
-        
-        # Estatísticas
         'total_itens': total_itens,
         'total_produtos': total_produtos,
         'total_servicos': total_servicos,
         'total_software': total_software,
         'valor_total_itens': valor_total_itens,
-        
-        # Alertas
         'alertas_stock': alertas_stock,
         'total_alertas': len(alertas_stock),
-        
-        # Compatibilidade com dashboard antigo
         'total_contratos': total_contratos,
         'total_ordens': total_ordens,
         'total_faturamentos': total_faturamentos,
         'ordens_urgentes': ordens_urgentes,
         'contratos_expirando': contratos_expirando,
         'ultimos_itens': ultimos_itens,
-        
-        # Carrinho
         'carrinho_itens': carrinho_itens,
         'total_carrinho': total_carrinho,
         'total_carrinho_itens': len(carrinho_itens),
     }
-    
     return render(request, 'servicos/dashboard.html', context)
+    
 
+@login_required
+def relatorios(request):
+    """Página de relatórios"""
+    context = {
+        'titulo': 'Relatórios',
+    }
+    return render(request, 'servicos/relatorios.html', context)
 
 # ============================================
 # CARRINHO DE COMPRAS
