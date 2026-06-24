@@ -14,10 +14,6 @@ if not User.objects.filter(username='admin').exists():
 "
 
 echo "🚀 Coletando arquivos estáticos..."
-python manage.py collectstatic --noinput --clear
-
-echo "🚀 Verificando vídeo..."
-ls -la static/videos/ || echo "Vídeo não encontrado!"
-ls -la staticfiles/videos/ || echo "Vídeo não copiado!"
+python manage.py collectstatic --noinput
 
 echo "✅ Build concluído!"
