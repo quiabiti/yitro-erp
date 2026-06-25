@@ -4,10 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>{% block title %}Yitro{% endblock %}</title>
+    <title>{% block title %}Yitro - Escola{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -526,6 +527,7 @@
             font-size: 0.85rem;
             font-weight: 500;
             transition: all 0.3s ease;
+            cursor: pointer;
             position: relative;
         }
 
@@ -560,18 +562,16 @@
             box-shadow: 0 0 15px var(--primary);
         }
 
-        .sidebar-nav .nav-link-tech .dep-badge {
+        .sidebar-nav .nav-link-tech .badge-count {
             margin-left: auto;
             font-size: 0.55rem;
             padding: 2px 8px;
             border-radius: 10px;
             background: rgba(0, 212, 255, 0.08);
             color: rgba(255, 255, 255, 0.3);
-            font-weight: 400;
-            letter-spacing: 0.5px;
         }
 
-        .sidebar-nav .nav-link-tech.active .dep-badge {
+        .sidebar-nav .nav-link-tech.active .badge-count {
             background: rgba(0, 212, 255, 0.15);
             color: var(--primary);
         }
@@ -906,63 +906,79 @@
     <!-- ===== OVERLAY SIDEBAR ===== -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <!-- ===== SIDEBAR DINÂMICA ===== -->
+    <!-- ===== SIDEBAR ESCOLA ===== -->
     <aside class="sidebar" id="sidebar">
         <nav class="sidebar-nav">
             <!-- Menu Principal -->
             <div class="nav-label">Menu Principal</div>
-            <a href="{% url 'home' %}" class="nav-link-tech" id="navDashboard">
+            <a class="nav-link-tech active" data-page="dashboard" onclick="loadPage('dashboard')" id="navDashboard">
                 <i class="bi bi-grid-1x2-fill"></i> Dashboard
             </a>
 
-            <!-- DEPARTAMENTOS DO USUÁRIO (DINÂMICO) -->
-            {% if user.is_authenticated and departamentos_usuario %}
-                <div class="nav-label" style="margin-top: 15px;">Departamentos</div>
-                {% for dep in departamentos_usuario %}
-                    <a href="/{{ dep.slug }}/" class="nav-link-tech {% if dep.slug == departamento_ativo.slug %}active{% endif %}">
-                        <i class="bi bi-{% if dep.slug == 'comercial' %}store{% elif dep.slug == 'financeiro' %}coins{% elif dep.slug == 'escola' %}mortarboard{% elif dep.slug == 'servicos' %}tools{% elif dep.slug == 'administrativo' %}building{% else %}folder{% endif %}"></i>
-                        {{ dep.nome }}
-                        <span class="dep-badge">{{ dep.slug }}</span>
-                    </a>
-                {% endfor %}
-            {% endif %}
+            <!-- ===== MÓDULO SECRETARIA ===== -->
+            <div class="nav-label" style="margin-top: 15px;">Secretaria</div>
+            <a class="nav-link-tech" data-page="alunos" onclick="loadPage('alunos')" id="navAlunos">
+                <i class="bi bi-people"></i> Alunos
+                <span class="badge-count" id="alunosCount">0</span>
+            </a>
+            <a class="nav-link-tech" data-page="turmas" onclick="loadPage('turmas')" id="navTurmas">
+                <i class="bi bi-people-fill"></i> Turmas
+                <span class="badge-count" id="turmasCount">0</span>
+            </a>
+            <a class="nav-link-tech" data-page="matriculas" onclick="loadPage('matriculas')" id="navMatriculas">
+                <i class="bi bi-file-earmark-text"></i> Matrículas
+                <span class="badge-count" id="matriculasCount">0</span>
+            </a>
 
-            <!-- MENUS GLOBAIS (sem verificação de permissão) -->
-            {% if user.is_authenticated %}
-                <div class="nav-label" style="margin-top: 20px;">Sistema</div>
-                
-                <!-- Faturação AGT -->
-                <a href="{% url 'financeiro:lista_faturas' %}" class="nav-link-tech" id="navFaturamento">
-                    <i class="bi bi-receipt"></i> Faturação AGT
-                </a>
-                
-                <!-- Clientes -->
-                <a href="/financeiro/clientes/lista/" class="nav-link-tech" id="navClientes">
-                    <i class="bi bi-people"></i> Clientes
-                </a>
-                
-                <!-- Produtos e Serviços -->
-                <a href="{% url 'servicos:lista_servicos' %}" class="nav-link-tech" id="navServicos">
-                    <i class="bi bi-box-seam"></i> Produtos e Serviços
-                </a>
-                
-                <!-- Relatórios -->
-                <a href="{% url 'servicos:relatorios' %}" class="nav-link-tech" id="navRelatorios">
-                    <i class="bi bi-file-earmark-text"></i> Relatórios
-                </a>
+            <!-- ===== MÓDULO PEDAGÓGICO ===== -->
+            <div class="nav-label" style="margin-top: 15px;">Pedagógico</div>
+            <a class="nav-link-tech" data-page="disciplinas" onclick="loadPage('disciplinas')" id="navDisciplinas">
+                <i class="bi bi-book"></i> Disciplinas
+            </a>
+            <a class="nav-link-tech" data-page="planos_aula" onclick="loadPage('planos_aula')" id="navPlanosAula">
+                <i class="bi bi-journal"></i> Planos de Aula
+            </a>
+            <a class="nav-link-tech" data-page="avaliacoes" onclick="loadPage('avaliacoes')" id="navAvaliacoes">
+                <i class="bi bi-clipboard-check"></i> Avaliações
+            </a>
 
-                <!-- PAINEL ADMIN - apenas Super Admin -->
-                {% if user.is_superuser %}
-                    <a href="{% url 'servicos:painel_admin' %}" class="nav-link-tech" id="navPainelAdmin">
-                        <i class="bi bi-shield-lock"></i> Painel Admin
-                    </a>
-                {% endif %}
-                
-                <!-- Configurações -->
-                <a href="{% url 'servicos:configuracoes' %}" class="nav-link-tech" id="navConfiguracoes">
-                    <i class="bi bi-gear"></i> Configurações
-                </a>
-            {% endif %}
+            <!-- ===== MÓDULO DOCENTE ===== -->
+            <div class="nav-label" style="margin-top: 15px;">Docente</div>
+            <a class="nav-link-tech" data-page="professores" onclick="loadPage('professores')" id="navProfessores">
+                <i class="bi bi-person-badge"></i> Professores
+            </a>
+            <a class="nav-link-tech" data-page="horarios" onclick="loadPage('horarios')" id="navHorarios">
+                <i class="bi bi-clock"></i> Horários
+            </a>
+            <a class="nav-link-tech" data-page="alocacao" onclick="loadPage('alocacao')" id="navAlocacao">
+                <i class="bi bi-diagram-3"></i> Alocação
+            </a>
+
+            <!-- ===== MÓDULO ADMINISTRATIVO ===== -->
+            <div class="nav-label" style="margin-top: 15px;">Administrativo</div>
+            <a class="nav-link-tech" data-page="funcionarios" onclick="loadPage('funcionarios')" id="navFuncionarios">
+                <i class="bi bi-people"></i> Funcionários
+            </a>
+            <a class="nav-link-tech" data-page="documentos" onclick="loadPage('documentos')" id="navDocumentos">
+                <i class="bi bi-file-earmark"></i> Documentos
+            </a>
+
+            <!-- ===== RELATÓRIOS ===== -->
+            <div class="nav-label" style="margin-top: 15px;">Relatórios</div>
+            <a class="nav-link-tech" data-page="relatorios" onclick="loadPage('relatorios')" id="navRelatorios">
+                <i class="bi bi-file-earmark-bar-graph"></i> Relatórios
+            </a>
+
+            <!-- ===== SISTEMA ===== -->
+            <div class="nav-label" style="margin-top: 15px;">Sistema</div>
+            <a class="nav-link-tech" data-page="configuracoes" onclick="loadPage('configuracoes')" id="navConfiguracoes">
+                <i class="bi bi-gear"></i> Configurações
+            </a>
+            
+            <!-- ===== LOGOUT ===== -->
+            <a href="{% url 'autenticacao:logout' %}" class="nav-link-tech" style="margin-top: 10px; color: #ff4757;">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </a>
         </nav>
 
         <!-- USUÁRIO DINÂMICO -->
@@ -1064,9 +1080,9 @@
 
                 <!-- Título Dinâmico -->
                 <div class="page-title">
-                    <i class="bi bi-{% block page_icon %}grid-1x2-fill{% endblock %}"></i>
-                    <span>{% block page_title %}Dashboard{% endblock %}</span>
-                    {% if tenant_nome and departamento_ativo and departamento_ativo.slug == 'escola' %}
+                    <i class="bi bi-mortarboard" id="pageIcon"></i>
+                    <span id="pageTitle">Dashboard Escola</span>
+                    {% if tenant_nome %}
                         <span class="badge bg-primary ms-2" style="font-size: 0.6rem; padding: 3px 10px;">
                             <i class="bi bi-building"></i> {{ tenant_nome_fantasia|default:tenant_nome }}
                         </span>
@@ -1087,10 +1103,8 @@
         </header>
 
         <!-- Conteúdo -->
-        <div class="content-container">
-            {% block content %}
-            <!-- Conteúdo das páginas será inserido aqui -->
-            {% endblock %}
+        <div class="content-container" id="contentContainer">
+            <!-- Conteúdo carregado via AJAX -->
         </div>
     </main>
 
@@ -1134,8 +1148,30 @@
         </div>
     </div>
 
+    <!-- ===== MODAL GLOBAL ===== -->
+    <div class="modal fade" id="globalModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Título</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="modalBody"></div>
+                <div class="modal-footer" id="modalFooter">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="modalSaveBtn">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // ===== CSRF TOKEN =====
+        function getCSRFToken() {
+            return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        }
+
         // ===== TOGGLE SIDEBAR =====
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -1178,25 +1214,115 @@
             }
         });
 
-        // ===== ATIVAR LINK ATIVO NO SIDEBAR =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentPath = window.location.pathname;
-            
-            document.querySelectorAll('.sidebar-nav .nav-link-tech').forEach(link => {
-                link.classList.remove('active');
-                const href = link.getAttribute('href');
-                if (href && href !== '/' && currentPath.startsWith(href)) {
-                    link.classList.add('active');
-                }
-            });
-            
-            if (currentPath === '/' || currentPath === '') {
-                document.getElementById('navDashboard')?.classList.add('active');
+        // ===== LOADING =====
+        function showLoading() {
+            const overlay = document.getElementById('globalLoadingOverlay');
+            if (overlay) {
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
             }
-        });
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('globalLoadingOverlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // ===== CARREGAR PÁGINAS VIA AJAX =====
+        function loadPage(page, params = {}) {
+            showLoading();
+            
+            // Atualizar link ativo
+            document.querySelectorAll('.sidebar-nav .nav-link-tech').forEach(el => {
+                el.classList.remove('active');
+            });
+            const activeLink = document.querySelector(`.sidebar-nav .nav-link-tech[data-page="${page}"]`);
+            if (activeLink) activeLink.classList.add('active');
+
+            let url = `/escola/api/${page}/`;
+            if (params.id) {
+                url += `${params.id}/`;
+            }
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro na requisição');
+                }
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById('contentContainer').innerHTML = html;
+                
+                const titles = {
+                    'dashboard': 'Dashboard Escola',
+                    'alunos': 'Alunos',
+                    'turmas': 'Turmas',
+                    'matriculas': 'Matrículas',
+                    'disciplinas': 'Disciplinas',
+                    'planos_aula': 'Planos de Aula',
+                    'avaliacoes': 'Avaliações',
+                    'professores': 'Professores',
+                    'horarios': 'Horários',
+                    'alocacao': 'Alocação',
+                    'funcionarios': 'Funcionários',
+                    'documentos': 'Documentos',
+                    'relatorios': 'Relatórios',
+                    'configuracoes': 'Configurações',
+                };
+                document.getElementById('pageTitle').textContent = titles[page] || 'Dashboard';
+                document.getElementById('pageIcon').className = `bi bi-${getIcon(page)}`;
+                
+                if (window.innerWidth < 992) {
+                    closeSidebar();
+                }
+                
+                hideLoading();
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                document.getElementById('contentContainer').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i> Erro ao carregar página.
+                    </div>
+                `;
+                hideLoading();
+            });
+        }
+
+        function getIcon(page) {
+            const icons = {
+                'dashboard': 'grid-1x2-fill',
+                'alunos': 'people',
+                'turmas': 'people-fill',
+                'matriculas': 'file-earmark-text',
+                'disciplinas': 'book',
+                'planos_aula': 'journal',
+                'avaliacoes': 'clipboard-check',
+                'professores': 'person-badge',
+                'horarios': 'clock',
+                'alocacao': 'diagram-3',
+                'funcionarios': 'people',
+                'documentos': 'file-earmark',
+                'relatorios': 'file-earmark-bar-graph',
+                'configuracoes': 'gear',
+            };
+            return icons[page] || 'file-earmark';
+        }
 
         // ===== VÍDEO =====
         document.addEventListener('DOMContentLoaded', function() {
+            // Carregar página inicial
+            loadPage('dashboard');
+            
             const video = document.getElementById('bgVideo');
             if (video) {
                 video.style.display = 'block';
@@ -1231,133 +1357,6 @@
                 }
             });
         }
-
-        // ===== LOADING DINÂMICO =====
-        const mensagens = [
-            'Processando',
-            'Carregando dados',
-            'Aguarde um momento',
-            'Quase lá',
-            'Finalizando'
-        ];
-
-        let mensagemIndex = 0;
-        let intervalId = null;
-
-        function showLoading(message = null) {
-            const overlay = document.getElementById('globalLoadingOverlay');
-            const messageEl = document.getElementById('loadingMessage');
-            
-            if (overlay) {
-                if (message) {
-                    messageEl.textContent = message;
-                } else {
-                    mensagemIndex = 0;
-                    messageEl.textContent = mensagens[0];
-                    
-                    if (intervalId) clearInterval(intervalId);
-                    intervalId = setInterval(() => {
-                        mensagemIndex = (mensagemIndex + 1) % mensagens.length;
-                        messageEl.textContent = mensagens[mensagemIndex];
-                    }, 2000);
-                }
-                overlay.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-        }
-
-        function hideLoading() {
-            const overlay = document.getElementById('globalLoadingOverlay');
-            if (overlay) {
-                overlay.classList.remove('active');
-                document.body.style.overflow = '';
-                if (intervalId) {
-                    clearInterval(intervalId);
-                    intervalId = null;
-                }
-            }
-        }
-
-        // ===== INTERCEPTAR REQUISIÇÕES AJAX =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const originalFetch = window.fetch;
-            window.fetch = function(...args) {
-                const method = args[1]?.method || 'GET';
-                if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method.toUpperCase())) {
-                    showLoading('Enviando dados');
-                }
-                
-                return originalFetch.apply(this, args)
-                    .then(response => {
-                        hideLoading();
-                        return response;
-                    })
-                    .catch(error => {
-                        hideLoading();
-                        throw error;
-                    });
-            };
-            
-            const originalXHROpen = XMLHttpRequest.prototype.open;
-            const originalXHRSend = XMLHttpRequest.prototype.send;
-            
-            XMLHttpRequest.prototype.open = function(method, url, async, user, password) {
-                this._method = method;
-                this._url = url;
-                return originalXHROpen.apply(this, arguments);
-            };
-            
-            XMLHttpRequest.prototype.send = function(body) {
-                const method = this._method || 'GET';
-                if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method.toUpperCase())) {
-                    showLoading('Processando');
-                }
-                
-                this.addEventListener('load', function() {
-                    hideLoading();
-                });
-                
-                this.addEventListener('error', function() {
-                    hideLoading();
-                });
-                
-                this.addEventListener('abort', function() {
-                    hideLoading();
-                });
-                
-                return originalXHRSend.apply(this, arguments);
-            };
-        });
-
-        document.addEventListener('submit', function(e) {
-            const form = e.target;
-            if (form && form.tagName === 'FORM' && !form.classList.contains('no-loading')) {
-                showLoading('Salvando dados');
-            }
-        });
-
-        function loadingAction(message = 'Aguarde') {
-            showLoading(message);
-            return new Promise((resolve) => {
-                setTimeout(resolve, 100);
-            });
-        }
-
-        document.addEventListener('click', function(e) {
-            const link = e.target.closest('a');
-            if (link && link.href && link.href.indexOf(window.location.origin) === 0) {
-                if (!link.href.includes('#') && !link.href.includes('javascript:')) {
-                    showLoading('Carregando página');
-                    setTimeout(() => {
-                        hideLoading();
-                    }, 5000);
-                }
-            }
-        });
-
-        window.addEventListener('load', function() {
-            hideLoading();
-        });
     </script>
     {% block extra_js %}{% endblock %}
 </body>

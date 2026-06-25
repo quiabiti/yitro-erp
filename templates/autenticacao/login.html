@@ -238,20 +238,15 @@
             transform: scale(0.98);
             box-shadow: 0 0 50px rgba(0, 212, 255, 0.25);
         }
-        .register-link {
+        .login-footer {
             text-align: center;
             margin-top: 18px;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 14px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 12px;
         }
-        .register-link a {
+        .login-footer i {
             color: #00d4ff;
-            text-decoration: none;
-            font-weight: 500;
-            transition: 0.3s;
-            padding: 4px;
         }
-        .register-link a:active { color: #7b2ffc; }
         .helper-text {
             color: rgba(255,255,255,0.25);
             font-size: 11px;
@@ -260,75 +255,31 @@
         }
         .helper-text i { margin-right: 4px; }
 
-        /* ===== MOBILE FIRST - OTIMIZADO PARA TELEFONE ===== */
         @media (max-width: 480px) {
-            .login-card { 
-                padding: 24px 18px; 
-                border-radius: 20px;
-                max-width: 100%;
-            }
-            .login-logo .logo-icon {
-                width: 48px;
-                height: 48px;
-                font-size: 22px;
-            }
+            .login-card { padding: 24px 18px; border-radius: 20px; max-width: 100%; }
+            .login-logo .logo-icon { width: 48px; height: 48px; font-size: 22px; }
             .login-logo h1 { font-size: 22px; }
             .login-logo p { font-size: 10px; }
-            .form-control {
-                height: 50px;
-                font-size: 15px;
-                padding: 12px 40px 12px 40px;
-            }
-            .btn-login {
-                height: 50px;
-                font-size: 15px;
-                padding: 12px;
-            }
-            .form-options {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
+            .form-control { height: 50px; font-size: 15px; padding: 12px 40px 12px 40px; }
+            .btn-login { height: 50px; font-size: 15px; padding: 12px; }
+            .form-options { flex-direction: column; align-items: flex-start; gap: 8px; }
             .form-options .remember-me { font-size: 13px; }
             .form-options .forgot-link { font-size: 13px; }
-            .register-link { font-size: 13px; }
-            .toggle-password {
-                font-size: 18px;
-                min-width: 40px;
-                min-height: 40px;
-            }
+            .toggle-password { font-size: 18px; min-width: 40px; min-height: 40px; }
         }
 
         @media (max-width: 380px) {
             .login-card { padding: 18px 14px; }
-            .login-logo .logo-icon {
-                width: 42px;
-                height: 42px;
-                font-size: 18px;
-            }
+            .login-logo .logo-icon { width: 42px; height: 42px; font-size: 18px; }
             .login-logo h1 { font-size: 18px; }
-            .form-control {
-                height: 44px;
-                font-size: 14px;
-                padding: 10px 36px 10px 36px;
-            }
-            .btn-login {
-                height: 44px;
-                font-size: 14px;
-                padding: 10px;
-            }
+            .form-control { height: 44px; font-size: 14px; padding: 10px 36px 10px 36px; }
+            .btn-login { height: 44px; font-size: 14px; padding: 10px; }
         }
 
-        /* ===== AJUSTES PARA DISPOSITIVOS MÓVEIS ===== */
         @media (max-height: 700px) {
             .login-card { padding: 20px 18px; }
             .login-logo { margin-bottom: 18px; }
-            .login-logo .logo-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 18px;
-                margin-bottom: 8px;
-            }
+            .login-logo .logo-icon { width: 40px; height: 40px; font-size: 18px; margin-bottom: 8px; }
             .login-logo h1 { font-size: 20px; }
             .form-group { margin-bottom: 12px; }
             .form-control { height: 44px; }
@@ -336,14 +287,10 @@
             .form-options { margin-bottom: 14px; }
         }
 
-        /* ===== PREVENIR ZOOM EM INPUTS NO IOS ===== */
         @supports (-webkit-touch-callout: none) {
-            .form-control {
-                font-size: 16px !important;
-            }
+            .form-control { font-size: 16px !important; }
         }
 
-        /* ===== SCROLLBAR ===== */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.3); border-radius: 2px; }
@@ -378,6 +325,15 @@
             </div>
             {% endif %}
 
+            {% if form.errors %}
+            <div class="messages">
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    Usuário ou senha inválidos. Tente novamente.
+                </div>
+            </div>
+            {% endif %}
+
             <form method="post" action="{% url 'autenticacao:login' %}">
                 {% csrf_token %}
                 
@@ -385,7 +341,9 @@
                     <label>Usuário</label>
                     <div class="input-group">
                         <span class="input-icon"><i class="bi bi-person"></i></span>
-                        <input type="text" name="username" class="form-control" placeholder="Digite seu usuário" value="{{ username|default:'' }}" required autofocus inputmode="text" autocomplete="username">
+                        <input type="text" name="username" class="form-control" 
+                               placeholder="Digite seu usuário" value="{{ username|default:'' }}" 
+                               required autofocus inputmode="text" autocomplete="username">
                     </div>
                 </div>
 
@@ -393,14 +351,15 @@
                     <label>Senha</label>
                     <div class="input-group">
                         <span class="input-icon"><i class="bi bi-lock"></i></span>
-                        <!-- 🔥 CAMPO COMEÇA VISÍVEL (type="text") para melhor experiência mobile -->
-                        <input type="text" name="password" id="password" class="form-control" placeholder="Digite sua senha" required autocomplete="current-password" inputmode="text">
-                        <button type="button" class="toggle-password" onclick="togglePassword()" aria-label="Mostrar/Ocultar senha">
-                            <i class="bi bi-eye-slash" id="toggleIcon"></i>
+                        <input type="password" name="password" id="password" class="form-control" 
+                               placeholder="Digite sua senha" required autocomplete="current-password">
+                        <button type="button" class="toggle-password" onclick="togglePassword()" 
+                                aria-label="Mostrar/Ocultar senha">
+                            <i class="bi bi-eye" id="toggleIcon"></i>
                         </button>
                     </div>
                     <small class="helper-text">
-                        <i class="bi bi-info-circle"></i> Clique no ícone 👁️ para ocultar/mostrar a senha
+                        <i class="bi bi-info-circle"></i> Clique no ícone 👁️ para mostrar/ocultar a senha
                     </small>
                 </div>
 
@@ -416,41 +375,32 @@
                     <i class="bi bi-box-arrow-in-right"></i> Entrar
                 </button>
 
-                <div class="register-link">
-                    Não tem uma conta? <a href="{% url 'autenticacao:register' %}">Registrar-se</a>
-                </div>
+                <input type="hidden" name="next" value="{{ next }}">
             </form>
+
+            <div class="login-footer">
+                <i class="bi bi-shield-lock"></i> Ambiente seguro
+            </div>
         </div>
     </div>
 
     <script>
-        // 🔥 Alternar visibilidade da senha
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const toggleIcon = document.getElementById('toggleIcon');
             
-            if (passwordInput.type === 'text') {
-                passwordInput.type = 'password';
-                toggleIcon.className = 'bi bi-eye';
-                toggleIcon.parentElement.setAttribute('aria-label', 'Mostrar senha');
-            } else {
+            if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 toggleIcon.className = 'bi bi-eye-slash';
-                toggleIcon.parentElement.setAttribute('aria-label', 'Ocultar senha');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.className = 'bi bi-eye';
             }
         }
 
-        // 🔥 Prevenir zoom automático em inputs no iOS
         document.addEventListener('touchstart', function() {
-            // Forçar o foco a não zoomar
+            // Prevenir zoom automático em inputs no iOS
         }, { passive: true });
-
-        // 🔥 Fechar teclado ao clicar fora
-        document.addEventListener('click', function(e) {
-            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
-                // Opcional: fechar teclado
-            }
-        });
     </script>
 </body>
 </html>

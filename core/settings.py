@@ -1,23 +1,14 @@
-# core/settings.py
 import os
 from pathlib import Path
 import environ
 import dj_database_url
 
-# Inicializar variáveis de ambiente
-env = environ.Env(
-    DEBUG=(bool, False)
-)
-
+env = environ.Env(DEBUG=(bool, False))
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Ler ficheiro .env se existir
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-yitro-erp-agt-compliance-key')
-
 DEBUG = env('DEBUG', default=True)
-
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
 
 INSTALLED_APPS = [
@@ -28,28 +19,39 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    
-    # Apps do Projeto
     'autenticacao',
     'financeiro',
     'servicos',
     'clientes',
     'core',
+    'escola',
+    'escola.configuracao',
+    'escola.secretaria',
+    'escola.pedagogico',
+    'escola.docente',
+    'escola.administrativo',
 ]
 
-# 🔥 ADICIONAR WHITENOISE AO MIDDLEWARE
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # 🔥 ADICIONE ESTA LINHA
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',  # 🔥 DEVE ESTAR ATIVO
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.ConfiguracaoMiddleware',
+    'core.middleware.MultiTenancyMiddleware',
     'core.middleware.ContadorTentativasLoginMiddleware',
 ]
+
+# 🔥 CONFIGURAÇÕES CSRF
+CSRF_COOKIE_SECURE = False  # True em produção (HTTPS)
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+CSRF_FAILURE_VIEW = 'autenticacao.views.csrf_failure'  # View personalizada
 
 ROOT_URLCONF = 'core.urls'
 
@@ -67,6 +69,9 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'core.context_processors.configuracao_sistema',
                 'core.context_processors.configuracao_moeda',
+                'core.context_processors.tenant_context',
+                'core.context_processors.combined_config',
+                'core.context_processors.departamentos_context',
             ],
         },
     },
@@ -74,23 +79,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# Configuração da Base de Dados
-DATABASE_URL = os.environ.get('DATABASE_URL')
-if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=DATABASE_URL,
-            conn_max_age=600,
-            ssl_require=False
-        )
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
-    }
+}
 
 AUTH_USER_MODEL = 'autenticacao.Usuario'
 
@@ -106,12 +100,9 @@ TIME_ZONE = 'Africa/Luanda'
 USE_I18N = True
 USE_TZ = True
 
-# 🔥 CONFIGURAÇÃO DE ARQUIVOS ESTÁTICOS - CORRIGIDA
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-
-# 🔥 WHITENOISE PARA SERVER ARQUIVOS ESTÁTICOS
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
@@ -119,67 +110,15 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 20971520
-FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520
-MAX_UPLOAD_SIZE = 20971520
-
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'login'
 
 SESSION_COOKIE_AGE = 1209600
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
-        'TIMEOUT': 3600,
-    }
-}
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
-        },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
-        },
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        'servicos': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}
-
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='noreply@yitro.com')
+# 🔥 CONFIGURAÇÕES DE SEGURANÇA
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+SECURE_SSL_REDIRECT = False  # True em produção
