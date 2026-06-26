@@ -1,12 +1,14 @@
-# servicos/urls.py
 from django.urls import path
 from . import views
 
 app_name = 'servicos'
 
 urlpatterns = [
-    # Dashboard
-    path('', views.dashboard_servicos, name='dashboard'),
+    # 🏢 CENTRAL YITRO (Requer login - Dashboard principal)
+    path('', views.central_yitro, name='central'),  # 🔥 ROTA PRINCIPAL
+    
+    # 📊 DASHBOARD ADMINISTRATIVO (Requer login)
+    path('dashboard/', views.dashboard_servicos, name='dashboard'),
     
     # Itens (unificado)
     path('itens/', views.lista_itens, name='lista_itens'),
@@ -44,7 +46,7 @@ urlpatterns = [
     # ✅ CHECKOUT
     path('checkout/', views.checkout, name='checkout'),
     
-    # ✅ GERAR PDF DO PEDIDO (NOVO)
+    # ✅ GERAR PDF DO PEDIDO
     path('api/gerar-pdf-pedido/', views.gerar_pdf_pedido, name='gerar_pdf_pedido'),
     
     # APIs

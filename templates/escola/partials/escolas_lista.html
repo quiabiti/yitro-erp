@@ -1,0 +1,863 @@
+{% load static %}
+{% load humanize %}
+
+<!-- ============================================ -->
+<!-- LISTA DE ESCOLAS + FORMULÁRIO               -->
+<!-- ============================================ -->
+
+<!-- HEADER DA PÁGINA -->
+<div class="metal-header mb-4 fade-in-up">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+        <div>
+            <h1 class="metal-title">
+                <i class="bi bi-building me-2"></i> Escolas Cadastradas
+            </h1>
+            <p class="metal-subtitle mt-2">Gerencie todas as escolas do sistema</p>
+        </div>
+        <button type="button" class="metal-btn-primary" onclick="window.abrirModalNovaEscola()">
+            <i class="bi bi-plus-circle me-2"></i> Nova Escola
+        </button>
+    </div>
+</div>
+
+<!-- CARDS ESTATÍSTICOS - OTIMIZADO PARA MOBILE -->
+<div class="row g-2 g-sm-4 mb-4 fade-in-up delay-1">
+    <div class="col-6 col-sm-6 col-xl-3">
+        <div class="glass-card text-center p-2 p-sm-3">
+            <div class="display-6 text-primary" style="font-size: 1.5rem;"><i class="bi bi-building"></i></div>
+            <h3 class="h5" style="font-size: 1.1rem;">{{ total|default:0 }}</h3>
+            <p class="text-muted small card-label" style="font-size: 0.6rem;">Total de Escolas</p>
+        </div>
+    </div>
+    <div class="col-6 col-sm-6 col-xl-3">
+        <div class="glass-card text-center p-2 p-sm-3">
+            <div class="display-6 text-success" style="font-size: 1.5rem;"><i class="bi bi-check-circle"></i></div>
+            <h3 class="h5" style="font-size: 1.1rem;">{{ escolas_ativas|default:0 }}</h3>
+            <p class="text-muted small card-label" style="font-size: 0.6rem;">Escolas Ativas</p>
+        </div>
+    </div>
+    <div class="col-6 col-sm-6 col-xl-3">
+        <div class="glass-card text-center p-2 p-sm-3">
+            <div class="display-6 text-warning" style="font-size: 1.5rem;"><i class="bi bi-clock-history"></i></div>
+            <h3 class="h5" style="font-size: 1.1rem;">{{ escolas_inativas|default:0 }}</h3>
+            <p class="text-muted small card-label" style="font-size: 0.6rem;">Escolas Inativas</p>
+        </div>
+    </div>
+    <div class="col-6 col-sm-6 col-xl-3">
+        <div class="glass-card text-center p-2 p-sm-3">
+            <div class="display-6 text-success" style="font-size: 1.5rem;"><i class="bi bi-people"></i></div>
+            <h3 class="h5" style="font-size: 1.1rem;">{{ total_usuarios|default:0 }}</h3>
+            <p class="text-muted small card-label" style="font-size: 0.6rem;">Total de Usuários</p>
+        </div>
+    </div>
+</div>
+
+<!-- BUSCA - OTIMIZADO PARA MOBILE -->
+<div class="glass-card mb-4 fade-in-up delay-2">
+    <div class="row g-2 g-sm-3">
+        <div class="col-8 col-sm-8 col-md-8">
+            <input type="text" id="searchEscola" class="metal-form-control" 
+                   placeholder="🔍 Buscar..." 
+                   onkeyup="window.filtrarEscolas()" style="font-size: 14px; padding: 8px 12px;">
+        </div>
+        <div class="col-4 col-sm-4 col-md-4">
+            <button type="button" class="metal-btn-primary w-100" onclick="window.filtrarEscolas()" style="font-size: 14px; padding: 8px 12px;">
+                <i class="bi bi-search"></i> Filtrar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- LISTA DE ESCOLAS - OTIMIZADO PARA MOBILE -->
+<div class="row g-2 g-sm-3" id="listaEscolas">
+    {% for escola in escolas %}
+    <div class="col-12 col-sm-6 col-md-4 mb-2 mb-sm-3 escola-item" data-nome="{{ escola.nome|lower }}" data-cidade="{{ escola.cidade|lower }}" data-email="{{ escola.email|lower }}">
+        <!-- 🔥 ALTERADO: onclick agora chama window.entrarNaEscola -->
+        <div class="escola-card glass-card p-2 p-sm-3" onclick="window.entrarNaEscola('{{ escola.slug }}')" style="cursor: pointer;">
+            <div class="d-flex align-items-center gap-2 gap-sm-3">
+                {% if escola.logo %}
+                    <img src="{{ escola.logo.url }}" alt="{{ escola.nome }}" class="escola-logo" style="width: 45px; height: 45px; object-fit: cover; border-radius: 10px; border: 2px solid rgba(255,255,255,0.1); flex-shrink: 0;">
+                {% else %}
+                    <div class="escola-logo d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; border-radius: 10px; background: linear-gradient(135deg, #00d4ff, #7b2ffc); font-size: 1.2rem; font-weight: 700; color: #ffffff !important; flex-shrink: 0;">
+                        {{ escola.nome|first|upper }}
+                    </div>
+                {% endif %}
+                <div class="flex-grow-1" style="min-width: 0;">
+                    <div class="escola-nome" style="color: #ffffff !important; font-weight: 600; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ escola.nome }}</div>
+                    <div class="escola-info" style="color: #ffffff !important; font-size: 0.65rem; opacity: 0.7;">
+                        <i class="bi bi-geo-alt"></i> {{ escola.cidade }}/{{ escola.estado }}
+                    </div>
+                    <div class="escola-info" style="color: #ffffff !important; font-size: 0.65rem; opacity: 0.7;">
+                        <i class="bi bi-envelope"></i> {{ escola.email }}
+                    </div>
+                </div>
+                <!-- 🔥 Ícone indicando que pode clicar para entrar -->
+                <i class="bi bi-chevron-right" style="color: rgba(255,255,255,0.2); font-size: 1.2rem;"></i>
+            </div>
+            <div class="mt-2 d-flex justify-content-between align-items-center">
+                <span class="badge" style="font-size: 0.55rem; padding: 3px 10px; {% if escola.ativo %}background-color: #2ed573;{% else %}background-color: #6c757d;{% endif %} color: #ffffff !important;">
+                    {{ escola.ativo|yesno:"Ativo,Inativo" }}
+                </span>
+                <div class="d-flex gap-1">
+                    <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); window.editarEscola({{ escola.id }})" title="Editar" style="color: #ffffff !important; border-color: rgba(255,255,255,0.2); padding: 2px 6px; font-size: 0.7rem;">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    {% if user.is_superuser %}
+                    <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); window.deletarEscola({{ escola.id }}, '{{ escola.nome|escapejs }}')" title="Excluir" style="color: #ffffff !important; border-color: rgba(255,255,255,0.2); padding: 2px 6px; font-size: 0.7rem;">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="mt-1 text-center">
+                <small style="color: #ffffff !important; opacity: 0.6; font-size: 0.6rem;">
+                    <i class="bi bi-people"></i> {{ escola.usuarios.count }} usuários
+                </small>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="glass-card text-center py-4 py-sm-5">
+            <i class="bi bi-inbox" style="font-size: 2.5rem; color: rgba(255,255,255,0.1);"></i>
+            <h5 class="mt-2" style="color: rgba(255,255,255,0.5); font-size: 1rem;">Nenhuma escola cadastrada</h5>
+            <p style="color: rgba(255,255,255,0.3); font-size: 0.8rem;">Clique em "Nova Escola" para criar a primeira.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- PAGINAÇÃO -->
+{% if is_paginated %}
+<nav class="mt-3">
+    <ul class="pagination justify-content-center" style="flex-wrap: wrap; gap: 2px;">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" style="padding: 4px 10px; font-size: 0.8rem;">Anterior</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link" style="padding: 4px 10px; font-size: 0.8rem;">{{ page_obj.number }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" style="padding: 4px 10px; font-size: 0.8rem;">Próximo</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<!-- ============================================ -->
+<!-- MODAL DO FORMULÁRIO (ESCOLA)                -->
+<!-- ============================================ -->
+<div class="modal fade" id="globalModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content metal-modal-content">
+            <div class="modal-header metal-modal-header">
+                <h5 class="modal-title" id="modalTitle" style="font-size: 1rem;">
+                    <i class="bi bi-building me-2"></i>Nova Escola
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody" style="padding: 12px;">
+                <!-- Conteúdo carregado via AJAX -->
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted" style="font-size: 0.9rem;">Carregando formulário...</p>
+                </div>
+            </div>
+            <div class="modal-footer metal-modal-footer" style="padding: 10px 12px;">
+                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal" style="font-size: 0.85rem; padding: 6px 14px;">Cancelar</button>
+                <button type="button" class="metal-btn-primary" id="modalSaveBtn" onclick="window.salvarEscola()" style="font-size: 0.85rem; padding: 6px 14px;">
+                    <i class="bi bi-check-circle me-2"></i>Salvar Escola
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilos base mantidos */
+    .metal-header {
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+        border-radius: 16px;
+        padding: 1.2rem 1.2rem;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .metal-title { color: white; font-weight: 700; font-size: 1.2rem; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    .metal-subtitle { color: rgba(255,255,255,0.9) !important; font-size: 0.8rem; }
+    .metal-btn-primary {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 6px 14px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+    .metal-btn-primary:hover { background: rgba(255,255,255,0.25); transform: translateY(-2px); color: white; }
+    .metal-btn-secondary {
+        background: rgba(108,117,125,0.2);
+        border: 1px solid rgba(108,117,125,0.3);
+        color: #6c757d;
+        padding: 6px 14px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+    .metal-btn-secondary:hover { background: rgba(108,117,125,0.3); transform: translateY(-2px); color: #5a6268; }
+
+    .metal-form-control, .metal-form-select {
+        background: rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 10px;
+        padding: 8px 12px;
+        color: #ffffff !important;
+        font-size: 14px;
+        width: 100%;
+    }
+    .metal-form-control:focus, .metal-form-select:focus {
+        border-color: #00d4ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2) !important;
+        outline: none;
+        background: rgba(255,255,255,0.08) !important;
+        color: #ffffff !important;
+    }
+    .metal-form-control::placeholder {
+        color: rgba(255, 255, 255, 0.3) !important;
+    }
+    .metal-form-label { 
+        color: rgba(255, 255, 255, 0.9) !important; 
+        font-weight: 500; 
+        font-size: 0.8rem; 
+        margin-bottom: 0.2rem; 
+        display: block; 
+    }
+
+    .metal-modal-content { 
+        background: #0a0e1a; 
+        border: 1px solid rgba(0, 212, 255, 0.2); 
+        border-radius: 16px; 
+    }
+    .metal-modal-header { 
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc); 
+        color: white; 
+        border-radius: 16px 16px 0 0; 
+        padding: 12px 16px; 
+    }
+    .metal-modal-header .btn-close-white {
+        filter: invert(1);
+    }
+    .metal-modal-footer { 
+        background: rgba(0,0,0,0.2); 
+        border-top: 1px solid rgba(255,255,255,0.05); 
+        padding: 12px 16px; 
+        border-radius: 0 0 16px 16px; 
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 1rem;
+        transition: all 0.3s ease;
+        color: #ffffff !important;
+        cursor: pointer;
+    }
+    .glass-card:hover { 
+        border-color: rgba(0, 212, 255, 0.15); 
+        box-shadow: 0 8px 32px rgba(0, 212, 255, 0.03); 
+        transform: translateY(-2px); 
+    }
+    .glass-card .display-6 {
+        color: #00d4ff !important;
+    }
+    .glass-card .display-6.text-success {
+        color: #2ed573 !important;
+    }
+    .glass-card .display-6.text-warning {
+        color: #ffa502 !important;
+    }
+    .glass-card .h5 {
+        color: #ffffff !important;
+        font-size: 1.2rem;
+    }
+    .glass-card .card-label {
+        color: #ffffff !important;
+        font-size: 0.65rem;
+    }
+
+    .badge { 
+        padding: 3px 10px; 
+        border-radius: 20px; 
+        font-weight: 600; 
+        font-size: 0.6rem; 
+        text-transform: uppercase; 
+        letter-spacing: 0.5px;
+        color: #ffffff !important;
+    }
+    .bg-success { background-color: #2ed573 !important; color: #ffffff !important; }
+    .bg-warning { background-color: #ffa502 !important; color: #212529 !important; }
+    .bg-danger { background-color: #ff4757 !important; color: #ffffff !important; }
+    .bg-primary { background-color: #00d4ff !important; color: #ffffff !important; }
+    .bg-secondary { background-color: #6c757d !important; color: #ffffff !important; }
+
+    .btn-outline-primary { color: #0dcaf0 !important; border-color: #0dcaf0 !important; }
+    .btn-outline-primary:hover { background: #0dcaf0 !important; color: #ffffff !important; }
+    .btn-outline-danger { color: #dc3545 !important; border-color: #dc3545 !important; }
+    .btn-outline-danger:hover { background: #dc3545 !important; color: #ffffff !important; }
+
+    .fade-in-up { 
+        animation: fadeInUp 0.5s ease forwards; 
+        opacity: 0; 
+    }
+    @keyframes fadeInUp { 
+        from { opacity: 0; transform: translateY(20px); } 
+        to { opacity: 1; transform: translateY(0); } 
+    }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+
+    .modal-body {
+        color: #ffffff !important;
+    }
+    .modal-body strong {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+    select option {
+        background-color: #1a1a2e !important;
+        color: #ffffff !important;
+    }
+
+    .page-link {
+        color: #1a1a2e !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+        border-color: rgba(0, 0, 0, 0.1) !important;
+    }
+    .page-link:hover {
+        background: rgba(255, 255, 255, 0.9) !important;
+        color: #0dcaf0 !important;
+    }
+    .page-item.active .page-link {
+        background: #0dcaf0 !important;
+        border-color: #0dcaf0 !important;
+        color: #ffffff !important;
+    }
+
+    .escola-logo {
+        flex-shrink: 0;
+    }
+
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .form-check-input:checked {
+        background-color: #00d4ff;
+        border-color: #00d4ff;
+    }
+    .form-check-label {
+        color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+        padding-left: 6px;
+        font-size: 0.85rem;
+    }
+    input[type="color"].metal-form-control {
+        padding: 4px;
+        height: 40px;
+    }
+
+    /* 🔥 OTIMIZAÇÕES PARA MOBILE */
+    @media (max-width: 576px) {
+        .metal-header {
+            padding: 0.8rem;
+        }
+        .metal-title {
+            font-size: 1rem;
+        }
+        .metal-subtitle {
+            font-size: 0.7rem;
+        }
+        .metal-btn-primary {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+        }
+        .metal-btn-primary i {
+            font-size: 0.8rem;
+        }
+        .glass-card {
+            padding: 0.6rem;
+        }
+        .glass-card .display-6 {
+            font-size: 1.2rem !important;
+        }
+        .glass-card .h5 {
+            font-size: 1rem !important;
+        }
+        .glass-card .card-label {
+            font-size: 0.5rem;
+        }
+        .modal-dialog {
+            margin: 0.5rem;
+        }
+        .modal-content {
+            border-radius: 12px !important;
+        }
+        .modal-header {
+            padding: 10px 12px !important;
+        }
+        .modal-header .modal-title {
+            font-size: 0.9rem !important;
+        }
+        .modal-body {
+            padding: 10px !important;
+        }
+        .modal-footer {
+            padding: 10px !important;
+        }
+        .modal-footer .metal-btn-primary,
+        .modal-footer .metal-btn-secondary {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+        }
+        .metal-form-control,
+        .metal-form-select {
+            font-size: 13px;
+            padding: 6px 10px;
+        }
+        .metal-form-label {
+            font-size: 0.7rem;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .metal-title {
+            font-size: 0.85rem;
+        }
+        .glass-card .display-6 {
+            font-size: 1rem !important;
+        }
+        .glass-card .h5 {
+            font-size: 0.85rem !important;
+        }
+        .escola-nome {
+            font-size: 0.75rem !important;
+        }
+        .escola-info {
+            font-size: 0.55rem !important;
+        }
+        .badge {
+            font-size: 0.5rem !important;
+            padding: 2px 6px !important;
+        }
+    }
+</style>
+
+<script>
+(function() {
+    "use strict";
+
+    function getCSRFToken() {
+        const token = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+        if (token) return token;
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        return meta ? meta.getAttribute('content') : '';
+    }
+
+    // ============================================
+    // FUNÇÃO PARA MOSTRAR MENSAGENS PERSONALIZADAS
+    // ============================================
+    function showMessage(message, type = 'success') {
+        const oldMessages = document.querySelectorAll('.custom-alert');
+        oldMessages.forEach(msg => msg.remove());
+
+        const colors = {
+            success: '#2ed573',
+            error: '#ff4757',
+            warning: '#ffa502',
+            info: '#00d4ff'
+        };
+
+        const icons = {
+            success: 'bi-check-circle-fill',
+            error: 'bi-exclamation-triangle-fill',
+            warning: 'bi-exclamation-triangle-fill',
+            info: 'bi-info-circle-fill'
+        };
+
+        const container = document.createElement('div');
+        container.className = 'custom-alert';
+        container.style.cssText = `
+            position: fixed;
+            top: 70px;
+            right: 10px;
+            left: 10px;
+            background: rgba(10, 14, 26, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid ${colors[type] || colors.success};
+            border-left: 4px solid ${colors[type] || colors.success};
+            color: #fff;
+            padding: 14px 18px;
+            border-radius: 12px;
+            z-index: 999999;
+            max-width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            animation: slideInRight 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.85rem;
+        `;
+
+        container.innerHTML = `
+            <i class="bi ${icons[type] || icons.success}" style="font-size: 1.3rem; color: ${colors[type] || colors.success}; flex-shrink: 0;"></i>
+            <span style="flex: 1; font-size: 0.85rem;">${message}</span>
+            <button onclick="this.parentElement.remove()" style="background: none; border: none; color: rgba(255,255,255,0.3); font-size: 1.2rem; cursor: pointer; padding: 0 4px;">
+                <i class="bi bi-x"></i>
+            </button>
+        `;
+
+        document.body.appendChild(container);
+
+        setTimeout(() => {
+            if (container.parentNode) {
+                container.style.animation = 'slideOutRight 0.4s ease forwards';
+                setTimeout(() => container.remove(), 400);
+            }
+        }, 5000);
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(50px); opacity: 0; }
+        }
+        @media (min-width: 576px) {
+            .custom-alert {
+                top: 80px !important;
+                right: 20px !important;
+                left: auto !important;
+                max-width: 420px !important;
+                min-width: 280px !important;
+                padding: 16px 24px !important;
+            }
+            .custom-alert span {
+                font-size: 0.9rem !important;
+            }
+            .custom-alert i {
+                font-size: 1.5rem !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // ============================================
+    // FILTRAR ESCOLAS
+    // ============================================
+    window.filtrarEscolas = function() {
+        const search = document.getElementById('searchEscola').value.toLowerCase().trim();
+        const items = document.querySelectorAll('.escola-item');
+        let visiveis = 0;
+        
+        const emptyMsg = document.getElementById('emptySearchMsg');
+        if (emptyMsg) emptyMsg.remove();
+        
+        items.forEach(item => {
+            const nome = item.dataset.nome || '';
+            const cidade = item.dataset.cidade || '';
+            const email = item.dataset.email || '';
+            
+            if (search === '' || nome.includes(search) || cidade.includes(search) || email.includes(search)) {
+                item.style.display = '';
+                visiveis++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        if (visiveis === 0 && items.length > 0 && search !== '') {
+            const msg = document.createElement('div');
+            msg.id = 'emptySearchMsg';
+            msg.className = 'col-12';
+            msg.innerHTML = `
+                <div class="glass-card text-center py-4">
+                    <i class="bi bi-search" style="font-size: 2rem; color: rgba(255,255,255,0.2);"></i>
+                    <p class="mt-2" style="color: rgba(255,255,255,0.3);">Nenhuma escola encontrada para "<strong>${search}</strong>"</p>
+                </div>
+            `;
+            document.getElementById('listaEscolas').appendChild(msg);
+        }
+    };
+
+    // ============================================
+    // ABRIR MODAL NOVA ESCOLA
+    // ============================================
+    window.abrirModalNovaEscola = function() {
+        fetch('/escola/api/escolas/nova/', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Erro na requisição');
+            return response.text();
+        })
+        .then(html => {
+            document.getElementById('modalTitle').textContent = 'Nova Escola';
+            document.getElementById('modalBody').innerHTML = html;
+            document.getElementById('modalSaveBtn').style.display = 'block';
+            document.getElementById('modalSaveBtn').textContent = 'Salvar Escola';
+            document.getElementById('modalSaveBtn').onclick = function() {
+                window.salvarEscola();
+            };
+            const modal = new bootstrap.Modal(document.getElementById('globalModal'));
+            modal.show();
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showMessage('❌ Erro ao abrir formulário: ' + error.message, 'error');
+        });
+    };
+
+    // ============================================
+    // ABRIR MODAL EDITAR ESCOLA
+    // ============================================
+    window.editarEscola = function(escolaId) {
+        fetch(`/escola/api/escolas/editar/${escolaId}/`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Erro na requisição');
+            return response.text();
+        })
+        .then(html => {
+            document.getElementById('modalTitle').textContent = 'Editar Escola';
+            document.getElementById('modalBody').innerHTML = html;
+            document.getElementById('modalSaveBtn').style.display = 'block';
+            document.getElementById('modalSaveBtn').textContent = 'Atualizar Escola';
+            document.getElementById('modalSaveBtn').onclick = function() {
+                window.salvarEscola();
+            };
+            const modal = new bootstrap.Modal(document.getElementById('globalModal'));
+            modal.show();
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showMessage('❌ Erro ao abrir formulário: ' + error.message, 'error');
+        });
+    };
+
+    // ============================================
+    // SALVAR ESCOLA
+    // ============================================
+    window.salvarEscola = function() {
+        const form = document.getElementById('escolaForm');
+        if (!form) {
+            showMessage('❌ Formulário não encontrado', 'error');
+            return;
+        }
+
+        const formData = new FormData(form);
+        
+        const escolaId = document.getElementById('escola_id')?.value || '';
+        const url = escolaId ? `/escola/api/escolas/salvar/${escolaId}/` : '/escola/api/escolas/salvar/';
+        
+        const saveBtn = document.getElementById('modalSaveBtn');
+        const originalText = saveBtn.textContent;
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Salvando...';
+        
+        fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCSRFToken(),
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            saveBtn.disabled = false;
+            saveBtn.textContent = originalText;
+            
+            if (data.success) {
+                showMessage('✅ ' + data.message, 'success');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('globalModal'));
+                if (modal) modal.hide();
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                let errors = '';
+                if (data.errors) {
+                    for (let field in data.errors) {
+                        let fieldName = field;
+                        if (field === 'cnpj') fieldName = 'NIF';
+                        else if (field === 'estado') fieldName = 'Província';
+                        else if (field === 'cep') fieldName = 'Código Postal';
+                        else if (field === 'telefone') fieldName = 'Telefone';
+                        errors += `${fieldName}: ${data.errors[field]}\n`;
+                    }
+                } else {
+                    errors = data.message || 'Erro ao salvar escola';
+                }
+                showMessage('❌ ' + errors, 'error');
+            }
+        })
+        .catch(error => {
+            saveBtn.disabled = false;
+            saveBtn.textContent = originalText;
+            console.error('Erro:', error);
+            showMessage('❌ Erro ao salvar escola: ' + error.message, 'error');
+        });
+    };
+
+    // ============================================
+    // DELETAR ESCOLA
+    // ============================================
+    window.deletarEscola = function(escolaId, nome) {
+        const confirmDiv = document.createElement('div');
+        confirmDiv.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+            padding: 16px;
+        `;
+        
+        confirmDiv.innerHTML = `
+            <div style="
+                background: rgba(10, 14, 26, 0.95);
+                border: 1px solid rgba(255, 71, 87, 0.3);
+                border-radius: 16px;
+                padding: 24px 20px;
+                max-width: 400px;
+                width: 100%;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            ">
+                <div style="text-align: center; margin-bottom: 16px;">
+                    <i class="bi bi-exclamation-triangle-fill" style="font-size: 2.5rem; color: #ff4757;"></i>
+                    <h4 style="color: #fff; margin-top: 10px; font-size: 1.1rem;">Confirmar Exclusão</h4>
+                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 0; font-size: 0.9rem;">
+                        Tem certeza que deseja excluir a escola <strong style="color: #fff;">"${nome}"</strong>?
+                    </p>
+                    <p style="color: rgba(255,71,87,0.6); font-size: 0.75rem; margin-top: 6px;">
+                        <i class="bi bi-exclamation-circle"></i> Esta ação não pode ser desfeita!
+                    </p>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button onclick="this.closest('div[style]').parentElement.remove()" style="
+                        background: rgba(255,255,255,0.05);
+                        border: 1px solid rgba(255,255,255,0.1);
+                        color: rgba(255,255,255,0.6);
+                        padding: 8px 20px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        transition: all 0.3s ease;
+                        font-size: 0.85rem;
+                    ">Cancelar</button>
+                    <button onclick="window.confirmarDeletar(${escolaId})" style="
+                        background: linear-gradient(135deg, #ff4757, #c82333);
+                        border: none;
+                        color: white;
+                        padding: 8px 20px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        transition: all 0.3s ease;
+                        font-size: 0.85rem;
+                    ">Excluir</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(confirmDiv);
+        
+        const styleConfirm = document.createElement('style');
+        styleConfirm.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+        `;
+        document.head.appendChild(styleConfirm);
+    };
+
+    // ============================================
+    // CONFIRMAR E DELETAR
+    // ============================================
+    window.confirmarDeletar = function(escolaId) {
+        const confirmModal = document.querySelector('div[style*="position: fixed"][style*="z-index: 999999"]');
+        if (confirmModal) confirmModal.remove();
+
+        showMessage('⏳ Excluindo escola...', 'info');
+
+        fetch(`/escola/api/escolas/deletar/${escolaId}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCSRFToken(),
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showMessage('✅ ' + data.message, 'success');
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                showMessage('❌ ' + (data.errors?.error || 'Erro desconhecido'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showMessage('❌ Erro ao deletar escola: ' + error.message, 'error');
+        });
+    };
+
+    // ============================================
+    // 🔥 NOVA FUNÇÃO: ENTRAR NA ESCOLA
+    // ============================================
+    window.entrarNaEscola = function(slug) {
+        if (!slug) {
+            showMessage('❌ Slug da escola não encontrado', 'error');
+            return;
+        }
+        
+        // Mostrar loading
+        showMessage('⏳ Entrando na escola...', 'info');
+        
+        // Redirecionar para a URL da escola
+        setTimeout(function() {
+            window.location.href = '/escola/' + slug + '/';
+        }, 500);
+    };
+
+    console.log('✅ Funções de escolas registradas no window');
+})();
+</script>

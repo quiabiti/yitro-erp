@@ -1,0 +1,141 @@
+{% load static %}
+<form id="escolaForm" enctype="multipart/form-data">
+    <input type="hidden" name="escola_id" value="{{ escola.id|default:'' }}">
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label text-white" style="color: #ffffff !important;">Nome da Escola *</label>
+            <input type="text" name="nome" class="form-control" placeholder="Ex: Colégio Yitro" value="{{ escola.nome|default:'' }}" required style="color: #ffffff !important; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label text-white" style="color: #ffffff !important;">Nome Fantasia</label>
+            <input type="text" name="nome_fantasia" class="form-control" placeholder="Ex: Yitro Educação" value="{{ escola.nome_fantasia|default:'' }}" style="color: #ffffff !important; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label text-white" style="color: #ffffff !important;">NIF *</label>
+            <input type="text" name="cnpj" class="form-control" placeholder="Ex: 5001234567" value="{{ escola.cnpj|default:'' }}" required style="color: #ffffff !important; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+            <small style="color: rgba(255,255,255,0.5);">Número de Identificação Fiscal (9 dígitos)</small>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label text-white" style="color: #ffffff !important;">Slug</label>
+            <input type="text" name="slug" class="form-control" placeholder="identificador-unico" value="{{ escola.slug|default:'' }}" style="color: #ffffff !important; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+            <small style="color: rgba(255,255,255,0.5);">Deixe em branco para gerar automaticamente</small>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label text-white" style="color: #ffffff !important;">E-mail *</label>
+            <input type="email" name="email" class="form-control" placeholder="contato@escola.com" value="{{ escola.email|default:'' }}" required style="color: #ffffff !important; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label text-white" style="color: #ffffff !important;">Telefone *</label>
+            <input type="text" name="telefone" class="form-control" placeholder="Ex: 923 456 789" value="{{ escola.telefone|default:'' }}" required style="color: #ffffff !important; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+            <small style="color: rgba(255,255,255,0.5);">Formato: 9xx xxx xxx</small>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label text-white" style="color: #ffffff !important;">WhatsApp</label>
+        <input type="text" name="whatsapp" class="form-control" placeholder="Ex: 923 456 789" value="{{ escola.whatsapp|default:'' }}" style="color: #ffffff !important; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label text-white" style="color: #ffffff !important;">Endereço *</label>
+        <input type="text" name="endereco" class="form-control" placeholder="Rua, número, bairro" value="{{ escola.endereco|default:'' }}" required style="color: #ffffff !important; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label text-white" style="color: #ffffff !important;">Cidade *</label>
+            <input type="text" name="cidade" class="form-control" placeholder="Ex: Luanda" value="{{ escola.cidade|default:'' }}" required style="color: #ffffff !important; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label text-white" style="color: #ffffff !important;">Província *</label>
+            <select name="estado" class="form-select" required style="color: #ffffff !important; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                <option value="">Selecione...</option>
+                <option value="Bengo" {% if escola.estado == 'Bengo' %}selected{% endif %}>Bengo</option>
+                <option value="Benguela" {% if escola.estado == 'Benguela' %}selected{% endif %}>Benguela</option>
+                <option value="Bié" {% if escola.estado == 'Bié' %}selected{% endif %}>Bié</option>
+                <option value="Cabinda" {% if escola.estado == 'Cabinda' %}selected{% endif %}>Cabinda</option>
+                <option value="Cuando Cubango" {% if escola.estado == 'Cuando Cubango' %}selected{% endif %}>Cuando Cubango</option>
+                <option value="Cuanza Norte" {% if escola.estado == 'Cuanza Norte' %}selected{% endif %}>Cuanza Norte</option>
+                <option value="Cuanza Sul" {% if escola.estado == 'Cuanza Sul' %}selected{% endif %}>Cuanza Sul</option>
+                <option value="Cunene" {% if escola.estado == 'Cunene' %}selected{% endif %}>Cunene</option>
+                <option value="Huambo" {% if escola.estado == 'Huambo' %}selected{% endif %}>Huambo</option>
+                <option value="Huíla" {% if escola.estado == 'Huíla' %}selected{% endif %}>Huíla</option>
+                <option value="Luanda" {% if escola.estado == 'Luanda' %}selected{% endif %}>Luanda</option>
+                <option value="Lunda Norte" {% if escola.estado == 'Lunda Norte' %}selected{% endif %}>Lunda Norte</option>
+                <option value="Lunda Sul" {% if escola.estado == 'Lunda Sul' %}selected{% endif %}>Lunda Sul</option>
+                <option value="Malanje" {% if escola.estado == 'Malanje' %}selected{% endif %}>Malanje</option>
+                <option value="Moxico" {% if escola.estado == 'Moxico' %}selected{% endif %}>Moxico</option>
+                <option value="Namibe" {% if escola.estado == 'Namibe' %}selected{% endif %}>Namibe</option>
+                <option value="Uíge" {% if escola.estado == 'Uíge' %}selected{% endif %}>Uíge</option>
+                <option value="Zaire" {% if escola.estado == 'Zaire' %}selected{% endif %}>Zaire</option>
+            </select>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label text-white" style="color: #ffffff !important;">Código Postal (opcional)</label>
+            <input type="text" name="cep" class="form-control" placeholder="Ex: 1000" value="{{ escola.cep|default:'' }}" style="color: #ffffff !important; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+            <small style="color: rgba(255,255,255,0.5);">Código postal da região (opcional)</small>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label text-white" style="color: #ffffff !important;">Cor Primária</label>
+            <input type="color" name="cor_primaria" class="form-control form-control-color" value="{{ escola.cor_primaria|default:'#00d4ff' }}" style="padding: 4px; height: 45px;">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label text-white" style="color: #ffffff !important;">Cor Secundária</label>
+            <input type="color" name="cor_secundaria" class="form-control form-control-color" value="{{ escola.cor_secundaria|default:'#7b2ffc' }}" style="padding: 4px; height: 45px;">
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label text-white" style="color: #ffffff !important;">Logo</label>
+        {% if escola.logo %}
+            <div class="mb-2">
+                <img src="{{ escola.logo.url }}" alt="Logo atual" style="height: 60px; border-radius: 8px;">
+            </div>
+        {% endif %}
+        <input type="file" name="logo" class="form-control" accept="image/*" style="color: #ffffff !important; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+        <small style="color: rgba(255,255,255,0.5);">Formatos permitidos: PNG, JPG, JPEG, SVG</small>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label text-white" style="color: #ffffff !important;">Regime Tributário</label>
+            <select name="regime_tributario" class="form-select" style="color: #ffffff !important; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                <option value="SN" {% if escola.regime_tributario == 'SN' %}selected{% endif %}>Simples Nacional</option>
+                <option value="ME" {% if escola.regime_tributario == 'ME' %}selected{% endif %}>Microempresa</option>
+                <option value="EP" {% if escola.regime_tributario == 'EP' %}selected{% endif %}>Empresa de Pequeno Porte</option>
+                <option value="GE" {% if escola.regime_tributario == 'GE' %}selected{% endif %}>Grande Empresa</option>
+            </select>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label text-white" style="color: #ffffff !important;">Alíquota ISS (%)</label>
+            <input type="number" name="aliquota_iss" class="form-control" step="0.01" value="{{ escola.aliquota_iss|default:'2.00' }}" style="color: #ffffff !important; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label text-white" style="color: #ffffff !important;">Plano</label>
+            <select name="plano" class="form-select" style="color: #ffffff !important; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                <option value="BASIC" {% if escola.plano == 'BASIC' %}selected{% endif %}>Básico</option>
+                <option value="PRO" {% if escola.plano == 'PRO' %}selected{% endif %}>Profissional</option>
+                <option value="ENTERPRISE" {% if escola.plano == 'ENTERPRISE' %}selected{% endif %}>Empresarial</option>
+            </select>
+        </div>
+        <div class="col-md-6 mb-3 d-flex align-items-center">
+            <div class="form-check">
+                <input type="checkbox" name="ativo" class="form-check-input" id="ativo" {% if escola.ativo %}checked{% endif %} style="accent-color: #00d4ff;">
+                <label class="form-check-label text-white" for="ativo" style="color: #ffffff !important;">Escola Ativa</label>
+            </div>
+        </div>
+    </div>
+</form>

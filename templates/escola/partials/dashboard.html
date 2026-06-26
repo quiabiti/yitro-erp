@@ -1,0 +1,303 @@
+{% load static %}
+{% load humanize %}
+
+<!-- ============================================ -->
+<!-- DASHBOARD GERAL + DASHBOARD ESCOLA          -->
+<!-- ============================================ -->
+
+{% if is_admin %}
+    <!-- 🔥 DASHBOARD GERAL (YITRO ADMIN) -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="text-white">📊 Painel Administrativo</h4>
+            <p class="text-muted">Visão geral das escolas e estatísticas</p>
+        </div>
+    </div>
+
+    <!-- Estatísticas Gerais -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="glass-card text-center">
+                <h6 class="text-muted">Total de Escolas</h6>
+                <h2 class="text-white">{{ total_escolas|default:0 }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="glass-card text-center">
+                <h6 class="text-muted">Total de Usuários</h6>
+                <h2 class="text-white">{{ total_usuarios|default:0 }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="glass-card text-center">
+                <h6 class="text-muted">Escolas Ativas</h6>
+                <h2 class="text-white">{{ escolas_ativas|default:0 }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="glass-card text-center">
+                <h6 class="text-muted">Escolas Inativas</h6>
+                <h2 class="text-white">{{ escolas_inativas|default:0 }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Últimas Escolas -->
+    <div class="row">
+        <div class="col-12">
+            <div class="glass-card">
+                <h6 class="text-white mb-3">📋 Últimas Escolas Cadastradas</h6>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Cidade</th>
+                                <th>Plano</th>
+                                <th>Status</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for escola in ultimas_escolas|default:"" %}
+                            <tr>
+                                <td>{{ escola.nome }}</td>
+                                <td>{{ escola.cidade }}/{{ escola.estado }}</td>
+                                <td><span class="badge bg-primary">{{ escola.plano }}</span></td>
+                                <td>
+                                    <span class="badge {% if escola.ativo %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ escola.ativo|yesno:"Ativo,Inativo" }}
+                                    </span>
+                                </td>
+                                <td>{{ escola.data_criacao|date:"d/m/Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">Nenhuma escola cadastrada</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% else %}
+    <!-- 🔥 DASHBOARD DA ESCOLA (USUÁRIO COMUM) -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="text-white">🏫 Dashboard da Escola</h4>
+            <p class="text-muted">Bem-vindo, {{ user.get_full_name|default:user.username }}!</p>
+        </div>
+    </div>
+
+    <!-- Cards de Estatísticas da Escola -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="glass-card text-center">
+                <h6 class="text-muted">Alunos</h6>
+                <h2 class="text-white">{{ total_alunos|default:0 }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="glass-card text-center">
+                <h6 class="text-muted">Turmas</h6>
+                <h2 class="text-white">{{ total_turmas|default:0 }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="glass-card text-center">
+                <h6 class="text-muted">Professores</h6>
+                <h2 class="text-white">{{ total_professores|default:0 }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="glass-card text-center">
+                <h6 class="text-muted">Disciplinas</h6>
+                <h2 class="text-white">{{ total_disciplinas|default:0 }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ações Rápidas -->
+    <div class="row">
+        <div class="col-12">
+            <div class="glass-card">
+                <h6 class="text-white mb-3">⚡ Ações Rápidas</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-primary" onclick="loadPage('alunos')">
+                        <i class="bi bi-person-plus"></i> Gerenciar Alunos
+                    </button>
+                    <button class="btn btn-success" onclick="loadPage('turmas')">
+                        <i class="bi bi-people"></i> Gerenciar Turmas
+                    </button>
+                    <button class="btn btn-warning" onclick="loadPage('matriculas')">
+                        <i class="bi bi-file-earmark-text"></i> Gerenciar Matrículas
+                    </button>
+                    <button class="btn btn-info" onclick="loadPage('professores')">
+                        <i class="bi bi-person-badge"></i> Gerenciar Professores
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Últimas Matrículas -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="glass-card">
+                <h6 class="text-white mb-3">📝 Últimas Matrículas</h6>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>Aluno</th>
+                                <th>Turma</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">Nenhuma matrícula recente</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<style>
+    /* ===== GLASS CARD - ESTILO ESCURO (IGUAL AO TEMPLATE DE PRODUTOS) ===== */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 1.25rem;
+        transition: all 0.3s ease;
+        color: #ffffff !important;
+    }
+    .glass-card:hover {
+        border-color: rgba(0, 212, 255, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 212, 255, 0.03);
+        transform: translateY(-2px);
+    }
+    .glass-card h2 {
+        font-weight: 700;
+        color: #ffffff !important;
+    }
+    .glass-card h6 {
+        color: rgba(255, 255, 255, 0.5) !important;
+        font-weight: 400;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .glass-card .text-muted {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+    .glass-card .text-white {
+        color: #ffffff !important;
+    }
+
+    /* ===== TABELA - ESTILO ESCURO ===== */
+    .table {
+        color: #1a1a2e !important;
+        margin-bottom: 0;
+    }
+    .table.table-dark {
+        color: #ffffff !important;
+        background-color: transparent !important;
+    }
+    .table.table-dark th {
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.6) !important;
+        font-weight: 600;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 10px 8px;
+        background: rgba(0, 0, 0, 0.2);
+    }
+    .table.table-dark td {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        vertical-align: middle;
+        color: #ffffff !important;
+        padding: 10px 8px;
+        font-size: 0.85rem;
+    }
+    .table-hover tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+    .table.table-dark strong {
+        color: #ffffff !important;
+    }
+
+    /* ===== BADGES ===== */
+    .badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #ffffff !important;
+    }
+    .bg-success { background-color: #2ed573 !important; color: #ffffff !important; }
+    .bg-warning { background-color: #ffa502 !important; color: #212529 !important; }
+    .bg-danger { background-color: #ff4757 !important; color: #ffffff !important; }
+    .bg-primary { background-color: #00d4ff !important; color: #ffffff !important; }
+    .bg-secondary { background-color: #6c757d !important; color: #ffffff !important; }
+    .bg-info { background-color: #00d4ff !important; color: #ffffff !important; }
+
+    /* ===== BOTÕES - ESTILO ESCURO ===== */
+    .btn {
+        border: none;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+        color: #ffffff !important;
+    }
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        color: #ffffff !important;
+    }
+    .btn-primary { background: linear-gradient(135deg, #00d4ff, #0099cc); }
+    .btn-success { background: linear-gradient(135deg, #2ed573, #1a9c4a); }
+    .btn-warning { background: linear-gradient(135deg, #ffa502, #d48700); color: #212529 !important; }
+    .btn-warning:hover { color: #212529 !important; }
+    .btn-info { background: linear-gradient(135deg, #7b2ffc, #5a1fc9); }
+
+    /* ===== TEXTOS ===== */
+    .text-white { color: #ffffff !important; }
+    .text-muted { color: rgba(255, 255, 255, 0.5) !important; }
+
+    /* ===== RESPONSIVO ===== */
+    @media (max-width: 576px) {
+        .glass-card {
+            padding: 0.8rem;
+        }
+        .glass-card h2 {
+            font-size: 1.3rem;
+        }
+        .glass-card h6 {
+            font-size: 0.6rem;
+        }
+        .table th, .table td {
+            font-size: 0.65rem !important;
+            padding: 6px 4px !important;
+        }
+        .btn {
+            font-size: 0.7rem;
+            padding: 6px 12px;
+        }
+    }
+</style>

@@ -25,11 +25,7 @@
             --sidebar-width: 260px;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body, html {
             height: 100%;
@@ -41,7 +37,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* ===== FUNDO COM VÍDEO ===== */
         .hero-background {
             position: fixed;
             top: 0;
@@ -142,7 +137,6 @@
             pointer-events: none;
             z-index: 2;
         }
-
         .glow-circle-1 {
             width: 500px;
             height: 500px;
@@ -150,7 +144,6 @@
             right: -200px;
             background: radial-gradient(circle, rgba(0, 212, 255, 0.04), transparent 70%);
         }
-
         .glow-circle-2 {
             width: 300px;
             height: 300px;
@@ -159,7 +152,6 @@
             background: radial-gradient(circle, rgba(123, 47, 252, 0.03), transparent 70%);
         }
 
-        /* ===== OVERLAY DE PROCESSAMENTO ===== */
         #globalLoadingOverlay {
             position: fixed;
             top: 0;
@@ -178,11 +170,7 @@
             transition: opacity 0.4s ease;
             overflow: hidden;
         }
-
-        #globalLoadingOverlay.active {
-            display: flex;
-            opacity: 1;
-        }
+        #globalLoadingOverlay.active { display: flex; opacity: 1; }
 
         .loading-bg-animation {
             position: absolute;
@@ -196,11 +184,7 @@
                 radial-gradient(ellipse at 80% 50%, rgba(123, 47, 252, 0.05) 0%, transparent 60%);
             animation: bgPulse 4s ease-in-out infinite;
         }
-
-        @keyframes bgPulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
+        @keyframes bgPulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
         .loading-grid {
             position: absolute;
@@ -216,7 +200,6 @@
             animation: gridMove 20s linear infinite;
             pointer-events: none;
         }
-
         @keyframes gridMove {
             0% { transform: translate(0, 0) rotate(0deg); }
             100% { transform: translate(80px, 80px) rotate(2deg); }
@@ -230,11 +213,7 @@
             align-items: center;
             animation: contentFloat 3s ease-in-out infinite;
         }
-
-        @keyframes contentFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
+        @keyframes contentFloat { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
 
         .loading-spinner-dinamico {
             position: relative;
@@ -259,7 +238,6 @@
             animation-delay: 0s;
             box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
         }
-
         .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(2) {
             width: 90px;
             height: 90px;
@@ -267,7 +245,6 @@
             animation-delay: 0.3s;
             box-shadow: 0 0 20px rgba(123, 47, 252, 0.2);
         }
-
         .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(3) {
             width: 60px;
             height: 60px;
@@ -275,7 +252,6 @@
             animation-delay: 0.6s;
             box-shadow: 0 0 20px rgba(212, 168, 67, 0.2);
         }
-
         .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(4) {
             width: 30px;
             height: 30px;
@@ -284,10 +260,7 @@
             box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
         }
 
-        @keyframes spinDinamico {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(720deg); }
-        }
+        @keyframes spinDinamico { 0% { transform: rotate(0deg); } 100% { transform: rotate(720deg); } }
 
         .loading-text-dinamico {
             font-family: 'Orbitron', monospace;
@@ -298,7 +271,6 @@
             text-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
             animation: glowText 2s ease-in-out infinite;
         }
-
         @keyframes glowText {
             0%, 100% { text-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
             50% { text-shadow: 0 0 60px rgba(0, 212, 255, 0.6); }
@@ -308,7 +280,6 @@
             display: inline-block;
             animation: dotDinamico 1.2s ease-in-out infinite both;
         }
-
         .loading-dot-dinamico:nth-child(1) { animation-delay: 0s; }
         .loading-dot-dinamico:nth-child(2) { animation-delay: 0.2s; }
         .loading-dot-dinamico:nth-child(3) { animation-delay: 0.4s; }
@@ -327,18 +298,13 @@
             text-transform: uppercase;
             position: relative;
         }
-
         .loading-message-dinamico::after {
             content: '|';
             color: #00d4ff;
             animation: cursorBlink 0.8s step-end infinite;
             margin-left: 4px;
         }
-
-        @keyframes cursorBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
+        @keyframes cursorBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
         .loading-progress-bar {
             width: 300px;
@@ -359,16 +325,8 @@
             animation: progressFill 2s ease-in-out infinite, progressShine 2s linear infinite;
         }
 
-        @keyframes progressFill {
-            0% { width: 0%; }
-            50% { width: 70%; }
-            100% { width: 100%; }
-        }
-
-        @keyframes progressShine {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
+        @keyframes progressFill { 0% { width: 0%; } 50% { width: 70%; } 100% { width: 100%; } }
+        @keyframes progressShine { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
         .loading-particles-dinamico {
             position: absolute;
@@ -415,7 +373,6 @@
             100% { transform: translateY(-10vh) scale(1) rotate(720deg); opacity: 0; }
         }
 
-        /* ===== LOGOTIPO YITRO 3D ===== */
         .logo-yitro {
             display: flex;
             align-items: center;
@@ -448,7 +405,6 @@
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
             position: relative;
         }
-
         .logo-yitro .logo-text::after {
             content: '';
             position: absolute;
@@ -460,7 +416,6 @@
             opacity: 0.3;
         }
 
-        /* ===== LAYOUT PRINCIPAL ===== */
         .app-wrapper {
             display: flex;
             min-height: 100vh;
@@ -468,7 +423,6 @@
             z-index: 10;
         }
 
-        /* ===== SIDEBAR ===== */
         .sidebar {
             position: fixed;
             top: 0;
@@ -486,27 +440,13 @@
             overflow-y: auto;
             box-shadow: 4px 0 40px rgba(0, 0, 0, 0.5);
         }
+        .sidebar.open { transform: translateX(0); }
 
-        .sidebar.open {
-            transform: translateX(0);
-        }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.3); border-radius: 2px; }
 
-        .sidebar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .sidebar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .sidebar::-webkit-scrollbar-thumb {
-            background: rgba(0, 212, 255, 0.3);
-            border-radius: 2px;
-        }
-
-        .sidebar-nav {
-            padding: 0 12px;
-            margin-top: 20px;
-        }
-
+        .sidebar-nav { padding: 0 12px; margin-top: 20px; }
         .sidebar-nav .nav-label {
             font-size: 0.6rem;
             text-transform: uppercase;
@@ -530,25 +470,13 @@
             cursor: pointer;
             position: relative;
         }
-
-        .sidebar-nav .nav-link-tech i {
-            font-size: 1.2rem;
-            width: 24px;
-            text-align: center;
-            flex-shrink: 0;
-        }
-
-        .sidebar-nav .nav-link-tech:hover {
-            background: rgba(0, 212, 255, 0.08);
-            color: #fff;
-        }
-
+        .sidebar-nav .nav-link-tech i { font-size: 1.2rem; width: 24px; text-align: center; flex-shrink: 0; }
+        .sidebar-nav .nav-link-tech:hover { background: rgba(0, 212, 255, 0.08); color: #fff; }
         .sidebar-nav .nav-link-tech.active {
             background: rgba(0, 212, 255, 0.12);
             color: var(--primary);
             border: 1px solid rgba(0, 212, 255, 0.15);
         }
-
         .sidebar-nav .nav-link-tech.active::before {
             content: '';
             position: absolute;
@@ -561,7 +489,6 @@
             border-radius: 0 3px 3px 0;
             box-shadow: 0 0 15px var(--primary);
         }
-
         .sidebar-nav .nav-link-tech .badge-count {
             margin-left: auto;
             font-size: 0.55rem;
@@ -570,10 +497,41 @@
             background: rgba(0, 212, 255, 0.08);
             color: rgba(255, 255, 255, 0.3);
         }
-
         .sidebar-nav .nav-link-tech.active .badge-count {
             background: rgba(0, 212, 255, 0.15);
             color: var(--primary);
+        }
+
+        /* 🔥 ESTILOS PARA SUBMENU */
+        .sidebar-nav .submenu {
+            display: none;
+            padding-left: 20px;
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }
+        .sidebar-nav .submenu.open {
+            display: block;
+        }
+        .sidebar-nav .submenu .nav-link-tech {
+            font-size: 0.78rem;
+            padding: 6px 14px 6px 30px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .sidebar-nav .submenu .nav-link-tech:hover {
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(0, 212, 255, 0.05);
+        }
+        .sidebar-nav .submenu .nav-link-tech i {
+            font-size: 0.9rem;
+            width: 20px;
+        }
+        .sidebar-nav .nav-link-tech .chevron {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+            font-size: 0.7rem;
+        }
+        .sidebar-nav .nav-link-tech .chevron.rotated {
+            transform: rotate(90deg);
         }
 
         .sidebar-user {
@@ -584,7 +542,6 @@
             align-items: center;
             gap: 12px;
         }
-
         .sidebar-user .user-avatar-sm {
             width: 38px;
             height: 38px;
@@ -593,28 +550,9 @@
             padding: 2px;
             flex-shrink: 0;
         }
-
-        .sidebar-user .user-avatar-sm img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .sidebar-user .user-name-sm {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #fff;
-            line-height: 1.2;
-        }
-
-        .sidebar-user .user-role-sm {
-            font-size: 0.6rem;
-            color: rgba(255, 255, 255, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
+        .sidebar-user .user-avatar-sm img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .sidebar-user .user-name-sm { font-size: 0.85rem; font-weight: 600; color: #fff; line-height: 1.2; }
+        .sidebar-user .user-role-sm { font-size: 0.6rem; color: rgba(255, 255, 255, 0.3); text-transform: uppercase; letter-spacing: 1px; }
         .sidebar-user .logout-btn {
             margin-left: auto;
             color: rgba(255, 255, 255, 0.3);
@@ -624,13 +562,8 @@
             border-radius: 8px;
             text-decoration: none;
         }
+        .sidebar-user .logout-btn:hover { color: #ff4757; background: rgba(255, 71, 87, 0.1); }
 
-        .sidebar-user .logout-btn:hover {
-            color: #ff4757;
-            background: rgba(255, 71, 87, 0.1);
-        }
-
-        /* ===== OVERLAY DO SIDEBAR ===== */
         .sidebar-overlay {
             position: fixed;
             top: 0;
@@ -641,12 +574,8 @@
             z-index: 1040;
             display: none;
         }
+        .sidebar-overlay.active { display: block; }
 
-        .sidebar-overlay.active {
-            display: block;
-        }
-
-        /* ===== BOTÃO TOGGLE SIDEBAR ===== */
         .sidebar-toggle {
             background: none;
             border: none;
@@ -660,13 +589,8 @@
             align-items: center;
             justify-content: center;
         }
+        .sidebar-toggle:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
 
-        .sidebar-toggle:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        /* ===== HEADER SUPERIOR ===== */
         .top-header {
             position: sticky;
             top: 0;
@@ -683,14 +607,7 @@
             gap: 15px;
             transition: all 0.3s ease;
         }
-
-        .top-header .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 0;
-        }
-
+        .top-header .header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .top-header .page-title {
             font-size: 1.1rem;
             font-weight: 600;
@@ -700,22 +617,9 @@
             gap: 10px;
             white-space: nowrap;
         }
-
-        .top-header .page-title i {
-            color: var(--primary);
-        }
-
-        .top-header .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-shrink: 0;
-        }
-
-        .top-header .header-actions .notif-badge {
-            position: relative;
-        }
-
+        .top-header .page-title i { color: var(--primary); }
+        .top-header .header-actions { display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
+        .top-header .header-actions .notif-badge { position: relative; }
         .top-header .header-actions .notif-badge .badge-dot {
             position: absolute;
             top: -2px;
@@ -727,12 +631,7 @@
             border: 2px solid var(--dark);
             animation: pulse-dot 2s infinite;
         }
-
-        @keyframes pulse-dot {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.3); }
-        }
-
+        @keyframes pulse-dot { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
         .top-header .header-actions .btn-icon {
             background: none;
             border: none;
@@ -743,13 +642,8 @@
             border-radius: 8px;
             transition: 0.3s;
         }
+        .top-header .header-actions .btn-icon:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
 
-        .top-header .header-actions .btn-icon:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        /* ===== CONTEÚDO PRINCIPAL ===== */
         .main-content {
             flex: 1;
             min-height: 100vh;
@@ -766,7 +660,6 @@
             width: 100%;
         }
 
-        /* ===== GLASS CARD ===== */
         .glass-card {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(10px);
@@ -776,103 +669,96 @@
             padding: 1.5rem;
             transition: all 0.3s ease;
         }
-
         .glass-card:hover {
             border-color: rgba(0, 212, 255, 0.15);
             box-shadow: 0 8px 32px rgba(0, 212, 255, 0.03);
         }
 
-        /* ===== RESPONSIVIDADE ===== */
         @media (max-width: 992px) {
-            .top-header {
-                padding: 10px 1rem;
-            }
-            
-            .top-header .page-title {
-                font-size: 0.95rem;
-            }
-            
-            .content-container {
-                padding: 1rem 1rem 3rem;
-            }
-            
-            .logo-yitro .logo-text {
-                font-size: 1.1rem;
-            }
-            .logo-yitro .logo-icon {
-                width: 32px;
-                height: 32px;
-            }
+            .top-header { padding: 10px 1rem; }
+            .top-header .page-title { font-size: 0.95rem; }
+            .content-container { padding: 1rem 1rem 3rem; }
+            .logo-yitro .logo-text { font-size: 1.1rem; }
+            .logo-yitro .logo-icon { width: 32px; height: 32px; }
         }
 
         @media (max-width: 576px) {
-            .top-header .page-title {
-                font-size: 0.85rem;
-            }
-            .top-header .page-title span {
-                display: none;
-            }
-            .top-header .header-actions {
-                gap: 10px;
-            }
-            .content-container {
-                padding: 0.8rem 0.8rem 2rem;
-            }
-            .sidebar {
-                width: 280px;
-            }
-            .logo-yitro .logo-text {
-                font-size: 0.9rem;
-            }
-            .logo-yitro .logo-icon {
-                width: 28px;
-                height: 28px;
-            }
-            .sidebar-toggle {
-                font-size: 1.2rem;
-            }
-            .loading-spinner-dinamico {
-                width: 80px;
-                height: 80px;
-            }
-            .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(1) {
-                width: 80px;
-                height: 80px;
-            }
-            .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(2) {
-                width: 60px;
-                height: 60px;
-            }
-            .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(3) {
-                width: 40px;
-                height: 40px;
-            }
-            .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(4) {
-                width: 20px;
-                height: 20px;
-            }
-            .loading-text-dinamico {
-                font-size: 1.8rem;
-                letter-spacing: 10px;
-            }
-            .loading-progress-bar {
-                width: 200px;
-            }
+            .top-header .page-title { font-size: 0.85rem; }
+            .top-header .page-title span { display: none; }
+            .top-header .header-actions { gap: 10px; }
+            .content-container { padding: 0.8rem 0.8rem 2rem; }
+            .sidebar { width: 280px; }
+            .logo-yitro .logo-text { font-size: 0.9rem; }
+            .logo-yitro .logo-icon { width: 28px; height: 28px; }
+            .sidebar-toggle { font-size: 1.2rem; }
+            .loading-spinner-dinamico { width: 80px; height: 80px; }
+            .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(1) { width: 80px; height: 80px; }
+            .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(2) { width: 60px; height: 60px; }
+            .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(3) { width: 40px; height: 40px; }
+            .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(4) { width: 20px; height: 20px; }
+            .loading-text-dinamico { font-size: 1.8rem; letter-spacing: 10px; }
+            .loading-progress-bar { width: 200px; }
         }
 
-        /* ===== SCROLLBAR ===== */
-        ::-webkit-scrollbar {
-            width: 6px;
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--dark); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--secondary); }
+
+        .escola-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
-        ::-webkit-scrollbar-track {
-            background: var(--dark);
+        .escola-card:hover {
+            border-color: rgba(0, 212, 255, 0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
         }
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 3px;
+        .escola-card .escola-logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(0, 212, 255, 0.2);
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--secondary);
+        .escola-card .escola-nome { color: #fff; font-weight: 600; font-size: 1rem; }
+        .escola-card .escola-info { color: rgba(255, 255, 255, 0.4); font-size: 0.75rem; }
+        .escola-card .escola-status { font-size: 0.65rem; padding: 2px 12px; border-radius: 20px; }
+
+        .btn-nova-escola {
+            background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-nova-escola:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+            color: white;
+        }
+
+        .search-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 10px 16px;
+            color: #fff;
+            width: 100%;
+            max-width: 300px;
+        }
+        .search-box::placeholder { color: rgba(255, 255, 255, 0.3); }
+        .search-box:focus {
+            outline: none;
+            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.05);
         }
     </style>
     {% block extra_css %}{% endblock %}
@@ -906,82 +792,187 @@
     <!-- ===== OVERLAY SIDEBAR ===== -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <!-- ===== SIDEBAR ESCOLA ===== -->
+    <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar" id="sidebar">
         <nav class="sidebar-nav">
-            <!-- Menu Principal -->
             <div class="nav-label">Menu Principal</div>
+            
+            <!-- 🔥 DASHBOARD -->
             <a class="nav-link-tech active" data-page="dashboard" onclick="loadPage('dashboard')" id="navDashboard">
-                <i class="bi bi-grid-1x2-fill"></i> Dashboard
+                <i class="bi bi-grid-1x2-fill"></i> 
+                {% if esta_na_escola %}
+                    Dashboard
+                {% elif is_super_admin %}
+                    Escolas
+                {% else %}
+                    Dashboard
+                {% endif %}
             </a>
 
-            <!-- ===== MÓDULO SECRETARIA ===== -->
-            <div class="nav-label" style="margin-top: 15px;">Secretaria</div>
-            <a class="nav-link-tech" data-page="alunos" onclick="loadPage('alunos')" id="navAlunos">
-                <i class="bi bi-people"></i> Alunos
-                <span class="badge-count" id="alunosCount">0</span>
-            </a>
-            <a class="nav-link-tech" data-page="turmas" onclick="loadPage('turmas')" id="navTurmas">
-                <i class="bi bi-people-fill"></i> Turmas
-                <span class="badge-count" id="turmasCount">0</span>
-            </a>
-            <a class="nav-link-tech" data-page="matriculas" onclick="loadPage('matriculas')" id="navMatriculas">
-                <i class="bi bi-file-earmark-text"></i> Matrículas
-                <span class="badge-count" id="matriculasCount">0</span>
-            </a>
+            <!-- 🔥 MENU PARA ADMIN (YITRO) - SÓ MOSTRA SE FOR SUPER ADMIN E NÃO ESTIVER NA ESCOLA -->
+            {% if is_super_admin and not esta_na_escola %}
+                <div class="nav-label" style="margin-top: 15px;">Administração</div>
+                <a class="nav-link-tech" data-page="escolas" onclick="loadPage('escolas')">
+                    <i class="bi bi-building"></i> Escolas
+                </a>
+                <a class="nav-link-tech" data-page="usuarios" onclick="loadPage('usuarios')">
+                    <i class="bi bi-people"></i> Usuários
+                </a>
+            {% endif %}
 
-            <!-- ===== MÓDULO PEDAGÓGICO ===== -->
-            <div class="nav-label" style="margin-top: 15px;">Pedagógico</div>
-            <a class="nav-link-tech" data-page="disciplinas" onclick="loadPage('disciplinas')" id="navDisciplinas">
-                <i class="bi bi-book"></i> Disciplinas
+            <!-- ============================================ -->
+            <!-- 🔥 SECRETARIA GERAL - EXPANSÍVEL -->
+            <!-- ============================================ -->
+            {% if perms.escola.secretaria or user.is_superuser %}
+            <div class="nav-label" style="margin-top: 15px;">Secretaria Geral</div>
+            <a class="nav-link-tech" onclick="toggleSubmenu(this)">
+                <i class="bi bi-folder"></i> Secretaria Geral
+                <span class="chevron"><i class="bi bi-chevron-right"></i></span>
             </a>
-            <a class="nav-link-tech" data-page="planos_aula" onclick="loadPage('planos_aula')" id="navPlanosAula">
-                <i class="bi bi-journal"></i> Planos de Aula
-            </a>
-            <a class="nav-link-tech" data-page="avaliacoes" onclick="loadPage('avaliacoes')" id="navAvaliacoes">
-                <i class="bi bi-clipboard-check"></i> Avaliações
-            </a>
+            <div class="submenu">
+                <a class="nav-link-tech" onclick="loadPage('secretaria/matriculas')">
+                    <i class="bi bi-file-earmark-text"></i> Matrícula e Confirmação
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('secretaria/pagamentos')">
+                    <i class="bi bi-wallet2"></i> Pagamentos
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('secretaria/alunos')">
+                    <i class="bi bi-people"></i> Lista de Alunos por Turma
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('secretaria/documentos')">
+                    <i class="bi bi-file-earmark"></i> Solicitação de Documentos
+                </a>
+            </div>
+            {% endif %}
 
-            <!-- ===== MÓDULO DOCENTE ===== -->
-            <div class="nav-label" style="margin-top: 15px;">Docente</div>
-            <a class="nav-link-tech" data-page="professores" onclick="loadPage('professores')" id="navProfessores">
-                <i class="bi bi-person-badge"></i> Professores
+            <!-- ============================================ -->
+            <!-- 🔥 ÁREA PEDAGÓGICA - EXPANSÍVEL -->
+            <!-- ============================================ -->
+            {% if perms.escola.pedagogico or user.is_superuser %}
+            <div class="nav-label" style="margin-top: 15px;">Área Pedagógica</div>
+            <a class="nav-link-tech" onclick="toggleSubmenu(this)">
+                <i class="bi bi-folder"></i> Área Pedagógica
+                <span class="chevron"><i class="bi bi-chevron-right"></i></span>
             </a>
-            <a class="nav-link-tech" data-page="horarios" onclick="loadPage('horarios')" id="navHorarios">
-                <i class="bi bi-clock"></i> Horários
-            </a>
-            <a class="nav-link-tech" data-page="alocacao" onclick="loadPage('alocacao')" id="navAlocacao">
-                <i class="bi bi-diagram-3"></i> Alocação
-            </a>
+            <div class="submenu">
+                <a class="nav-link-tech" onclick="loadPage('pedagogico/ano_lectivo')">
+                    <i class="bi bi-calendar3"></i> Gestão do Ano Lectivo
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('pedagogico/lista_alunos')">
+                    <i class="bi bi-people"></i> Lista dos Alunos
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('pedagogico/pautas')">
+                    <i class="bi bi-journal"></i> Pautas
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('pedagogico/mapa_aproveitamento')">
+                    <i class="bi bi-bar-chart"></i> Mapa de Aproveitamento
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('pedagogico/relatorio')">
+                    <i class="bi bi-file-earmark-text"></i> Relatório Pedagógico
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('pedagogico/professores')">
+                    <i class="bi bi-person-badge"></i> Professores
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('pedagogico/efetividade')">
+                    <i class="bi bi-check-circle"></i> Efetividade
+                </a>
+                <!-- 🔥 USUÁRIOS NA ÁREA PEDAGÓGICA -->
+                <a class="nav-link-tech" onclick="loadPage('pedagogico/usuarios')">
+                    <i class="bi bi-people"></i> Usuários
+                </a>
+            </div>
+            {% endif %}
 
-            <!-- ===== MÓDULO ADMINISTRATIVO ===== -->
-            <div class="nav-label" style="margin-top: 15px;">Administrativo</div>
-            <a class="nav-link-tech" data-page="funcionarios" onclick="loadPage('funcionarios')" id="navFuncionarios">
-                <i class="bi bi-people"></i> Funcionários
+            <!-- ============================================ -->
+            <!-- 🔥 PROFESSOR - EXPANSÍVEL -->
+            <!-- ============================================ -->
+            {% if perms.escola.professor or user.is_superuser %}
+            <div class="nav-label" style="margin-top: 15px;">Professor</div>
+            <a class="nav-link-tech" onclick="toggleSubmenu(this)">
+                <i class="bi bi-folder"></i> Professor
+                <span class="chevron"><i class="bi bi-chevron-right"></i></span>
             </a>
-            <a class="nav-link-tech" data-page="documentos" onclick="loadPage('documentos')" id="navDocumentos">
-                <i class="bi bi-file-earmark"></i> Documentos
-            </a>
+            <div class="submenu">
+                <a class="nav-link-tech" onclick="loadPage('professor/lancar_notas')">
+                    <i class="bi bi-pencil"></i> Lançar Notas
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('professor/pauta_trimestral')">
+                    <i class="bi bi-journal"></i> Pauta Trimestral
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('professor/horario')">
+                    <i class="bi bi-clock"></i> Meu Horário
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('professor/efetividade')">
+                    <i class="bi bi-check-circle"></i> Minha Efetividade
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('professor/avaliacao')">
+                    <i class="bi bi-clipboard-check"></i> Minha Avaliação Trimestral
+                </a>
+            </div>
+            {% endif %}
 
-            <!-- ===== RELATÓRIOS ===== -->
-            <div class="nav-label" style="margin-top: 15px;">Relatórios</div>
-            <a class="nav-link-tech" data-page="relatorios" onclick="loadPage('relatorios')" id="navRelatorios">
-                <i class="bi bi-file-earmark-bar-graph"></i> Relatórios
+            <!-- ============================================ -->
+            <!-- 🔥 ÁREA ADMINISTRATIVA - EXPANSÍVEL -->
+            <!-- ============================================ -->
+            {% if perms.escola.administrativo or user.is_superuser %}
+            <div class="nav-label" style="margin-top: 15px;">Área Administrativa</div>
+            <a class="nav-link-tech" onclick="toggleSubmenu(this)">
+                <i class="bi bi-folder"></i> Área Administrativa
+                <span class="chevron"><i class="bi bi-chevron-right"></i></span>
             </a>
+            <div class="submenu">
+                <a class="nav-link-tech" onclick="loadPage('admin/funcionarios')">
+                    <i class="bi bi-people"></i> Funcionários
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('admin/documentos')">
+                    <i class="bi bi-file-earmark"></i> Documentos
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('admin/relatorios')">
+                    <i class="bi bi-file-earmark-text"></i> Relatórios
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('admin/custos')">
+                    <i class="bi bi-coin"></i> Gestão de Custos
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('admin/folha_salarial')">
+                    <i class="bi bi-cash-stack"></i> Efetividade e Folha Salarial
+                </a>
+                <!-- 🔥 USUÁRIOS NA ÁREA ADMINISTRATIVA -->
+                <a class="nav-link-tech" onclick="loadPage('admin/usuarios')">
+                    <i class="bi bi-people"></i> Usuários
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- ============================================ -->
+            <!-- 🔥 ÁREA FINANCEIRA - EXPANSÍVEL -->
+            <!-- ============================================ -->
+            {% if perms.escola.financeiro or user.is_superuser %}
+            <div class="nav-label" style="margin-top: 15px;">Área Financeira</div>
+            <a class="nav-link-tech" onclick="toggleSubmenu(this)">
+                <i class="bi bi-folder"></i> Área Financeira
+                <span class="chevron"><i class="bi bi-chevron-right"></i></span>
+            </a>
+            <div class="submenu">
+                <a class="nav-link-tech" onclick="loadPage('financeiro/relatorio')">
+                    <i class="bi bi-file-earmark-text"></i> Relatório Financeiro
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('financeiro/tributario')">
+                    <i class="bi bi-receipt"></i> Relatório Tributário
+                </a>
+            </div>
+            {% endif %}
 
             <!-- ===== SISTEMA ===== -->
             <div class="nav-label" style="margin-top: 15px;">Sistema</div>
             <a class="nav-link-tech" data-page="configuracoes" onclick="loadPage('configuracoes')" id="navConfiguracoes">
                 <i class="bi bi-gear"></i> Configurações
             </a>
-            
-            <!-- ===== LOGOUT ===== -->
             <a href="{% url 'autenticacao:logout' %}" class="nav-link-tech" style="margin-top: 10px; color: #ff4757;">
                 <i class="bi bi-box-arrow-right"></i> Sair
             </a>
         </nav>
 
-        <!-- USUÁRIO DINÂMICO -->
+        <!-- ===== USUÁRIO ===== -->
         <div class="sidebar-user">
             <div class="user-avatar-sm">
                 {% if user.is_authenticated and user.foto_perfil %}
@@ -1003,8 +994,8 @@
                     {% if user.is_authenticated %}
                         {% if user.is_superuser %}
                             Super Admin
-                        {% elif departamento_ativo %}
-                            {{ departamento_ativo.nome }}
+                        {% elif user.groups.all %}
+                            {{ user.groups.all|join:", " }}
                         {% else %}
                             Usuário
                         {% endif %}
@@ -1023,14 +1014,12 @@
 
     <!-- ===== CONTEÚDO PRINCIPAL ===== -->
     <main class="main-content" id="mainContent">
-        <!-- Header Superior -->
         <header class="top-header">
             <div class="header-left">
                 <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Toggle menu">
                     <i class="bi bi-list"></i>
                 </button>
 
-                <!-- Logo Yitro -->
                 <a href="{% url 'home' %}" class="logo-yitro">
                     <div class="logo-icon">
                         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1078,10 +1067,17 @@
                     <span class="logo-text">Yitro</span>
                 </a>
 
-                <!-- Título Dinâmico -->
                 <div class="page-title">
                     <i class="bi bi-mortarboard" id="pageIcon"></i>
-                    <span id="pageTitle">Dashboard Escola</span>
+                    <span id="pageTitle">
+                        {% if esta_na_escola %}
+                            Dashboard Escola
+                        {% elif is_super_admin %}
+                            Gestão de Escolas
+                        {% else %}
+                            Dashboard Escola
+                        {% endif %}
+                    </span>
                     {% if tenant_nome %}
                         <span class="badge bg-primary ms-2" style="font-size: 0.6rem; padding: 3px 10px;">
                             <i class="bi bi-building"></i> {{ tenant_nome_fantasia|default:tenant_nome }}
@@ -1102,7 +1098,6 @@
             </div>
         </header>
 
-        <!-- Conteúdo -->
         <div class="content-container" id="contentContainer">
             <!-- Conteúdo carregado via AJAX -->
         </div>
@@ -1167,20 +1162,16 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // ===== CSRF TOKEN =====
         function getCSRFToken() {
             return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         }
 
-        // ===== TOGGLE SIDEBAR =====
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
             const toggleBtn = document.getElementById('sidebarToggle');
-            
             sidebar.classList.toggle('open');
             overlay.classList.toggle('active');
-            
             const icon = toggleBtn.querySelector('i');
             if (sidebar.classList.contains('open')) {
                 icon.className = 'bi bi-x-lg';
@@ -1193,18 +1184,15 @@
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
             const toggleBtn = document.getElementById('sidebarToggle');
-            
             sidebar.classList.remove('open');
             overlay.classList.remove('active');
             toggleBtn.querySelector('i').className = 'bi bi-list';
         }
 
-        // Fechar sidebar ao clicar fora
         document.addEventListener('click', function(e) {
             const sidebar = document.getElementById('sidebar');
             const toggleBtn = document.getElementById('sidebarToggle');
             const overlay = document.getElementById('sidebarOverlay');
-            
             if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
                 if (sidebar.classList.contains('open')) {
                     sidebar.classList.remove('open');
@@ -1214,7 +1202,23 @@
             }
         });
 
-        // ===== LOADING =====
+        // ============================================
+        // 🔥 TOGGLE SUBMENU
+        // ============================================
+        function toggleSubmenu(element) {
+            // Encontrar o submenu associado
+            const submenu = element.nextElementSibling;
+            if (submenu && submenu.classList.contains('submenu')) {
+                submenu.classList.toggle('open');
+                
+                // Rotacionar o ícone chevron
+                const chevron = element.querySelector('.chevron i');
+                if (chevron) {
+                    chevron.style.transform = submenu.classList.contains('open') ? 'rotate(90deg)' : 'rotate(0deg)';
+                }
+            }
+        }
+
         function showLoading() {
             const overlay = document.getElementById('globalLoadingOverlay');
             if (overlay) {
@@ -1231,22 +1235,20 @@
             }
         }
 
-        // ===== CARREGAR PÁGINAS VIA AJAX =====
+        // ============================================
+        // 🔥 FUNÇÃO LOADPAGE - EXECUTA SCRIPTS
+        // ============================================
         function loadPage(page, params = {}) {
             showLoading();
-            
-            // Atualizar link ativo
             document.querySelectorAll('.sidebar-nav .nav-link-tech').forEach(el => {
                 el.classList.remove('active');
             });
             const activeLink = document.querySelector(`.sidebar-nav .nav-link-tech[data-page="${page}"]`);
             if (activeLink) activeLink.classList.add('active');
-
             let url = `/escola/api/${page}/`;
             if (params.id) {
                 url += `${params.id}/`;
             }
-
             fetch(url, {
                 method: 'GET',
                 headers: {
@@ -1260,10 +1262,25 @@
                 return response.text();
             })
             .then(html => {
-                document.getElementById('contentContainer').innerHTML = html;
+                const container = document.getElementById('contentContainer');
+                container.innerHTML = html;
+                
+                // Executar scripts
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(script => {
+                    const newScript = document.createElement('script');
+                    if (script.src) {
+                        newScript.src = script.src;
+                    } else {
+                        newScript.textContent = script.textContent;
+                    }
+                    script.parentNode.removeChild(script);
+                    document.body.appendChild(newScript);
+                });
                 
                 const titles = {
                     'dashboard': 'Dashboard Escola',
+                    'escolas': 'Gestão de Escolas',
                     'alunos': 'Alunos',
                     'turmas': 'Turmas',
                     'matriculas': 'Matrículas',
@@ -1277,21 +1294,46 @@
                     'documentos': 'Documentos',
                     'relatorios': 'Relatórios',
                     'configuracoes': 'Configurações',
+                    'usuarios': 'Usuários',
+                    // Novos títulos
+                    'secretaria/matriculas': 'Matrícula e Confirmação',
+                    'secretaria/pagamentos': 'Pagamentos',
+                    'secretaria/alunos': 'Lista de Alunos por Turma',
+                    'secretaria/documentos': 'Solicitação de Documentos',
+                    'pedagogico/ano_lectivo': 'Gestão do Ano Lectivo',
+                    'pedagogico/lista_alunos': 'Lista dos Alunos',
+                    'pedagogico/pautas': 'Pautas',
+                    'pedagogico/mapa_aproveitamento': 'Mapa de Aproveitamento',
+                    'pedagogico/relatorio': 'Relatório Pedagógico',
+                    'pedagogico/professores': 'Professores',
+                    'pedagogico/efetividade': 'Efetividade',
+                    'pedagogico/usuarios': 'Usuários - Pedagógico',
+                    'professor/lancar_notas': 'Lançar Notas',
+                    'professor/pauta_trimestral': 'Pauta Trimestral',
+                    'professor/horario': 'Meu Horário',
+                    'professor/efetividade': 'Minha Efetividade',
+                    'professor/avaliacao': 'Minha Avaliação Trimestral',
+                    'admin/funcionarios': 'Funcionários',
+                    'admin/documentos': 'Documentos',
+                    'admin/relatorios': 'Relatórios',
+                    'admin/custos': 'Gestão de Custos',
+                    'admin/folha_salarial': 'Efetividade e Folha Salarial',
+                    'admin/usuarios': 'Usuários - Administrativo',
+                    'financeiro/relatorio': 'Relatório Financeiro',
+                    'financeiro/tributario': 'Relatório Tributário',
                 };
                 document.getElementById('pageTitle').textContent = titles[page] || 'Dashboard';
                 document.getElementById('pageIcon').className = `bi bi-${getIcon(page)}`;
-                
                 if (window.innerWidth < 992) {
                     closeSidebar();
                 }
-                
                 hideLoading();
             })
             .catch(error => {
                 console.error('Erro:', error);
                 document.getElementById('contentContainer').innerHTML = `
                     <div class="alert alert-danger">
-                        <i class="bi bi-exclamation-triangle"></i> Erro ao carregar página.
+                        <i class="bi bi-exclamation-triangle"></i> Erro ao carregar página: ${error.message}
                     </div>
                 `;
                 hideLoading();
@@ -1301,6 +1343,7 @@
         function getIcon(page) {
             const icons = {
                 'dashboard': 'grid-1x2-fill',
+                'escolas': 'building',
                 'alunos': 'people',
                 'turmas': 'people-fill',
                 'matriculas': 'file-earmark-text',
@@ -1314,14 +1357,54 @@
                 'documentos': 'file-earmark',
                 'relatorios': 'file-earmark-bar-graph',
                 'configuracoes': 'gear',
+                'usuarios': 'people',
+                'secretaria/matriculas': 'file-earmark-text',
+                'secretaria/pagamentos': 'wallet2',
+                'secretaria/alunos': 'people',
+                'secretaria/documentos': 'file-earmark',
+                'pedagogico/ano_lectivo': 'calendar3',
+                'pedagogico/lista_alunos': 'people',
+                'pedagogico/pautas': 'journal',
+                'pedagogico/mapa_aproveitamento': 'bar-chart',
+                'pedagogico/relatorio': 'file-earmark-text',
+                'pedagogico/professores': 'person-badge',
+                'pedagogico/efetividade': 'check-circle',
+                'pedagogico/usuarios': 'people',
+                'professor/lancar_notas': 'pencil',
+                'professor/pauta_trimestral': 'journal',
+                'professor/horario': 'clock',
+                'professor/efetividade': 'check-circle',
+                'professor/avaliacao': 'clipboard-check',
+                'admin/funcionarios': 'people',
+                'admin/documentos': 'file-earmark',
+                'admin/relatorios': 'file-earmark-text',
+                'admin/custos': 'coin',
+                'admin/folha_salarial': 'cash-stack',
+                'admin/usuarios': 'people',
+                'financeiro/relatorio': 'file-earmark-text',
+                'financeiro/tributario': 'receipt',
             };
             return icons[page] || 'file-earmark';
         }
 
-        // ===== VÍDEO =====
+        // ============================================
+        // 🔥 DOM CONTENT LOADED
+        // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            // Carregar página inicial
-            loadPage('dashboard');
+            const carregarDashboard = {{ carregar_dashboard|default:'false'|lower }};
+            const isSuperAdmin = {{ is_super_admin|default:'false'|lower }};
+            const estaNaEscola = {{ esta_na_escola|default:'false'|lower }};
+            
+            if (carregarDashboard) {
+                loadPage('dashboard');
+                const pageTitle = document.getElementById('pageTitle');
+                pageTitle.textContent = 'Dashboard Escola';
+                document.getElementById('pageIcon').className = 'bi bi-grid-1x2-fill';
+            } else if (isSuperAdmin) {
+                loadPage('escolas');
+            } else {
+                loadPage('dashboard');
+            }
             
             const video = document.getElementById('bgVideo');
             if (video) {

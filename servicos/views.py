@@ -42,6 +42,25 @@ User = get_user_model()
 # ============================================
 
 # servicos/views.py
+
+@login_required
+def central_yitro(request):
+    """🏢 CENTRAL YITRO - Dashboard com departamentos da empresa"""
+    
+    from django.contrib.auth import get_user_model
+    from financeiro.models import Fatura
+    User = get_user_model()
+    
+    context = {
+        'titulo': 'Central Yitro',
+        'total_usuarios': User.objects.count(),
+        'total_produtos': Item.objects.filter(tipo='produto', status='ativo').count(),
+        'total_servicos': Item.objects.filter(tipo='servico', status='ativo').count(),
+        'total_faturas': Fatura.objects.count(),
+    }
+    return render(request, 'central.html', context)
+
+# servicos/views.py
 @login_required
 def dashboard_servicos(request):
     """Dashboard principal - Vitrine de Produtos e Serviços"""
@@ -127,7 +146,7 @@ def dashboard_servicos(request):
     total_carrinho = request.session.get('carrinho_total', 0)
     
     # ============================================
-    # CONTEXTO - 🔥 GARANTIR QUE SEMPRE RETORNA ALGO
+    # CONTEXTO
     # ============================================
     context = {
         'itens': itens,
@@ -154,9 +173,8 @@ def dashboard_servicos(request):
         'total_carrinho_itens': len(carrinho_itens),
     }
     
-    # 🔥 SEMPRE RETORNAR O RENDER
-    return render(request, 'servicos/dashboard.html', context)    
-
+    # 🔥 USA O TEMPLATE loja_yitro.html
+    return render(request, 'loja_yitro.html', context)
 
 @login_required
 def relatorios(request):

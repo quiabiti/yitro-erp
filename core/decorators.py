@@ -40,6 +40,10 @@ def departamento_required(departamento_slug, nivel_minimo='VIEW', redirect_url='
         return wrapper
     return decorator
 
+# ============================================
+# DECORATORS PARA DEPARTAMENTOS
+# ============================================
+
 def escola_required(nivel_minimo='VIEW'):
     """Decorator específico para o departamento escola"""
     return departamento_required('escola', nivel_minimo)
@@ -55,6 +59,87 @@ def comercial_required(nivel_minimo='VIEW'):
 def servicos_required(nivel_minimo='VIEW'):
     """Decorator específico para o departamento de serviços"""
     return departamento_required('servicos', nivel_minimo)
+
+def administrativo_required(nivel_minimo='VIEW'):
+    """Decorator específico para o departamento administrativo"""
+    return departamento_required('administrativo', nivel_minimo)
+
+# ============================================
+# DECORATORS PARA YITRO (ADMINISTRAÇÃO)
+# ============================================
+
+def yitro_admin_required(view_func):
+    """
+    Decorator para acesso administrativo da Yitro.
+    Apenas Super Admin ou usuários com acesso ao departamento Administrativo.
+    """
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.warning(request, 'Faça login para acessar esta área.')
+            return redirect('login')
+        
+        # Superusuário tem acesso
+        if request.user.is_superuser:
+            return view_func(request, *args, **kwargs)
+        
+        # Verificar se tem acesso ao departamento administrativo
+        if request.user.tem_acesso_departamento('administrativo'):
+            return view_func(request, *args, **kwargs)
+        
+        messages.error(request, 'Acesso restrito a administradores da Yitro.')
+        return redirect('servicos:central')
+    return wrapper
+
+def yitro_view_required(view_func):
+    """
+    Decorator para visualização de dados da Yitro.
+    Qualquer funcionário Yitro pode visualizar, mas não editar.
+    """
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.warning(request, 'Faça login para acessar esta área.')
+            return redirect('login')
+        
+        # Superusuário tem acesso
+        if request.user.is_superuser:
+            return view_func(request, *args, **kwargs)
+        
+        # Verificar se o usuário tem algum departamento Yitro
+        departamentos_yitro = ['administrativo', 'financeiro', 'comercial', 'servicos']
+        for dep in departamentos_yitro:
+            if request.user.tem_acesso_departamento(dep):
+                return view_func(request, *args, **kwargs)
+        
+        messages.error(request, 'Você não tem permissão para visualizar esta área.')
+        return redirect('servicos:central')
+    return wrapper
+
+# ============================================
+# DECORATOR PARA SUPER ADMIN
+# ============================================
+
+def super_admin_required(view_func):
+    """
+    Decorator para acesso apenas de Super Admin.
+    """
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.warning(request, 'Faça login para acessar esta área.')
+            return redirect('login')
+        
+        if not request.user.is_superuser:
+            messages.error(request, 'Acesso restrito a Super Administradores.')
+            return redirect('servicos:central')
+        
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+# ============================================
+# DECORATORS ADICIONAIS
+# ============================================
 
 def admin_required(view_func):
     """

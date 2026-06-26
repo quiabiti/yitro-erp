@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Central Yitro{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-white fw-bold" style="color: #ffffff !important;">Central Yitro</h1>
+            <p class="text-white" style="color: #ffffff !important;">Bem-vindo, {{ user.get_full_name|default:user.username }}!</p>
+        </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="glass-card text-center">
+                <h6 class="text-white" style="color: #ffffff !important;">Usuários</h6>
+                <h2 class="text-white" style="color: #ffffff !important;">{{ total_usuarios|default:0 }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="glass-card text-center">
+                <h6 class="text-white" style="color: #ffffff !important;">Produtos</h6>
+                <h2 class="text-white" style="color: #ffffff !important;">{{ total_produtos|default:0 }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="glass-card text-center">
+                <h6 class="text-white" style="color: #ffffff !important;">Serviços</h6>
+                <h2 class="text-white" style="color: #ffffff !important;">{{ total_servicos|default:0 }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="glass-card text-center">
+                <h6 class="text-white" style="color: #ffffff !important;">Faturas</h6>
+                <h2 class="text-white" style="color: #ffffff !important;">{{ total_faturas|default:0 }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Departamentos -->
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <a href="{% url 'financeiro:lista_faturas' %}" class="text-decoration-none">
+                <div class="glass-card text-center p-4">
+                    <i class="bi bi-wallet2" style="font-size: 3rem; color: #ffa502;"></i>
+                    <h5 class="text-white" style="color: #ffffff !important;">Financeiro</h5>
+                    <p class="text-white small" style="color: #ffffff !important;">Faturação e AGT</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <a href="{% url 'servicos:dashboard' %}" class="text-decoration-none">
+                <div class="glass-card text-center p-4">
+                    <i class="bi bi-shop" style="font-size: 3rem; color: #00d4ff;"></i>
+                    <h5 class="text-white" style="color: #ffffff !important;">Comercial</h5>
+                    <p class="text-white small" style="color: #ffffff !important;">Produtos e serviços</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <a href="{% url 'escola:index' %}" class="text-decoration-none">
+                <div class="glass-card text-center p-4">
+                    <i class="bi bi-mortarboard" style="font-size: 3rem; color: #2ed573;"></i>
+                    <h5 class="text-white" style="color: #ffffff !important;">Escola</h5>
+                    <p class="text-white small" style="color: #ffffff !important;">Gestão pedagógica</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <a href="{% url 'servicos:configuracoes' %}" class="text-decoration-none">
+                <div class="glass-card text-center p-4">
+                    <i class="bi bi-building" style="font-size: 3rem; color: #7b2ffc;"></i>
+                    <h5 class="text-white" style="color: #ffffff !important;">Administrativo</h5>
+                    <p class="text-white small" style="color: #ffffff !important;">Configurações</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
