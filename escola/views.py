@@ -94,7 +94,8 @@ def index(request):
     
     # 🔥 SEPARAR: is_super_admin (Yitro) e is_admin_escola (dentro da escola)
     is_super_admin = user.is_superuser
-    is_admin_escola = user.tem_acesso_departamento('administrativo')
+    # is_admin_escola = user.tem_acesso_departamento('administrativo')  # Temporariamente comentado
+    is_admin_escola = user.is_superuser  # Temporário - apenas super admin tem acesso
     
     tenant_nome = None
     tenant_nome_fantasia = None
@@ -338,7 +339,8 @@ def api_dashboard(request):
     """Dashboard - Unifica dashboard geral e dashboard da escola"""
     user = request.user
     
-    is_admin = user.is_superuser or user.tem_acesso_departamento('administrativo')
+    # is_admin = user.is_superuser or user.tem_acesso_departamento('administrativo')
+    is_admin = user.is_superuser  # Temporário
     
     # 🔥 Buscar o tenant
     tenant = get_tenant_escola(request)
@@ -528,22 +530,3 @@ def financeiro_tributario(request):
         'modulo': 'Área Financeira',
     }
     return render(request, 'escola/partials/financeiro/tributario.html', context)
-
-    # escola/pedagogico/views.py
-def get_tenant_id_para_salvar(request, item=None):
-    """
-    Retorna o tenant_id para salvar no registro.
-    Se o item já existe, mantém o tenant_id existente.
-    Se é novo, usa o tenant da requisição.
-    """
-    # Se o item existe e tem tenant_id, mantém
-    if item and hasattr(item, 'tenant_id') and item.tenant_id:
-        return item.tenant_id
-    
-    # Buscar tenant da requisição
-    tenant = get_tenant_escola(request)
-    if tenant:
-        return tenant.id
-    
-    # Se não encontrou tenant, retorna None (super admin)
-    return None
