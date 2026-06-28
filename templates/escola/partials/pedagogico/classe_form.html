@@ -1,0 +1,91 @@
+{% load static %}
+<form id="formGestao" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="categoria" value="classe">
+    
+    <div class="row">
+        <div class="col-12 mb-3">
+            <label class="metal-form-label">Nome da Classe <span class="text-danger">*</span></label>
+            <input type="text" name="nome" class="metal-form-control" placeholder="Ex: 1º Ano A" 
+                   value="{{ form.nome.value|default:'' }}" required>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Nível de Ensino <span class="text-danger">*</span></label>
+            <select name="nivel_ensino" class="metal-form-select" required>
+                <option value="">Selecione...</option>
+                {% for nivel in form.fields.nivel_ensino.queryset %}
+                <option value="{{ nivel.id }}" {% if form.nivel_ensino.value == nivel.id %}selected{% endif %}>
+                    {{ nivel.nome }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Ano Lectivo <span class="text-danger">*</span></label>
+            <select name="ano_lectivo" class="metal-form-select" required>
+                <option value="">Selecione...</option>
+                {% for ano in form.fields.ano_lectivo.queryset %}
+                <option value="{{ ano.id }}" {% if form.ano_lectivo.value == ano.id %}selected{% endif %}>
+                    {{ ano.ano }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label d-block">Classe de Exame</label>
+            <div class="form-check form-switch mt-1">
+                <input type="checkbox" name="is_exame" class="form-check-input" id="id_is_exame" 
+                       {% if form.is_exame.value %}checked{% endif %} value="on">
+                <label class="form-check-label text-white" for="id_is_exame">
+                    <span id="isExameLabel">{% if form.is_exame.value %}Sim{% else %}Não{% endif %}</span>
+                </label>
+            </div>
+            <small class="text-muted">Marque se esta classe possui exames finais</small>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label d-block">Ativo</label>
+            <div class="form-check form-switch mt-1">
+                <input type="checkbox" name="ativo" class="form-check-input" id="id_ativo_classe" 
+                       {% if form.ativo.value %}checked{% endif %} value="on">
+                <label class="form-check-label text-white" for="id_ativo_classe">
+                    <span id="ativoClasseLabel">{% if form.ativo.value %}Sim{% else %}Não{% endif %}</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <label class="metal-form-label">Descrição</label>
+        <textarea name="descricao" class="metal-form-control" rows="3" placeholder="Descrição da classe">{{ form.descricao.value|default:'' }}</textarea>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 🔥 ATUALIZAR LABEL DO SWITCH DE CLASSE DE EXAME
+    const isExameCheckbox = document.getElementById('id_is_exame');
+    const isExameLabel = document.getElementById('isExameLabel');
+    
+    if (isExameCheckbox && isExameLabel) {
+        isExameCheckbox.addEventListener('change', function() {
+            isExameLabel.textContent = this.checked ? 'Sim' : 'Não';
+        });
+    }
+    
+    // 🔥 ATUALIZAR LABEL DO SWITCH DE ATIVO
+    const ativoCheckbox = document.getElementById('id_ativo_classe');
+    const ativoLabel = document.getElementById('ativoClasseLabel');
+    
+    if (ativoCheckbox && ativoLabel) {
+        ativoCheckbox.addEventListener('change', function() {
+            ativoLabel.textContent = this.checked ? 'Sim' : 'Não';
+        });
+    }
+});
+</script>

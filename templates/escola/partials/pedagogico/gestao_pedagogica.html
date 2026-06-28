@@ -1,0 +1,689 @@
+{% load static %}
+{% load humanize %}
+
+<!-- TOKEN CSRF OCULTO -->
+{% csrf_token %}
+
+<!-- CABEÇALHO -->
+<div class="metal-header mb-3 fade-in-up">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+        <div>
+            <h1 class="metal-title" style="font-size: 1.2rem;">
+                <i class="bi bi-book me-2"></i> Gestão Pedagógica
+            </h1>
+            <p class="metal-subtitle" style="font-size: 0.75rem;">Gerencie anos lectivos, trimestres, níveis, classes, disciplinas e turmas</p>
+        </div>
+        <div>
+            <span class="badge bg-success" style="font-size: 0.7rem; padding: 4px 12px;">
+                <i class="bi bi-check-circle me-1"></i> Online
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- CARDS RESUMO -->
+<div class="row g-2 mb-3 fade-in-up delay-1">
+    <div class="col-4 col-md-2">
+        <div class="glass-card text-center p-2" onclick="document.getElementById('section-ano_lectivo').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.6rem !important;">
+            <div class="display-6 text-primary" style="font-size: 1.2rem;"><i class="bi bi-calendar"></i></div>
+            <h3 class="h6" style="font-size: 0.9rem; color: #ffffff !important;" id="totalAnosLectivos">0</h3>
+            <p class="text-muted small" style="font-size: 0.5rem; color: rgba(255,255,255,0.5) !important;">Anos</p>
+        </div>
+    </div>
+    <div class="col-4 col-md-2">
+        <div class="glass-card text-center p-2" onclick="document.getElementById('section-trimestre').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.6rem !important;">
+            <div class="display-6 text-success" style="font-size: 1.2rem;"><i class="bi bi-calendar3"></i></div>
+            <h3 class="h6" style="font-size: 0.9rem; color: #ffffff !important;" id="totalTrimestres">0</h3>
+            <p class="text-muted small" style="font-size: 0.5rem; color: rgba(255,255,255,0.5) !important;">Trimestres</p>
+        </div>
+    </div>
+    <div class="col-4 col-md-2">
+        <div class="glass-card text-center p-2" onclick="document.getElementById('section-nivel_ensino').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.6rem !important;">
+            <div class="display-6 text-purple" style="font-size: 1.2rem; color: #a855f7 !important;"><i class="bi bi-layers"></i></div>
+            <h3 class="h6" style="font-size: 0.9rem; color: #ffffff !important;" id="totalNiveisEnsino">0</h3>
+            <p class="text-muted small" style="font-size: 0.5rem; color: rgba(255,255,255,0.5) !important;">Níveis</p>
+        </div>
+    </div>
+    <div class="col-4 col-md-2">
+        <div class="glass-card text-center p-2" onclick="document.getElementById('section-classe').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.6rem !important;">
+            <div class="display-6 text-warning" style="font-size: 1.2rem;"><i class="bi bi-diagram-3"></i></div>
+            <h3 class="h6" style="font-size: 0.9rem; color: #ffffff !important;" id="totalClasses">0</h3>
+            <p class="text-muted small" style="font-size: 0.5rem; color: rgba(255,255,255,0.5) !important;">Classes</p>
+        </div>
+    </div>
+    <div class="col-4 col-md-2">
+        <div class="glass-card text-center p-2" onclick="document.getElementById('section-disciplina').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.6rem !important;">
+            <div class="display-6 text-info" style="font-size: 1.2rem;"><i class="bi bi-book"></i></div>
+            <h3 class="h6" style="font-size: 0.9rem; color: #ffffff !important;" id="totalDisciplinas">0</h3>
+            <p class="text-muted small" style="font-size: 0.5rem; color: rgba(255,255,255,0.5) !important;">Disciplinas</p>
+        </div>
+    </div>
+    <div class="col-4 col-md-2">
+        <div class="glass-card text-center p-2" onclick="document.getElementById('section-turma').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.6rem !important;">
+            <div class="display-6 text-danger" style="font-size: 1.2rem;"><i class="bi bi-people-fill"></i></div>
+            <h3 class="h6" style="font-size: 0.9rem; color: #ffffff !important;" id="totalTurmas">0</h3>
+            <p class="text-muted small" style="font-size: 0.5rem; color: rgba(255,255,255,0.5) !important;">Turmas</p>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SEÇÃO 1: ANO LECTIVO -->
+<!-- ============================================ -->
+<section id="section-ano_lectivo" class="mb-3 fade-in-up delay-1">
+    <div class="glass-card" style="padding: 0.8rem 1rem;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="text-white mb-0" style="font-size: 0.85rem;">
+                <i class="bi bi-calendar me-2 text-primary"></i> Anos Lectivos
+                <span class="badge bg-primary ms-1" id="count-ano_lectivo" style="font-size: 0.6rem; color: #ffffff !important;">0</span>
+            </h6>
+            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('ano_lectivo')" style="font-size: 0.65rem; padding: 2px 10px;">
+                <i class="bi bi-plus-circle me-1"></i> Adicionar
+            </button>
+        </div>
+        <div id="lista-ano_lectivo" class="lista-items">
+            <div class="text-center py-2 text-muted" style="font-size: 0.7rem; color: rgba(255,255,255,0.5) !important;">Carregando...</div>
+        </div>
+    </div>
+</section>
+
+<!-- SEÇÃO 2: TRIMESTRE -->
+<section id="section-trimestre" class="mb-3 fade-in-up delay-2">
+    <div class="glass-card" style="padding: 0.8rem 1rem;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="text-white mb-0" style="font-size: 0.85rem;">
+                <i class="bi bi-calendar3 me-2 text-success"></i> Trimestres
+                <span class="badge bg-success ms-1" id="count-trimestre" style="font-size: 0.6rem; color: #ffffff !important;">0</span>
+            </h6>
+            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('trimestre')" style="font-size: 0.65rem; padding: 2px 10px;">
+                <i class="bi bi-plus-circle me-1"></i> Adicionar
+            </button>
+        </div>
+        <div id="lista-trimestre" class="lista-items">
+            <div class="text-center py-2 text-muted" style="font-size: 0.7rem; color: rgba(255,255,255,0.5) !important;">Carregando...</div>
+        </div>
+    </div>
+</section>
+
+<!-- SEÇÃO 3: NÍVEL DE ENSINO -->
+<section id="section-nivel_ensino" class="mb-3 fade-in-up delay-3">
+    <div class="glass-card" style="padding: 0.8rem 1rem;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="text-white mb-0" style="font-size: 0.85rem;">
+                <i class="bi bi-layers me-2 text-purple" style="color: #a855f7;"></i> Níveis de Ensino
+                <span class="badge ms-1" id="count-nivel_ensino" style="font-size: 0.6rem; background: #a855f7; color: #ffffff !important;">0</span>
+            </h6>
+            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('nivel_ensino')" style="font-size: 0.65rem; padding: 2px 10px;">
+                <i class="bi bi-plus-circle me-1"></i> Adicionar
+            </button>
+        </div>
+        <div id="lista-nivel_ensino" class="lista-items">
+            <div class="text-center py-2 text-muted" style="font-size: 0.7rem; color: rgba(255,255,255,0.5) !important;">Carregando...</div>
+        </div>
+    </div>
+</section>
+
+<!-- SEÇÃO 4: CLASSE -->
+<section id="section-classe" class="mb-3 fade-in-up delay-4">
+    <div class="glass-card" style="padding: 0.8rem 1rem;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="text-white mb-0" style="font-size: 0.85rem;">
+                <i class="bi bi-diagram-3 me-2 text-warning"></i> Classes
+                <span class="badge bg-warning ms-1" id="count-classe" style="font-size: 0.6rem; color: #ffffff !important;">0</span>
+            </h6>
+            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('classe')" style="font-size: 0.65rem; padding: 2px 10px;">
+                <i class="bi bi-plus-circle me-1"></i> Adicionar
+            </button>
+        </div>
+        <div id="lista-classe" class="lista-items">
+            <div class="text-center py-2 text-muted" style="font-size: 0.7rem; color: rgba(255,255,255,0.5) !important;">Carregando...</div>
+        </div>
+    </div>
+</section>
+
+<!-- SEÇÃO 5: DISCIPLINA -->
+<section id="section-disciplina" class="mb-3 fade-in-up delay-5">
+    <div class="glass-card" style="padding: 0.8rem 1rem;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="text-white mb-0" style="font-size: 0.85rem;">
+                <i class="bi bi-book me-2 text-info"></i> Disciplinas
+                <span class="badge bg-info ms-1" id="count-disciplina" style="font-size: 0.6rem; color: #ffffff !important;">0</span>
+            </h6>
+            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('disciplina')" style="font-size: 0.65rem; padding: 2px 10px;">
+                <i class="bi bi-plus-circle me-1"></i> Adicionar
+            </button>
+        </div>
+        <div id="lista-disciplina" class="lista-items">
+            <div class="text-center py-2 text-muted" style="font-size: 0.7rem; color: rgba(255,255,255,0.5) !important;">Carregando...</div>
+        </div>
+    </div>
+</section>
+
+<!-- SEÇÃO 6: TURMA -->
+<section id="section-turma" class="mb-3 fade-in-up delay-6">
+    <div class="glass-card" style="padding: 0.8rem 1rem;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="text-white mb-0" style="font-size: 0.85rem;">
+                <i class="bi bi-people-fill me-2 text-danger"></i> Turmas
+                <span class="badge bg-danger ms-1" id="count-turma" style="font-size: 0.6rem; color: #ffffff !important;">0</span>
+            </h6>
+            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('turma')" style="font-size: 0.65rem; padding: 2px 10px;">
+                <i class="bi bi-plus-circle me-1"></i> Adicionar
+            </button>
+        </div>
+        <div id="lista-turma" class="lista-items">
+            <div class="text-center py-2 text-muted" style="font-size: 0.7rem; color: rgba(255,255,255,0.5) !important;">Carregando...</div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================ -->
+<!-- MODAIS -->
+<!-- ============================================ -->
+
+<!-- MODAL: GESTÃO -->
+<div class="modal fade" id="modalGestao" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content metal-modal-content">
+            <div class="modal-header metal-modal-header" style="padding: 10px 15px;">
+                <h6 class="modal-title" id="modalGestaoTitle" style="font-size: 0.95rem;">
+                    <i class="bi bi-plus-circle me-2"></i>Novo Item
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="font-size: 0.8rem;"></button>
+            </div>
+            <div class="modal-body" id="modalGestaoBody" style="padding: 15px;">
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status" style="width: 1.5rem; height: 1.5rem;"></div>
+                    <p class="mt-2 text-muted" style="font-size: 0.8rem;">Carregando formulário...</p>
+                </div>
+            </div>
+            <div class="modal-footer metal-modal-footer" style="padding: 8px 15px;">
+                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal" style="font-size: 0.75rem; padding: 4px 12px;">Cancelar</button>
+                <button type="button" class="metal-btn-primary" id="modalGestaoSaveBtn" onclick="window.salvarItem()" style="font-size: 0.75rem; padding: 4px 12px;">
+                    <i class="bi bi-check-circle me-1"></i>Salvar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: EXCLUIR -->
+<div class="modal fade" id="modalDelete" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content metal-modal-content">
+            <div class="modal-header metal-modal-header-danger" style="padding: 10px 15px;">
+                <h6 class="modal-title" style="font-size: 0.95rem;"><i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="font-size: 0.8rem;"></button>
+            </div>
+            <div class="modal-body" style="padding: 15px;">
+                <p style="font-size: 0.85rem;">Tem certeza que deseja excluir <strong id="deleteNome"></strong>?</p>
+                <div class="metal-alert-warning" style="padding: 8px 12px; font-size: 0.8rem;">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    <strong>Esta ação não pode ser desfeita!</strong>
+                </div>
+                <div class="mb-2">
+                    <label class="metal-form-label" style="font-size: 0.8rem;">Digite <strong>"DELETAR"</strong> para confirmar:</label>
+                    <input type="text" id="deleteConfirm" class="metal-form-control" placeholder="DELETAR" style="font-size: 0.8rem; padding: 6px 10px;">
+                </div>
+            </div>
+            <div class="modal-footer metal-modal-footer" style="padding: 8px 15px;">
+                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal" style="font-size: 0.75rem; padding: 4px 12px;">Cancelar</button>
+                <button type="button" class="metal-btn-danger" id="deleteBtn" onclick="window.confirmarDelete()" disabled style="font-size: 0.75rem; padding: 4px 12px;">Excluir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div id="toastContainer" style="position: fixed; top: 70px; right: 10px; z-index: 99999; max-width: 300px;"></div>
+
+<!-- ESTILOS -->
+<style>
+    .metal-header { background: linear-gradient(135deg, #00d4ff, #7b2ffc); border-radius: 12px; padding: 1rem 1.2rem; border: 1px solid rgba(255,255,255,0.1); }
+    .metal-title { color: white; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    .metal-subtitle { color: rgba(255,255,255,0.9) !important; }
+    .metal-btn-primary { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; font-weight: 500; transition: all 0.3s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; font-size: 0.65rem; padding: 2px 10px; }
+    .metal-btn-primary:hover { background: rgba(255,255,255,0.25); color: white; }
+    .metal-btn-secondary { background: rgba(108,117,125,0.2); border: 1px solid rgba(108,117,125,0.3); color: #6c757d; border-radius: 8px; font-weight: 500; transition: all 0.3s ease; cursor: pointer; }
+    .metal-btn-secondary:hover { background: rgba(108,117,125,0.3); color: #5a6268; }
+    .metal-btn-danger { background: linear-gradient(135deg, #dc3545, #c82333); border: none; color: white; border-radius: 8px; font-weight: 500; cursor: pointer; }
+    .metal-btn-danger:hover { opacity: 0.9; }
+    .metal-form-control { background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 8px; padding: 8px 10px; color: #ffffff !important; font-size: 0.85rem; width: 100%; }
+    .metal-form-control:focus { border-color: #00d4ff !important; box-shadow: 0 0 0 2px rgba(0,212,255,0.15) !important; outline: none; background: rgba(255,255,255,0.08) !important; color: #ffffff !important; }
+    .metal-form-label { color: rgba(255,255,255,0.9) !important; font-weight: 500; font-size: 0.8rem; margin-bottom: 0.15rem; display: block; }
+    .metal-modal-content { background: #0a0e1a; border: 1px solid rgba(0,212,255,0.2); border-radius: 12px; }
+    .metal-modal-header { background: linear-gradient(135deg, #00d4ff, #7b2ffc); color: white; border-radius: 12px 12px 0 0; }
+    .metal-modal-header-danger { background: linear-gradient(135deg, #dc3545, #c82333); color: white; border-radius: 12px 12px 0 0; }
+    .metal-modal-footer { background: rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.05); border-radius: 0 0 12px 12px; }
+    .metal-alert-warning { background: rgba(255,193,7,0.1); border-left: 3px solid #ffc107; padding: 8px 12px; border-radius: 6px; margin: 10px 0; color: #ffffff !important; }
+    .glass-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; transition: all 0.3s ease; color: #ffffff !important; }
+    .glass-card:hover { border-color: rgba(0,212,255,0.12); box-shadow: 0 4px 20px rgba(0,212,255,0.02); }
+    .glass-card .display-6 { color: #00d4ff !important; }
+    .glass-card .display-6.text-success { color: #2ed573 !important; }
+    .glass-card .display-6.text-warning { color: #ffa502 !important; }
+    .glass-card .display-6.text-danger { color: #ff4757 !important; }
+    .glass-card .display-6.text-info { color: #7b2ffc !important; }
+    .glass-card .display-6.text-purple { color: #a855f7 !important; }
+    .glass-card .h5, .glass-card .h6 { color: #ffffff !important; }
+    .badge { padding: 2px 8px; border-radius: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #ffffff !important; }
+    .bg-success { background-color: #2ed573 !important; }
+    .bg-warning { background-color: #ffa502 !important; color: #212529 !important; }
+    .bg-danger { background-color: #ff4757 !important; }
+    .bg-primary { background-color: #00d4ff !important; }
+    .bg-info { background-color: #7b2ffc !important; }
+    .bg-purple { background-color: #a855f7 !important; }
+    .text-purple { color: #a855f7 !important; }
+    .fade-in-up { animation: fadeInUp 0.4s ease forwards; opacity: 0; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    .delay-1 { animation-delay: 0.05s; }
+    .delay-2 { animation-delay: 0.1s; }
+    .delay-3 { animation-delay: 0.15s; }
+    .delay-4 { animation-delay: 0.2s; }
+    .delay-5 { animation-delay: 0.25s; }
+    .delay-6 { animation-delay: 0.3s; }
+    .modal-body { color: #ffffff !important; }
+    select option { background-color: #1a1a2e !important; color: #ffffff !important; }
+    .text-muted { color: rgba(255,255,255,0.5) !important; }
+    .lista-items { max-height: 140px; overflow-y: auto; }
+    .lista-items::-webkit-scrollbar { width: 3px; }
+    .lista-items::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 3px; }
+    .lista-items::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 3px; }
+    .item-mini { display: flex; justify-content: space-between; align-items: center; padding: 4px 6px; border-bottom: 1px solid rgba(255,255,255,0.03); border-radius: 4px; gap: 4px; flex-wrap: wrap; }
+    .item-mini:hover { background: rgba(255,255,255,0.02); }
+    .item-mini .item-info { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; flex-wrap: wrap; }
+    .item-mini .item-info .item-nome { font-weight: 500; color: #ffffff; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+    .item-mini .item-info .item-detalhe { font-size: 0.6rem; color: rgba(255,255,255,0.35); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
+    .item-mini .item-actions { display: flex; gap: 3px; flex-shrink: 0; }
+    .item-mini .item-actions .btn-sm { padding: 1px 5px; font-size: 0.55rem; border-radius: 3px; line-height: 1.2; }
+    .item-mini .status-badge { font-size: 0.45rem; padding: 1px 6px; border-radius: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2px; flex-shrink: 0; }
+    .status-badge.ativo { background: #2ed573; color: #ffffff; }
+    .status-badge.inativo { background: #6c757d; color: #ffffff; }
+    .toast-custom { background: rgba(10,14,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(0,212,255,0.2); border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; color: #fff; animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); font-size: 0.8rem; }
+    .toast-custom.success { border-left: 3px solid #2ed573; }
+    .toast-custom.error { border-left: 3px solid #ff4757; }
+    .toast-custom.warning { border-left: 3px solid #ffa502; }
+    .toast-custom .toast-icon { font-size: 1rem; }
+    .toast-custom.success .toast-icon { color: #2ed573; }
+    .toast-custom.error .toast-icon { color: #ff4757; }
+    .toast-custom.warning .toast-icon { color: #ffa502; }
+    @keyframes slideInRight { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(30px); opacity: 0; } }
+    @media (max-width:360px){ .item-mini .item-info .item-nome { max-width:80px; font-size:0.7rem; } .item-mini .item-info .item-detalhe { max-width:60px; font-size:0.55rem; } .item-mini .item-actions .btn-sm { padding:0px 4px; font-size:0.5rem; } .metal-title { font-size:1rem; } .glass-card .display-6 { font-size:1rem !important; } .glass-card .h6 { font-size:0.8rem !important; } }
+    @media (max-width:576px){ .metal-header { padding:0.6rem 0.8rem; } .metal-title { font-size:1.1rem; } .metal-subtitle { font-size:0.65rem; } .metal-btn-primary { font-size:0.6rem; padding:2px 8px; } .glass-card { padding:0.6rem 0.8rem !important; } .modal-dialog { margin:0.3rem; } .lista-items { max-height:120px; } .modal-body { padding:10px !important; } }
+    @media (min-width:768px){ .item-mini .item-info .item-nome { max-width:300px; } .item-mini .item-info .item-detalhe { max-width:200px; } .lista-items { max-height:180px; } }
+</style>
+
+<!-- ============================================ -->
+<!-- 🔥 SCRIPTS - COM DIAGNÓSTICO E FORÇADO      -->
+<!-- ============================================ -->
+<script>
+// ============================================
+// 🔥 VARIÁVEIS GLOBAIS
+// ============================================
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+console.log('🚀 Gestão Pedagógica - Diagnóstico');
+console.log('🔐 CSRF Token:', csrfToken ? '✅ OK' : '❌ NÃO ENCONTRADO');
+
+let categoriaAtual = '';
+let itemIdAtual = null;
+let deleteIdAtual = null;
+let deleteCategoriaAtual = '';
+
+// ============================================
+// 🔥 CONFIGURAÇÕES
+// ============================================
+const CATEGORIAS = {
+    'ano_lectivo': { nome: 'Ano Lectivo', cor: 'primary', endpoints: { listar: '/escola/api/pedagogico/ano_lectivo/listar/', criar: '/escola/api/pedagogico/ano_lectivo/criar/', editar: '/escola/api/pedagogico/ano_lectivo/editar/', salvar: '/escola/api/pedagogico/ano_lectivo/salvar/', deletar: '/escola/api/pedagogico/ano_lectivo/deletar/' } },
+    'trimestre': { nome: 'Trimestre', cor: 'success', endpoints: { listar: '/escola/api/pedagogico/trimestre/listar/', criar: '/escola/api/pedagogico/trimestre/criar/', editar: '/escola/api/pedagogico/trimestre/editar/', salvar: '/escola/api/pedagogico/trimestre/salvar/', deletar: '/escola/api/pedagogico/trimestre/deletar/' } },
+    'nivel_ensino': { nome: 'Nível de Ensino', cor: 'purple', endpoints: { listar: '/escola/api/pedagogico/nivel_ensino/listar/', criar: '/escola/api/pedagogico/nivel_ensino/criar/', editar: '/escola/api/pedagogico/nivel_ensino/editar/', salvar: '/escola/api/pedagogico/nivel_ensino/salvar/', deletar: '/escola/api/pedagogico/nivel_ensino/deletar/' } },
+    'classe': { nome: 'Classe', cor: 'warning', endpoints: { listar: '/escola/api/pedagogico/classe/listar/', criar: '/escola/api/pedagogico/classe/criar/', editar: '/escola/api/pedagogico/classe/editar/', salvar: '/escola/api/pedagogico/classe/salvar/', deletar: '/escola/api/pedagogico/classe/deletar/' } },
+    'disciplina': { nome: 'Disciplina', cor: 'info', endpoints: { listar: '/escola/api/pedagogico/disciplina/listar/', criar: '/escola/api/pedagogico/disciplina/criar/', editar: '/escola/api/pedagogico/disciplina/editar/', salvar: '/escola/api/pedagogico/disciplina/salvar/', deletar: '/escola/api/pedagogico/disciplina/deletar/' } },
+    'turma': { nome: 'Turma', cor: 'danger', endpoints: { listar: '/escola/api/pedagogico/turma/listar/', criar: '/escola/api/pedagogico/turma/criar/', editar: '/escola/api/pedagogico/turma/editar/', salvar: '/escola/api/pedagogico/turma/salvar/', deletar: '/escola/api/pedagogico/turma/deletar/' } }
+};
+
+// ============================================
+// 🔥 CARREGAR STATS
+// ============================================
+function carregarStats() {
+    fetch('/escola/api/pedagogico/stats/', {
+        method: 'GET',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'include'
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            document.getElementById('totalAnosLectivos').textContent = d.data.ano_lectivo || 0;
+            document.getElementById('totalTrimestres').textContent = d.data.trimestre || 0;
+            document.getElementById('totalNiveisEnsino').textContent = d.data.nivel_ensino || 0;
+            document.getElementById('totalClasses').textContent = d.data.classe || 0;
+            document.getElementById('totalDisciplinas').textContent = d.data.disciplina || 0;
+            document.getElementById('totalTurmas').textContent = d.data.turma || 0;
+            console.log('✅ Cards atualizados!');
+        }
+    })
+    .catch(e => console.error('❌ Stats error:', e));
+}
+
+// ============================================
+// 🔥 CARREGAR LISTA - CORRIGIDA
+// ============================================
+function carregarLista(categoria) {
+    const cfg = CATEGORIAS[categoria];
+    const container = document.getElementById('lista-' + categoria);
+    const badge = document.getElementById('count-' + categoria);
+    if (!container) return;
+    
+    container.innerHTML = '<div class="text-center py-1 text-muted" style="font-size:0.65rem;"><i class="bi bi-hourglass-split me-1"></i>Carregando...</div>';
+
+    fetch(cfg.endpoints.listar, {
+        method: 'GET',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'include'
+    })
+    .then(r => {
+        console.log(`📋 ${categoria} - Status:`, r.status);
+        return r.json();
+    })
+    .then(d => {
+        console.log(`📋 ${categoria} - Dados:`, d);
+        if (d.success) {
+            const items = d.data || [];
+            if (badge) badge.textContent = items.length;
+            if (!items.length) {
+                container.innerHTML = '<div class="text-center py-1 text-muted" style="font-size:0.65rem;"><i class="bi bi-inbox me-1"></i>Nenhum ' + cfg.nome.toLowerCase() + ' cadastrado</div>';
+                return;
+            }
+            let html = '';
+            items.forEach(item => {
+                const nome = item.nome || item.ano || item.numero || 'Item';
+                const status = item.ativo !== false;
+                html += `<div class="item-mini">
+                    <div class="item-info">
+                        <span class="item-nome">${nome}</span>
+                        <span class="status-badge ${status ? 'ativo' : 'inativo'}">${status ? 'Ativo' : 'Inativo'}</span>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn btn-sm btn-outline-${cfg.cor}" onclick="window.abrirModal('${categoria}', ${item.id})" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="window.abrirDeleteModal('${categoria}', ${item.id}, '${nome}')" title="Excluir">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+            console.log(`✅ ${categoria} - Lista renderizada!`);
+        } else {
+            container.innerHTML = `<div class="text-center py-1 text-muted" style="font-size:0.65rem;">${d.error || 'Erro ao carregar'}</div>`;
+        }
+    })
+    .catch(e => {
+        console.error('❌ Erro ao carregar', categoria, e);
+        container.innerHTML = '<div class="text-center py-1 text-muted" style="font-size:0.65rem;">Erro ao carregar dados</div>';
+    });
+}
+
+function carregarTodasListas() {
+    console.log('📋 Carregando todas as listas...');
+    Object.keys(CATEGORIAS).forEach(c => carregarLista(c));
+}
+
+// ============================================
+// 🔥 DIAGNÓSTICO - FORÇAR CARREGAMENTO MANUAL
+// ============================================
+console.log('\n🔍 FORÇANDO CARREGAMENTO MANUAL...');
+
+const categoriasTeste = ['ano_lectivo', 'trimestre', 'nivel_ensino', 'classe', 'disciplina', 'turma'];
+
+categoriasTeste.forEach(cat => {
+    const url = `/escola/api/pedagogico/${cat}/listar/`;
+    console.log(`📋 Testando ${cat}...`);
+    
+    fetch(url, {
+        method: 'GET',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'include'
+    })
+    .then(r => {
+        console.log(`📋 ${cat} - Status:`, r.status);
+        return r.json();
+    })
+    .then(d => {
+        console.log(`📋 ${cat} - Dados:`, d);
+        if (d.success && d.data && d.data.length > 0) {
+            const container = document.getElementById(`lista-${cat}`);
+            const badge = document.getElementById(`count-${cat}`);
+            if (container) {
+                let html = '';
+                d.data.forEach(item => {
+                    const nome = item.nome || item.ano || item.numero || 'Item';
+                    const status = item.ativo !== false;
+                    const cor = CATEGORIAS[cat]?.cor || 'primary';
+                    html += `<div class="item-mini">
+                        <div class="item-info">
+                            <span class="item-nome">${nome}</span>
+                            <span class="status-badge ${status ? 'ativo' : 'inativo'}">${status ? 'Ativo' : 'Inativo'}</span>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn btn-sm btn-outline-${cor}" onclick="window.abrirModal('${cat}', ${item.id})" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="window.abrirDeleteModal('${cat}', ${item.id}, '${nome}')" title="Excluir">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>`;
+                });
+                container.innerHTML = html;
+                if (badge) badge.textContent = d.data.length;
+                console.log(`✅ ${cat} - Lista atualizada manualmente!`);
+            }
+        } else {
+            console.log(`⚠️ ${cat} - Sem dados ou dados vazios`);
+        }
+    })
+    .catch(e => console.error(`❌ ${cat} - Erro:`, e));
+});
+
+// ============================================
+// 🔥 MODAIS
+// ============================================
+function abrirModal(categoria, id = null) {
+    const cfg = CATEGORIAS[categoria];
+    const isEdit = !!id;
+    
+    document.getElementById('modalGestaoTitle').innerHTML = `<i class="bi ${isEdit ? 'bi-pencil' : 'bi-plus-circle'} me-2"></i>${isEdit ? 'Editar' : 'Novo'} ${cfg.nome}`;
+    document.getElementById('modalGestaoSaveBtn').textContent = isEdit ? 'Atualizar' : 'Salvar';
+    
+    categoriaAtual = categoria;
+    itemIdAtual = id;
+    
+    const body = document.getElementById('modalGestaoBody');
+    body.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status" style="width:1.5rem;height:1.5rem;"></div><p class="mt-2 text-muted" style="font-size:0.8rem;">Carregando...</p></div>';
+    
+    new bootstrap.Modal(document.getElementById('modalGestao')).show();
+    
+    const url = isEdit ? `${cfg.endpoints.editar}${id}/` : cfg.endpoints.criar;
+    fetch(url, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'include' })
+        .then(r => r.text())
+        .then(html => { body.innerHTML = html; })
+        .catch(e => {
+            body.innerHTML = `<div class="alert alert-danger" style="font-size:0.85rem;padding:12px 15px;"><i class="bi bi-exclamation-triangle me-2"></i>${e.message}</div>`;
+        });
+}
+
+function salvarItem() {
+    const form = document.getElementById('formGestao');
+    if (!form) return mostrarToast('Formulário não encontrado', 'error');
+    if (!csrfToken) return mostrarToast('Erro de segurança: Token CSRF não encontrado', 'error');
+    
+    const data = new FormData(form);
+    const cfg = CATEGORIAS[categoriaAtual];
+    const url = itemIdAtual ? `${cfg.endpoints.salvar}${itemIdAtual}/` : cfg.endpoints.salvar;
+    
+    const btn = document.getElementById('modalGestaoSaveBtn');
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Salvando...';
+    
+    fetch(url, {
+        method: 'POST',
+        body: data,
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': csrfToken },
+        credentials: 'include'
+    })
+    .then(r => r.json())
+    .then(d => {
+        btn.disabled = false;
+        btn.textContent = orig;
+        if (d.success) {
+            mostrarToast('✅ ' + (d.message || 'Salvo com sucesso!'), 'success');
+            fecharModal('modalGestao');
+            setTimeout(() => { carregarStats(); carregarLista(categoriaAtual); }, 300);
+        } else {
+            const err = d.errors ? Object.values(d.errors).join(' ') : (d.error || 'Erro ao salvar');
+            mostrarToast('❌ ' + err, 'error');
+        }
+    })
+    .catch(e => {
+        btn.disabled = false;
+        btn.textContent = orig;
+        mostrarToast('❌ Erro: ' + e.message, 'error');
+    });
+}
+
+function abrirDeleteModal(categoria, id, nome) {
+    deleteIdAtual = id;
+    deleteCategoriaAtual = categoria;
+    document.getElementById('deleteNome').textContent = nome;
+    document.getElementById('deleteConfirm').value = '';
+    document.getElementById('deleteBtn').disabled = true;
+    document.getElementById('deleteConfirm').oninput = function() {
+        document.getElementById('deleteBtn').disabled = this.value.trim().toUpperCase() !== 'DELETAR';
+    };
+    new bootstrap.Modal(document.getElementById('modalDelete')).show();
+}
+
+function confirmarDelete() {
+    if (!deleteIdAtual) return;
+    const cfg = CATEGORIAS[deleteCategoriaAtual];
+    const btn = document.getElementById('deleteBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>';
+    
+    fetch(`${cfg.endpoints.deletar}${deleteIdAtual}/`, {
+        method: 'DELETE',
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': csrfToken },
+        credentials: 'include'
+    })
+    .then(r => r.json())
+    .then(d => {
+        btn.disabled = false;
+        btn.textContent = 'Excluir';
+        if (d.success) {
+            mostrarToast('✅ ' + (d.message || 'Excluído com sucesso!'), 'success');
+            fecharModal('modalDelete');
+            setTimeout(() => { carregarStats(); carregarLista(deleteCategoriaAtual); }, 300);
+        } else {
+            mostrarToast('❌ ' + (d.error || 'Erro ao excluir'), 'error');
+        }
+    })
+    .catch(e => {
+        btn.disabled = false;
+        btn.textContent = 'Excluir';
+        mostrarToast('❌ Erro: ' + e.message, 'error');
+    });
+}
+
+function fecharModal(id) {
+    const el = document.getElementById(id);
+    if (el) {
+        const modal = bootstrap.Modal.getInstance(el);
+        if (modal) modal.hide();
+        el.classList.remove('show');
+        el.style.display = 'none';
+        setTimeout(() => {
+            document.querySelectorAll('.modal-backdrop').forEach(e => e.remove());
+            document.body.classList.remove('modal-open');
+        }, 150);
+    }
+}
+
+function mostrarToast(msg, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast-custom ${type}`;
+    const icons = { success: 'bi-check-circle-fill', error: 'bi-exclamation-triangle-fill', warning: 'bi-exclamation-triangle-fill' };
+    toast.innerHTML = `
+        <i class="bi ${icons[type] || icons.success} toast-icon"></i>
+        <span style="flex:1;font-size:0.8rem;">${msg}</span>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:1rem;cursor:pointer;padding:0 4px;">
+            <i class="bi bi-x"></i>
+        </button>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
+// ============================================
+// 🔥 INICIALIZAÇÃO
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Gestão Pedagógica - Inicializando...');
+    
+    ['modalGestao', 'modalDelete'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('hidden.bs.modal', () => {
+                document.querySelectorAll('.modal-backdrop').forEach(e => e.remove());
+                document.body.classList.remove('modal-open');
+            });
+        }
+    });
+    
+    // 🔥 CARREGAR DADOS
+    carregarStats();
+    setTimeout(carregarTodasListas, 500);
+    setTimeout(carregarTodasListas, 1500);
+    setTimeout(carregarTodasListas, 3000);
+    
+    // 🔥 EXPOR FUNÇÕES
+    window.abrirModal = abrirModal;
+    window.salvarItem = salvarItem;
+    window.abrirDeleteModal = abrirDeleteModal;
+    window.confirmarDelete = confirmarDelete;
+    window.mostrarToast = mostrarToast;
+    window.fecharModal = fecharModal;
+    window.recarregarListas = carregarTodasListas;
+    window.recarregarStats = carregarStats;
+    
+    // 🔥 FORÇAR REMOÇÃO DO LOADING
+    setTimeout(() => {
+        console.log('🔄 Forçando remoção do loading...');
+        const overlay = document.getElementById('globalLoadingOverlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+            overlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        console.log('✅ Loading removido!');
+    }, 2000);
+    
+    // 🔥 FORÇAR REMOÇÃO DO "Carregando..." DAS LISTAS
+    setTimeout(() => {
+        document.querySelectorAll('.lista-items .text-muted').forEach(el => {
+            if (el.textContent.includes('Carregando...')) {
+                el.innerHTML = '<div class="text-center py-1 text-muted" style="font-size:0.65rem;"><i class="bi bi-inbox me-1"></i>Nenhum item cadastrado</div>';
+            }
+        });
+    }, 4000);
+    
+    console.log('✅ Gestão Pedagógica inicializada!');
+    console.log('📋 Digite recarregarListas() para recarregar as listas');
+});
+</script>

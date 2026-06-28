@@ -1,0 +1,91 @@
+{% load widget_tweaks %}
+
+<form id="formGestao" method="post" action="{% if edit %}/escola/api/pedagogico/nivel_ensino/salvar/{{ item.id }}/{% else %}/escola/api/pedagogico/nivel_ensino/salvar/{% endif %}">
+    {% csrf_token %}
+    
+    <input type="hidden" name="categoria" value="nivel_ensino">
+    {% if edit %}
+        <input type="hidden" name="item_id" value="{{ item.id }}">
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-12 mb-3">
+            <label for="{{ form.nome.id_for_label }}" class="metal-form-label">
+                Nome do Nível <span class="text-danger">*</span>
+            </label>
+            {% render_field form.nome class="metal-form-control" placeholder="Ex: Ensino Fundamental, Ensino Médio..." %}
+            {% if form.nome.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in form.nome.errors %}
+                        <i class="bi bi-exclamation-circle"></i> {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-12 mb-3">
+            <label for="{{ form.descricao.id_for_label }}" class="metal-form-label">
+                Descrição
+            </label>
+            {% render_field form.descricao class="metal-form-control" rows="3" placeholder="Descrição detalhada do nível de ensino" %}
+            {% if form.descricao.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in form.descricao.errors %}
+                        <i class="bi bi-exclamation-circle"></i> {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label for="{{ form.ordem.id_for_label }}" class="metal-form-label">
+                Ordem de Exibição
+            </label>
+            {% render_field form.ordem class="metal-form-control" min="0" placeholder="0" %}
+            {% if form.ordem.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in form.ordem.errors %}
+                        <i class="bi bi-exclamation-circle"></i> {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label d-block">Status</label>
+            <div class="form-check form-switch mt-2">
+                {% render_field form.ativo class="form-check-input" style="width: 40px; height: 20px; cursor: pointer;" %}
+                <label for="{{ form.ativo.id_for_label }}" class="form-check-label text-white" style="cursor: pointer;">
+                    <span id="statusLabel">{% if form.ativo.value %}Ativo{% else %}Inativo{% endif %}</span>
+                </label>
+            </div>
+            {% if form.ativo.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in form.ativo.errors %}
+                        <i class="bi bi-exclamation-circle"></i> {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ativoCheckbox = document.querySelector('#{{ form.ativo.id_for_label }}');
+        const statusLabel = document.getElementById('statusLabel');
+        
+        if (ativoCheckbox && statusLabel) {
+            ativoCheckbox.addEventListener('change', function() {
+                statusLabel.textContent = this.checked ? 'Ativo' : 'Inativo';
+            });
+        }
+        
+        const primeiroCampo = document.querySelector('#formGestao .metal-form-control:not([type="hidden"])');
+        if (primeiroCampo) {
+            setTimeout(function() {
+                primeiroCampo.focus();
+            }, 100);
+        }
+    });
+</script>

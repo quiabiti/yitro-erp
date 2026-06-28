@@ -906,66 +906,74 @@
     <!-- ===== OVERLAY SIDEBAR ===== -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <!-- ===== SIDEBAR DINÂMICA ===== -->
+    <!-- ===== SIDEBAR ATUALIZADA ===== -->
     <aside class="sidebar" id="sidebar">
         <nav class="sidebar-nav">
             <!-- Menu Principal -->
             <div class="nav-label">Menu Principal</div>
-            <a href="{% url 'home' %}" class="nav-link-tech" id="navDashboard">
+            <a href="{% url 'servicos:dashboard' %}" class="nav-link-tech" id="navDashboard">
                 <i class="bi bi-grid-1x2-fill"></i> Dashboard
             </a>
 
-            <!-- DEPARTAMENTOS DO USUÁRIO (DINÂMICO) -->
-            {% if user.is_authenticated and departamentos_usuario %}
-                <div class="nav-label" style="margin-top: 15px;">Departamentos</div>
-                {% for dep in departamentos_usuario %}
-                    <a href="/{{ dep.slug }}/" class="nav-link-tech {% if dep.slug == departamento_ativo.slug %}active{% endif %}">
-                        <i class="bi bi-{% if dep.slug == 'comercial' %}store{% elif dep.slug == 'financeiro' %}coins{% elif dep.slug == 'escola' %}mortarboard{% elif dep.slug == 'servicos' %}tools{% elif dep.slug == 'administrativo' %}building{% else %}folder{% endif %}"></i>
-                        {{ dep.nome }}
-                        <span class="dep-badge">{{ dep.slug }}</span>
-                    </a>
-                {% endfor %}
-            {% endif %}
+            <!-- DEPARTAMENTOS -->
+            <div class="nav-label" style="margin-top: 15px;">Departamentos</div>
+            
+            <!-- Financeiro -->
+            <a href="{% url 'financeiro:lista_faturas' %}" class="nav-link-tech" id="navFinanceiro">
+                <i class="bi bi-wallet2" style="color: #ffa502;"></i> Financeiro
+                <span class="dep-badge">faturas</span>
+            </a>
+            
+            <!-- Comercial -->
+            <a href="{% url 'servicos:dashboard' %}" class="nav-link-tech" id="navComercial">
+                <i class="bi bi-shop" style="color: #00d4ff;"></i> Comercial
+                <span class="dep-badge">produtos</span>
+            </a>
+            
+            <!-- ⭐ ESCOLA - AGORA ABRE A LISTA DE ESCOLAS -->
+            <a href="{% url 'escola:lista_escolas' %}" class="nav-link-tech" id="navEscola">
+                <i class="bi bi-mortarboard" style="color: #2ed573;"></i> Escola
+                <span class="dep-badge">pedagógico</span>
+            </a>
+            
+            <!-- Administrativo -->
+            <a href="{% url 'servicos:configuracoes' %}" class="nav-link-tech" id="navAdministrativo">
+                <i class="bi bi-building" style="color: #7b2ffc;"></i> Administrativo
+                <span class="dep-badge">config</span>
+            </a>
 
-            <!-- MENUS GLOBAIS (sem verificação de permissão) -->
-            {% if user.is_authenticated %}
-                <div class="nav-label" style="margin-top: 20px;">Sistema</div>
-                
-                <!-- Faturação AGT -->
-                <a href="{% url 'financeiro:lista_faturas' %}" class="nav-link-tech" id="navFaturamento">
-                    <i class="bi bi-receipt"></i> Faturação AGT
-                </a>
-                
-                <!-- Clientes -->
-                <a href="/financeiro/clientes/lista/" class="nav-link-tech" id="navClientes">
-                    <i class="bi bi-people"></i> Clientes
-                </a>
-                
-                <!-- Produtos e Serviços -->
-                <a href="{% url 'servicos:lista_servicos' %}" class="nav-link-tech" id="navServicos">
-                    <i class="bi bi-box-seam"></i> Produtos e Serviços
-                </a>
-                
-                <!-- Relatórios -->
-                <a href="{% url 'servicos:relatorios' %}" class="nav-link-tech" id="navRelatorios">
-                    <i class="bi bi-file-earmark-text"></i> Relatórios
-                </a>
+            <!-- MENUS DO SISTEMA -->
+            <div class="nav-label" style="margin-top: 20px;">Sistema</div>
+            
+            <!-- Clientes -->
+            <a href="/financeiro/clientes/lista/" class="nav-link-tech" id="navClientes">
+                <i class="bi bi-people"></i> Clientes
+            </a>
+            
+            <!-- Produtos e Serviços -->
+            <a href="{% url 'servicos:lista_servicos' %}" class="nav-link-tech" id="navServicos">
+                <i class="bi bi-box-seam"></i> Produtos e Serviços
+            </a>
+            
+            <!-- Relatórios -->
+            <a href="{% url 'servicos:relatorios' %}" class="nav-link-tech" id="navRelatorios">
+                <i class="bi bi-file-earmark-text"></i> Relatórios
+            </a>
 
-                <!-- PAINEL ADMIN - apenas Super Admin -->
-                {% if user.is_superuser %}
-                    <a href="{% url 'servicos:painel_admin' %}" class="nav-link-tech" id="navPainelAdmin">
-                        <i class="bi bi-shield-lock"></i> Painel Admin
-                    </a>
-                {% endif %}
-                
-                <!-- Configurações -->
-                <a href="{% url 'servicos:configuracoes' %}" class="nav-link-tech" id="navConfiguracoes">
-                    <i class="bi bi-gear"></i> Configurações
+            <!-- PAINEL ADMIN - apenas Super Admin -->
+            {% if user.is_superuser %}
+                <a href="{% url 'servicos:painel_admin' %}" class="nav-link-tech" id="navPainelAdmin">
+                    <i class="bi bi-shield-lock"></i> Painel Admin
                 </a>
             {% endif %}
+            
+            <!-- Configurações -->
+            <a href="{% url 'servicos:configuracoes' %}" class="nav-link-tech" id="navConfiguracoes">
+                <i class="bi bi-gear"></i> Configurações
+            </a>
         </nav>
 
-        <!-- USUÁRIO DINÂMICO -->
+        <!-- USUÁRIO -->
         <div class="sidebar-user">
             <div class="user-avatar-sm">
                 {% if user.is_authenticated and user.foto_perfil %}
@@ -1015,7 +1023,7 @@
                 </button>
 
                 <!-- Logo Yitro -->
-                <a href="{% url 'home' %}" class="logo-yitro">
+                <a href="{% url 'servicos:dashboard' %}" class="logo-yitro">
                     <div class="logo-icon">
                         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <defs>

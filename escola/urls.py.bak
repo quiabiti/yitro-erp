@@ -1,0 +1,72 @@
+from django.urls import path
+from . import views
+from .pedagogico import views as pedagogico_views
+
+app_name = 'escola'
+
+urlpatterns = [
+    # 🔥 ROTA PRINCIPAL DA ESCOLA
+    path('', views.index, name='index'),
+    
+    # 🔥 ROTA PARA ENTRAR NA ESCOLA PELO SLUG
+    path('<str:slug>/', views.entrar_escola, name='entrar_escola'),
+    
+    # ============================================
+    # API - GESTÃO DE ESCOLAS (YITRO)
+    # ============================================
+    path('api/escolas/', views.api_escolas_listar, name='api_escolas_listar'),
+    path('api/escolas/nova/', views.api_escola_nova, name='api_escola_nova'),
+    path('api/escolas/editar/<int:escola_id>/', views.api_escola_editar, name='api_escola_editar'),
+    path('api/escolas/salvar/', views.api_escola_salvar, name='api_escola_salvar'),
+    path('api/escolas/deletar/<int:escola_id>/', views.api_escola_deletar, name='api_escola_deletar'),
+    
+    # ============================================
+    # API - DASHBOARD
+    # ============================================
+    path('api/dashboard/', views.api_dashboard, name='api_dashboard'),
+    
+    # ============================================
+    # 🔥 SECRETARIA GERAL
+    # ============================================
+    path('api/secretaria/matriculas/', views.secretaria_matriculas, name='secretaria_matriculas'),
+    path('api/secretaria/pagamentos/', views.secretaria_pagamentos, name='secretaria_pagamentos'),
+    path('api/secretaria/alunos/', views.secretaria_alunos, name='secretaria_alunos'),
+    path('api/secretaria/documentos/', views.secretaria_documentos, name='secretaria_documentos'),
+    
+    # ============================================
+    # 🔥 ÁREA PEDAGÓGICA (views em pedagogico/views.py)
+    # ============================================
+    path('api/pedagogico/ano_lectivo/', pedagogico_views.ano_lectivo, name='pedagogico_ano_lectivo'),
+    path('api/pedagogico/lista_alunos/', pedagogico_views.lista_alunos, name='pedagogico_lista_alunos'),
+    path('api/pedagogico/pautas/', pedagogico_views.pautas, name='pedagogico_pautas'),
+    path('api/pedagogico/mapa_aproveitamento/', pedagogico_views.mapa_aproveitamento, name='pedagogico_mapa_aproveitamento'),
+    path('api/pedagogico/relatorio/', pedagogico_views.relatorio, name='pedagogico_relatorio'),
+    path('api/pedagogico/professores/', pedagogico_views.professores, name='pedagogico_professores'),
+    path('api/pedagogico/efetividade/', pedagogico_views.efetividade, name='pedagogico_efetividade'),
+    path('api/pedagogico/usuarios/', pedagogico_views.usuarios, name='pedagogico_usuarios'),
+    
+    # ============================================
+    # 🔥 PROFESSOR (views em pedagogico/views.py)
+    # ============================================
+    path('api/professor/lancar_notas/', pedagogico_views.lancar_notas, name='professor_lancar_notas'),
+    path('api/professor/pauta_trimestral/', pedagogico_views.pauta_trimestral, name='professor_pauta_trimestral'),
+    path('api/professor/horario/', pedagogico_views.horario, name='professor_horario'),
+    path('api/professor/efetividade/', pedagogico_views.efetividade_professor, name='professor_efetividade'),
+    path('api/professor/avaliacao/', pedagogico_views.avaliacao, name='professor_avaliacao'),
+    
+    # ============================================
+    # 🔥 ÁREA ADMINISTRATIVA
+    # ============================================
+    path('api/admin/funcionarios/', views.admin_funcionarios, name='admin_funcionarios'),
+    path('api/admin/documentos/', views.admin_documentos, name='admin_documentos'),
+    path('api/admin/relatorios/', views.admin_relatorios, name='admin_relatorios'),
+    path('api/admin/custos/', views.admin_custos, name='admin_custos'),
+    path('api/admin/folha_salarial/', views.admin_folha_salarial, name='admin_folha_salarial'),
+    path('api/admin/usuarios/', views.admin_usuarios, name='admin_usuarios'),
+    
+    # ============================================
+    # 🔥 ÁREA FINANCEIRA
+    # ============================================
+    path('api/financeiro/relatorio/', views.financeiro_relatorio, name='financeiro_relatorio'),
+    path('api/financeiro/tributario/', views.financeiro_tributario, name='financeiro_tributario'),
+]

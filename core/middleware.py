@@ -121,3 +121,22 @@ class ContadorTentativasLoginMiddleware:
                 }, status=403)
         
         return self.get_response(request)
+from django.http import JsonResponse
+
+class AjaxRedirectMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        
+        # Se for uma requisição AJAX e a resposta for um redirecionamento
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            if response.status_code in [301, 302, 303, 307, 308]:
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Sessão expirada. Faça login novamente.',
+                    'redirect': response.url
+                }, status=401)
+        
+        return response

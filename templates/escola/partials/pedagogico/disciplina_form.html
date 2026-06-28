@@ -1,0 +1,87 @@
+{% load static %}
+<form id="formGestao" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="categoria" value="disciplina">
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Nome <span class="text-danger">*</span></label>
+            <input type="text" name="nome" class="metal-form-control" placeholder="Ex: Matemática" 
+                   value="{{ form.nome.value|default:'' }}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Código <span class="text-danger">*</span></label>
+            <input type="text" name="codigo" class="metal-form-control" placeholder="Ex: MAT-001" 
+                   value="{{ form.codigo.value|default:'' }}" required>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Classe <span class="text-danger">*</span></label>
+            <select name="classe" class="metal-form-select" required>
+                <option value="">Selecione...</option>
+                {% for classe in form.fields.classe.queryset %}
+                <option value="{{ classe.id }}" {% if form.classe.value == classe.id %}selected{% endif %}>
+                    {{ classe.nome }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Carga Horária (horas) <span class="text-danger">*</span></label>
+            <input type="number" name="carga_horaria" class="metal-form-control" min="1" 
+                   value="{{ form.carga_horaria.value|default:60 }}" required>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Tipo de Disciplina <span class="text-danger">*</span></label>
+            <select name="tipo" class="metal-form-select" required>
+                <option value="curricular" {% if form.tipo.value == 'curricular' %}selected{% endif %}>Curricular</option>
+                <option value="extra_curricular" {% if form.tipo.value == 'extra_curricular' %}selected{% endif %}>Extra-Curricular</option>
+                <option value="opcional" {% if form.tipo.value == 'opcional' %}selected{% endif %}>Opcional</option>
+            </select>
+            <small class="text-muted">Tipo de disciplina: Curricular, Extra-Curricular ou Opcional</small>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label d-block">Disciplina Chave</label>
+            <div class="form-check form-switch mt-1">
+                <input type="checkbox" name="is_chave" class="form-check-input" id="id_is_chave" 
+                       {% if form.is_chave.value %}checked{% endif %} value="on">
+                <label class="form-check-label text-white" for="id_is_chave">
+                    <span id="isChaveLabel">{% if form.is_chave.value %}Sim{% else %}Não{% endif %}</span>
+                </label>
+            </div>
+            <small class="text-muted">Marque se esta disciplina é fundamental para o currículo</small>
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <label class="metal-form-label">Descrição</label>
+        <textarea name="descricao" class="metal-form-control" rows="3" placeholder="Descrição da disciplina">{{ form.descricao.value|default:'' }}</textarea>
+    </div>
+    
+    <div class="mb-3">
+        <label class="metal-form-label">Ativo</label>
+        <select name="ativo" class="metal-form-select">
+            <option value="1" {% if form.ativo.value %}selected{% endif %}>Sim</option>
+            <option value="0" {% if not form.ativo.value and form.ativo.value is not None %}selected{% endif %}>Não</option>
+        </select>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 🔥 ATUALIZAR LABEL DO SWITCH DE DISCIPLINA CHAVE
+    const isChaveCheckbox = document.getElementById('id_is_chave');
+    const isChaveLabel = document.getElementById('isChaveLabel');
+    
+    if (isChaveCheckbox && isChaveLabel) {
+        isChaveCheckbox.addEventListener('change', function() {
+            isChaveLabel.textContent = this.checked ? 'Sim' : 'Não';
+        });
+    }
+});
+</script>

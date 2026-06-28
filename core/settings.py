@@ -41,6 +41,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.AjaxRedirectMiddleware',  # 🔥 ADICIONADO - Trata redirecionamentos AJAX
     'core.middleware.ConfiguracaoMiddleware',
     'core.middleware.MultiTenancyMiddleware',
     'core.middleware.ContadorTentativasLoginMiddleware',
@@ -50,7 +51,11 @@ MIDDLEWARE = [
 CSRF_COOKIE_SECURE = False  # True em produção (HTTPS)
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = 'Lax'
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000', 
+    'http://127.0.0.1:8000',
+    'https://*.onrender.com',  # Para produção no Render
+]
 CSRF_FAILURE_VIEW = 'autenticacao.views.csrf_failure'  # View personalizada
 
 ROOT_URLCONF = 'core.urls'
@@ -86,6 +91,15 @@ DATABASES = {
     }
 }
 
+# 🔥 CONFIGURAÇÃO PARA PRODUÇÃO (Render.com)
+# Se estiver em produção, use DATABASE_URL
+if os.environ.get('DATABASE_URL'):
+    DATABASES['default'] = dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True
+    )
+
 AUTH_USER_MODEL = 'autenticacao.Usuario'
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -100,6 +114,7 @@ TIME_ZONE = 'Africa/Luanda'
 USE_I18N = True
 USE_TZ = True
 
+# 🔥 CONFIGURAÇÕES DE ARQUIVOS ESTÁTICOS
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
@@ -110,15 +125,43 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# 🔥 CONFIGURAÇÕES DE AUTENTICAÇÃO
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
 
-SESSION_COOKIE_AGE = 1209600
+# 🔥 CONFIGURAÇÕES DE SESSÃO
+SESSION_COOKIE_AGE = 1209600  # 2 semanas
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = False  # True em produção (HTTPS)
 
 # 🔥 CONFIGURAÇÕES DE SEGURANÇA
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 SECURE_SSL_REDIRECT = False  # True em produção
+
+# 🔥 CONFIGURAÇÕES DE EMAIL (para produção)
+EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = env('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = env('EMAIL_USE_TLS', default=True)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='noreply@yitro.com')
+
+# 🔥 CONFIGURAÇÕES DE LOGGING (opcional)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+}

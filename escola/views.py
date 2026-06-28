@@ -13,8 +13,73 @@ from core.decorators import (
 )
 from .configuracao.models import Instituicao, UsuarioInstituicao
 from django.contrib.auth import get_user_model
+import logging
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
+
+
+# ============================================
+# 🔥 FUNÇÃO PARA BUSCAR O TENANT (ESCOLA)
+# ============================================
+
+def get_tenant_escola(request):
+    """Retorna a escola (tenant) da requisição"""
+    # 🔥 Verifica se o tenant está na sessão ou no request
+    tenant = getattr(request, 'tenant', None)
+    
+    # Se não tiver tenant, tenta buscar da sessão
+    if not tenant and hasattr(request, 'session'):
+        tenant_id = request.session.get('tenant_id')
+        if tenant_id:
+            try:
+                tenant = Instituicao.objects.get(id=tenant_id, ativo=True)
+                request.tenant = tenant
+                logger.info(f"✅ Tenant encontrado na sessão: {tenant.nome} (ID: {tenant.id})")
+            except Instituicao.DoesNotExist:
+                logger.warning(f"❌ Tenant não encontrado para ID: {tenant_id}")
+            except Exception as e:
+                logger.error(f"❌ Erro ao buscar tenant: {e}")
+    
+    # Se ainda não tiver tenant, tenta buscar do GET
+    if not tenant:
+        tenant_slug = request.GET.get('tenant')
+        if tenant_slug:
+            try:
+                tenant = Instituicao.objects.get(slug=tenant_slug, ativo=True)
+                request.tenant = tenant
+                logger.info(f"✅ Tenant encontrado pelo slug: {tenant.nome} (ID: {tenant.id})")
+            except Instituicao.DoesNotExist:
+                logger.warning(f"❌ Tenant não encontrado para slug: {tenant_slug}")
+            except Exception as e:
+                logger.error(f"❌ Erro ao buscar tenant: {e}")
+    
+    return tenant
+
+
+# ============================================
+# 🔥 FUNÇÃO PARA GARANTIR TENANT EM DADOS
+# ============================================
+
+def get_tenant_id_para_salvar(request, item=None):
+    """
+    Retorna o tenant_id para salvar no registro.
+    Se o item já existe, mantém o tenant_id existente.
+    Se é novo, usa o tenant da requisição.
+    """
+    # Se o item existe e tem tenant_id, mantém
+    if item and hasattr(item, 'tenant_id') and item.tenant_id:
+        return item.tenant_id
+    
+    # Buscar tenant da requisição
+    tenant = get_tenant_escola(request)
+    if tenant:
+        return tenant.id
+    
+    # Se não encontrou tenant, retorna None (super admin)
+    return None
+
 
 # ============================================
 # VIEW PRINCIPAL - SPA
@@ -34,7 +99,7 @@ def index(request):
     tenant_nome = None
     tenant_nome_fantasia = None
     carregar_dashboard = False
-    esta_na_escola = False  # 🔥 NOVO: indica se está dentro de uma escola
+    esta_na_escola = False
     
     if tenant_slug:
         try:
@@ -42,23 +107,26 @@ def index(request):
             tenant_nome = escola.nome
             tenant_nome_fantasia = escola.nome_fantasia
             carregar_dashboard = True
-            esta_na_escola = True  # 🔥 ESTÁ DENTRO DE UMA ESCOLA
+            esta_na_escola = True
+            # 🔥 Salvar tenant na sessão
+            request.session['tenant_id'] = escola.id
         except Instituicao.DoesNotExist:
             pass
     
     context = {
-        'is_super_admin': is_super_admin,      # 🔥 NOVO
-        'is_admin_escola': is_admin_escola,    # 🔥 NOVO
-        'is_admin': is_super_admin,            # Mantido para compatibilidade
+        'is_super_admin': is_super_admin,
+        'is_admin_escola': is_admin_escola,
+        'is_admin': is_super_admin,
         'show_escolas': is_super_admin,
         'tenant_slug': tenant_slug,
         'tenant_nome': tenant_nome,
         'tenant_nome_fantasia': tenant_nome_fantasia,
         'carregar_dashboard': carregar_dashboard,
-        'esta_na_escola': esta_na_escola,      # 🔥 NOVO
+        'esta_na_escola': esta_na_escola,
     }
     
     return render(request, 'base_escola.html', context)
+
 
 # ============================================
 # ENTRAR NA ESCOLA PELO SLUG
@@ -66,16 +134,20 @@ def index(request):
 
 @login_required
 def entrar_escola(request, slug):
-    """Redireciona para o dashboard da escola pelo slug"""
+    """Redireciona para o ambiente da escola"""
     escola = get_object_or_404(Instituicao, slug=slug)
     
     user = request.user
     if not user.is_superuser:
         if not UsuarioInstituicao.objects.filter(usuario=user, instituicao=escola).exists():
             messages.error(request, 'Você não tem acesso a esta escola.')
-            return redirect('escola:index')
+            return redirect('escola:lista_escolas')
     
-    return redirect(f'/escola/?tenant={escola.slug}')
+    # 🔥 SALVAR TENANT NA SESSÃO
+    request.session['tenant_id'] = escola.id
+    
+    # 🔥 REDIRECIONA PARA O AMBIENTE DA ESCOLA COM O TENANT
+    return redirect(f'/escola/ambiente/?tenant={escola.slug}')
 
 
 # ============================================
@@ -268,6 +340,10 @@ def api_dashboard(request):
     
     is_admin = user.is_superuser or user.tem_acesso_departamento('administrativo')
     
+    # 🔥 Buscar o tenant
+    tenant = get_tenant_escola(request)
+    tenant_id = tenant.id if tenant else None
+    
     if is_admin:
         context = {
             'is_admin': True,
@@ -276,6 +352,7 @@ def api_dashboard(request):
             'escolas_ativas': Instituicao.objects.filter(ativo=True).count(),
             'escolas_inativas': Instituicao.objects.filter(ativo=False).count(),
             'ultimas_escolas': Instituicao.objects.all().order_by('-data_criacao')[:5],
+            'tenant_id': tenant_id,
         }
     else:
         try:
@@ -290,6 +367,7 @@ def api_dashboard(request):
                     'total_turmas': 0,
                     'total_professores': 0,
                     'total_disciplinas': 0,
+                    'tenant_id': escola.id,
                 }
             else:
                 context = {
@@ -300,6 +378,7 @@ def api_dashboard(request):
                     'total_turmas': 0,
                     'total_professores': 0,
                     'total_disciplinas': 0,
+                    'tenant_id': None,
                 }
         except:
             context = {
@@ -310,6 +389,161 @@ def api_dashboard(request):
                 'total_turmas': 0,
                 'total_professores': 0,
                 'total_disciplinas': 0,
+                'tenant_id': None,
             }
     
     return render(request, 'escola/partials/dashboard.html', context)
+
+
+# ============================================
+# 🔥 SECRETARIA GERAL
+# ============================================
+
+@login_required
+def secretaria_matriculas(request):
+    """Matrícula e Confirmação - Secretaria Geral"""
+    context = {
+        'titulo': 'Matrícula e Confirmação',
+        'icone': 'bi-file-earmark-text',
+        'modulo': 'Secretaria Geral',
+    }
+    return render(request, 'escola/partials/secretaria/matriculas.html', context)
+
+@login_required
+def secretaria_pagamentos(request):
+    """Pagamentos - Secretaria Geral"""
+    context = {
+        'titulo': 'Pagamentos',
+        'icone': 'bi-wallet2',
+        'modulo': 'Secretaria Geral',
+    }
+    return render(request, 'escola/partials/secretaria/pagamentos.html', context)
+
+@login_required
+def secretaria_alunos(request):
+    """Lista de Alunos por Turma - Secretaria Geral"""
+    context = {
+        'titulo': 'Lista de Alunos por Turma',
+        'icone': 'bi-people',
+        'modulo': 'Secretaria Geral',
+    }
+    return render(request, 'escola/partials/secretaria/alunos.html', context)
+
+@login_required
+def secretaria_documentos(request):
+    """Solicitação de Documentos - Secretaria Geral"""
+    context = {
+        'titulo': 'Solicitação de Documentos',
+        'icone': 'bi-file-earmark',
+        'modulo': 'Secretaria Geral',
+    }
+    return render(request, 'escola/partials/secretaria/documentos.html', context)
+
+
+# ============================================
+# 🔥 ÁREA ADMINISTRATIVA
+# ============================================
+
+@login_required
+def admin_funcionarios(request):
+    """Funcionários - Área Administrativa"""
+    context = {
+        'titulo': 'Funcionários',
+        'icone': 'bi-people',
+        'modulo': 'Área Administrativa',
+    }
+    return render(request, 'escola/partials/admin/funcionarios.html', context)
+
+@login_required
+def admin_documentos(request):
+    """Documentos - Área Administrativa"""
+    context = {
+        'titulo': 'Documentos',
+        'icone': 'bi-file-earmark',
+        'modulo': 'Área Administrativa',
+    }
+    return render(request, 'escola/partials/admin/documentos.html', context)
+
+@login_required
+def admin_relatorios(request):
+    """Relatórios - Área Administrativa"""
+    context = {
+        'titulo': 'Relatórios',
+        'icone': 'bi-file-earmark-text',
+        'modulo': 'Área Administrativa',
+    }
+    return render(request, 'escola/partials/admin/relatorios.html', context)
+
+@login_required
+def admin_custos(request):
+    """Gestão de Custos - Área Administrativa"""
+    context = {
+        'titulo': 'Gestão de Custos',
+        'icone': 'bi-coin',
+        'modulo': 'Área Administrativa',
+    }
+    return render(request, 'escola/partials/admin/custos.html', context)
+
+@login_required
+def admin_folha_salarial(request):
+    """Efetividade e Folha Salarial - Área Administrativa"""
+    context = {
+        'titulo': 'Efetividade e Folha Salarial',
+        'icone': 'bi-cash-stack',
+        'modulo': 'Área Administrativa',
+    }
+    return render(request, 'escola/partials/admin/folha_salarial.html', context)
+
+@login_required
+def admin_usuarios(request):
+    """Usuários - Área Administrativa"""
+    context = {
+        'titulo': 'Usuários - Administrativo',
+        'icone': 'bi-people',
+        'modulo': 'Área Administrativa',
+    }
+    return render(request, 'escola/partials/admin/usuarios.html', context)
+
+
+# ============================================
+# 🔥 ÁREA FINANCEIRA
+# ============================================
+
+@login_required
+def financeiro_relatorio(request):
+    """Relatório Financeiro - Área Financeira"""
+    context = {
+        'titulo': 'Relatório Financeiro',
+        'icone': 'bi-file-earmark-text',
+        'modulo': 'Área Financeira',
+    }
+    return render(request, 'escola/partials/financeiro/relatorio.html', context)
+
+@login_required
+def financeiro_tributario(request):
+    """Relatório Tributário - Área Financeira"""
+    context = {
+        'titulo': 'Relatório Tributário',
+        'icone': 'bi-receipt',
+        'modulo': 'Área Financeira',
+    }
+    return render(request, 'escola/partials/financeiro/tributario.html', context)
+
+    # escola/pedagogico/views.py
+def get_tenant_id_para_salvar(request, item=None):
+    """
+    Retorna o tenant_id para salvar no registro.
+    Se o item já existe, mantém o tenant_id existente.
+    Se é novo, usa o tenant da requisição.
+    """
+    # Se o item existe e tem tenant_id, mantém
+    if item and hasattr(item, 'tenant_id') and item.tenant_id:
+        return item.tenant_id
+    
+    # Buscar tenant da requisição
+    tenant = get_tenant_escola(request)
+    if tenant:
+        return tenant.id
+    
+    # Se não encontrou tenant, retorna None (super admin)
+    return None

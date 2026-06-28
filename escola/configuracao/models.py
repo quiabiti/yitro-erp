@@ -1,6 +1,6 @@
 # escola/configuracao/models.py
 from django.db import models
-from django.conf import settings  # 🔥 IMPORTANTE: usar settings.AUTH_USER_MODEL
+from django.conf import settings
 from django.core.validators import FileExtensionValidator
 import uuid
 
@@ -8,10 +8,34 @@ class Instituicao(models.Model):
     """
     Modelo central para multi-tenancy - cada escola/cliente é uma instância
     """
+    # ============================================
+    # PROVÍNCIAS DE ANGOLA (OPÇÕES)
+    # ============================================
+    PROVINCIA_CHOICES = [
+        ('AO-BGO', 'Bengo'),
+        ('AO-BGU', 'Benguela'),
+        ('AO-BIE', 'Bié'),
+        ('AO-CAB', 'Cabinda'),
+        ('AO-CCU', 'Cuando Cubango'),
+        ('AO-CNO', 'Cuanza Norte'),
+        ('AO-CUS', 'Cuanza Sul'),
+        ('AO-CNN', 'Cunene'),
+        ('AO-HUA', 'Huambo'),
+        ('AO-HUI', 'Huíla'),
+        ('AO-LUA', 'Luanda'),
+        ('AO-LNO', 'Lunda Norte'),
+        ('AO-LSU', 'Lunda Sul'),
+        ('AO-MAL', 'Malanje'),
+        ('AO-MOX', 'Moxico'),
+        ('AO-NAM', 'Namibe'),
+        ('AO-UIG', 'Uíge'),
+        ('AO-ZAI', 'Zaire'),
+    ]
+    
     # Identificação
     nome = models.CharField('Nome da Instituição', max_length=200)
     nome_fantasia = models.CharField('Nome Fantasia', max_length=200, blank=True)
-    cnpj = models.CharField('CNPJ', max_length=18, unique=True)
+    cnpj = models.CharField('NIF', max_length=18, unique=True)
     inscricao_estadual = models.CharField('Inscrição Estadual', max_length=20, blank=True)
     
     # Identificador único do tenant (usado no subdomínio ou path)
@@ -26,8 +50,14 @@ class Instituicao(models.Model):
     # Endereço
     endereco = models.TextField('Endereço')
     cidade = models.CharField('Cidade', max_length=100)
-    estado = models.CharField('Estado', max_length=2)
-    cep = models.CharField('CEP', max_length=10)
+    # 🔥 CORRIGIDO: max_length=50 para aceitar nomes completos
+    estado = models.CharField(
+        'Província', 
+        max_length=50,  # 🔥 MUDADO DE 2 PARA 50
+        choices=PROVINCIA_CHOICES,
+        default='AO-LUA'
+    )
+    cep = models.CharField('Código Postal', max_length=10, blank=True)  # 🔥 TORNADO OPCIONAL
     
     # Configurações visuais
     logo = models.ImageField(
@@ -94,15 +124,22 @@ class Instituicao(models.Model):
         if self.logo:
             return self.logo.url
         return None
+    
+    @property
+    def estado_nome(self):
+        """Retorna o nome completo da província"""
+        for codigo, nome in self.PROVINCIA_CHOICES:
+            if codigo == self.estado:
+                return nome
+        return self.estado
 
 
 class UsuarioInstituicao(models.Model):
     """
     Relaciona usuários com instituições - cada usuário pode ter acesso a múltiplas escolas
     """
-    # 🔥 CORRIGIDO: Usar settings.AUTH_USER_MODEL em vez de User diretamente
     usuario = models.ForeignKey(
-        settings.AUTH_USER_MODEL,  # 🔥 ISSO É O CORRETO!
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='instituicoes'
     )

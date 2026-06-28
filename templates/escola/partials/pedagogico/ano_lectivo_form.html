@@ -1,0 +1,38 @@
+{% load static %}
+<form id="formGestao" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="categoria" value="ano_lectivo">
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Ano Lectivo <span class="text-danger">*</span></label>
+            <input type="text" name="ano" class="metal-form-control" placeholder="Ex: 2024/2025" 
+                   value="{{ form.ano.value|default:'' }}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Ativo</label>
+            <select name="ativo" class="metal-form-select">
+                <option value="1" {% if form.ativo.value %}selected{% endif %}>Sim</option>
+                <option value="0" {% if not form.ativo.value and form.ativo.value is not None %}selected{% endif %}>Não</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Data de Início <span class="text-danger">*</span></label>
+            <input type="date" name="data_inicio" class="metal-form-control" 
+                   value="{{ form.data_inicio.value|default:''|date:'Y-m-d' }}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Data de Fim <span class="text-danger">*</span></label>
+            <input type="date" name="data_fim" class="metal-form-control" 
+                   value="{{ form.data_fim.value|default:''|date:'Y-m-d' }}" required>
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <label class="metal-form-label">Descrição</label>
+        <textarea name="descricao" class="metal-form-control" rows="3" placeholder="Descrição do ano lectivo...">{{ form.descricao.value|default:'' }}</textarea>
+    </div>
+</form>

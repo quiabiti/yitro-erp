@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Erro de Segurança{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card glass-card border-danger">
+                <div class="card-body text-center">
+                    <!-- Ícone vermelho -->
+                    <i class="bi bi-shield-exclamation display-1 text-danger"></i>
+                    
+                    <!-- Título vermelho -->
+                    <h2 class="mt-3 text-danger fw-bold">Erro de Autenticação</h2>
+                    
+                    <!-- Mensagem principal: BRANCA para destaque -->
+                    <p class="text-white fs-5 mt-3">
+                        <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+                        Ocorreu um erro de segurança ao processar sua requisição.
+                    </p>
+                    
+                    <p class="text-white-50">
+                        Por favor, tente novamente.
+                    </p>
+                    
+                    <hr class="border-secondary">
+                    
+                    <!-- Motivo: VERMELHO para destacar o erro -->
+                    <p class="small text-danger fw-bold">
+                        <i class="bi bi-lock-fill me-1"></i>
+                        Motivo: Token CSRF inválido ou expirado.
+                    </p>
+                    
+                    <!-- Botão com ícone -->
+                    <a href="{% url 'autenticacao:login' %}" class="btn btn-primary mt-3">
+                        <i class="bi bi-arrow-repeat me-2"></i> Tentar novamente
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

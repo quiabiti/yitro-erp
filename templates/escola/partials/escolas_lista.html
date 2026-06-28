@@ -1,6 +1,14 @@
+{% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
 
+{% block title %}Escolas - Yitro{% endblock %}
+
+{% block page_icon %}building{% endblock %}
+
+{% block page_title %}Escolas Cadastradas{% endblock %}
+
+{% block content %}
 <!-- ============================================ -->
 <!-- LISTA DE ESCOLAS + FORMULÁRIO               -->
 <!-- ============================================ -->
@@ -20,7 +28,7 @@
     </div>
 </div>
 
-<!-- CARDS ESTATÍSTICOS - OTIMIZADO PARA MOBILE -->
+<!-- CARDS ESTATÍSTICOS -->
 <div class="row g-2 g-sm-4 mb-4 fade-in-up delay-1">
     <div class="col-6 col-sm-6 col-xl-3">
         <div class="glass-card text-center p-2 p-sm-3">
@@ -52,7 +60,7 @@
     </div>
 </div>
 
-<!-- BUSCA - OTIMIZADO PARA MOBILE -->
+<!-- BUSCA -->
 <div class="glass-card mb-4 fade-in-up delay-2">
     <div class="row g-2 g-sm-3">
         <div class="col-8 col-sm-8 col-md-8">
@@ -68,11 +76,10 @@
     </div>
 </div>
 
-<!-- LISTA DE ESCOLAS - OTIMIZADO PARA MOBILE -->
+<!-- LISTA DE ESCOLAS -->
 <div class="row g-2 g-sm-3" id="listaEscolas">
     {% for escola in escolas %}
     <div class="col-12 col-sm-6 col-md-4 mb-2 mb-sm-3 escola-item" data-nome="{{ escola.nome|lower }}" data-cidade="{{ escola.cidade|lower }}" data-email="{{ escola.email|lower }}">
-        <!-- 🔥 ALTERADO: onclick agora chama window.entrarNaEscola -->
         <div class="escola-card glass-card p-2 p-sm-3" onclick="window.entrarNaEscola('{{ escola.slug }}')" style="cursor: pointer;">
             <div class="d-flex align-items-center gap-2 gap-sm-3">
                 {% if escola.logo %}
@@ -91,7 +98,6 @@
                         <i class="bi bi-envelope"></i> {{ escola.email }}
                     </div>
                 </div>
-                <!-- 🔥 Ícone indicando que pode clicar para entrar -->
                 <i class="bi bi-chevron-right" style="color: rgba(255,255,255,0.2); font-size: 1.2rem;"></i>
             </div>
             <div class="mt-2 d-flex justify-content-between align-items-center">
@@ -155,7 +161,6 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="modalBody" style="padding: 12px;">
-                <!-- Conteúdo carregado via AJAX -->
                 <div class="text-center py-4">
                     <div class="spinner-border text-primary" role="status"></div>
                     <p class="mt-2 text-muted" style="font-size: 0.9rem;">Carregando formulário...</p>
@@ -171,8 +176,8 @@
     </div>
 </div>
 
+<!-- Estilos -->
 <style>
-    /* Estilos base mantidos */
     .metal-header {
         background: linear-gradient(135deg, #00d4ff, #7b2ffc);
         border-radius: 16px;
@@ -258,7 +263,7 @@
         border-radius: 0 0 16px 16px; 
     }
 
-    .glass-card {
+    .escola-card {
         background: rgba(255, 255, 255, 0.03);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.05);
@@ -268,48 +273,11 @@
         color: #ffffff !important;
         cursor: pointer;
     }
-    .glass-card:hover { 
+    .escola-card:hover { 
         border-color: rgba(0, 212, 255, 0.15); 
         box-shadow: 0 8px 32px rgba(0, 212, 255, 0.03); 
         transform: translateY(-2px); 
     }
-    .glass-card .display-6 {
-        color: #00d4ff !important;
-    }
-    .glass-card .display-6.text-success {
-        color: #2ed573 !important;
-    }
-    .glass-card .display-6.text-warning {
-        color: #ffa502 !important;
-    }
-    .glass-card .h5 {
-        color: #ffffff !important;
-        font-size: 1.2rem;
-    }
-    .glass-card .card-label {
-        color: #ffffff !important;
-        font-size: 0.65rem;
-    }
-
-    .badge { 
-        padding: 3px 10px; 
-        border-radius: 20px; 
-        font-weight: 600; 
-        font-size: 0.6rem; 
-        text-transform: uppercase; 
-        letter-spacing: 0.5px;
-        color: #ffffff !important;
-    }
-    .bg-success { background-color: #2ed573 !important; color: #ffffff !important; }
-    .bg-warning { background-color: #ffa502 !important; color: #212529 !important; }
-    .bg-danger { background-color: #ff4757 !important; color: #ffffff !important; }
-    .bg-primary { background-color: #00d4ff !important; color: #ffffff !important; }
-    .bg-secondary { background-color: #6c757d !important; color: #ffffff !important; }
-
-    .btn-outline-primary { color: #0dcaf0 !important; border-color: #0dcaf0 !important; }
-    .btn-outline-primary:hover { background: #0dcaf0 !important; color: #ffffff !important; }
-    .btn-outline-danger { color: #dc3545 !important; border-color: #dc3545 !important; }
-    .btn-outline-danger:hover { background: #dc3545 !important; color: #ffffff !important; }
 
     .fade-in-up { 
         animation: fadeInUp 0.5s ease forwards; 
@@ -322,61 +290,6 @@
     .delay-1 { animation-delay: 0.1s; }
     .delay-2 { animation-delay: 0.2s; }
 
-    .modal-body {
-        color: #ffffff !important;
-    }
-    .modal-body strong {
-        color: rgba(255, 255, 255, 0.8) !important;
-    }
-    select option {
-        background-color: #1a1a2e !important;
-        color: #ffffff !important;
-    }
-
-    .page-link {
-        color: #1a1a2e !important;
-        background: rgba(255, 255, 255, 0.8) !important;
-        border-color: rgba(0, 0, 0, 0.1) !important;
-    }
-    .page-link:hover {
-        background: rgba(255, 255, 255, 0.9) !important;
-        color: #0dcaf0 !important;
-    }
-    .page-item.active .page-link {
-        background: #0dcaf0 !important;
-        border-color: #0dcaf0 !important;
-        color: #ffffff !important;
-    }
-
-    .escola-logo {
-        flex-shrink: 0;
-    }
-
-    .form-check-input {
-        width: 18px;
-        height: 18px;
-        margin-top: 2px;
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.2);
-        border-radius: 4px;
-        cursor: pointer;
-    }
-    .form-check-input:checked {
-        background-color: #00d4ff;
-        border-color: #00d4ff;
-    }
-    .form-check-label {
-        color: rgba(255, 255, 255, 0.8);
-        cursor: pointer;
-        padding-left: 6px;
-        font-size: 0.85rem;
-    }
-    input[type="color"].metal-form-control {
-        padding: 4px;
-        height: 40px;
-    }
-
-    /* 🔥 OTIMIZAÇÕES PARA MOBILE */
     @media (max-width: 576px) {
         .metal-header {
             padding: 0.8rem;
@@ -391,9 +304,6 @@
             font-size: 0.7rem;
             padding: 4px 10px;
         }
-        .metal-btn-primary i {
-            font-size: 0.8rem;
-        }
         .glass-card {
             padding: 0.6rem;
         }
@@ -406,62 +316,10 @@
         .glass-card .card-label {
             font-size: 0.5rem;
         }
-        .modal-dialog {
-            margin: 0.5rem;
-        }
-        .modal-content {
-            border-radius: 12px !important;
-        }
-        .modal-header {
-            padding: 10px 12px !important;
-        }
-        .modal-header .modal-title {
-            font-size: 0.9rem !important;
-        }
-        .modal-body {
-            padding: 10px !important;
-        }
-        .modal-footer {
-            padding: 10px !important;
-        }
-        .modal-footer .metal-btn-primary,
-        .modal-footer .metal-btn-secondary {
-            font-size: 0.75rem;
-            padding: 4px 10px;
-        }
-        .metal-form-control,
-        .metal-form-select {
-            font-size: 13px;
-            padding: 6px 10px;
-        }
-        .metal-form-label {
-            font-size: 0.7rem;
-        }
-    }
-
-    @media (max-width: 400px) {
-        .metal-title {
-            font-size: 0.85rem;
-        }
-        .glass-card .display-6 {
-            font-size: 1rem !important;
-        }
-        .glass-card .h5 {
-            font-size: 0.85rem !important;
-        }
-        .escola-nome {
-            font-size: 0.75rem !important;
-        }
-        .escola-info {
-            font-size: 0.55rem !important;
-        }
-        .badge {
-            font-size: 0.5rem !important;
-            padding: 2px 6px !important;
-        }
     }
 </style>
 
+<!-- Scripts -->
 <script>
 (function() {
     "use strict";
@@ -473,9 +331,6 @@
         return meta ? meta.getAttribute('content') : '';
     }
 
-    // ============================================
-    // FUNÇÃO PARA MOSTRAR MENSAGENS PERSONALIZADAS
-    // ============================================
     function showMessage(message, type = 'success') {
         const oldMessages = document.querySelectorAll('.custom-alert');
         oldMessages.forEach(msg => msg.remove());
@@ -537,6 +392,7 @@
         }, 5000);
     }
 
+    // Adicionar estilos para as mensagens
     const style = document.createElement('style');
     style.textContent = `
         @keyframes slideInRight {
@@ -555,12 +411,6 @@
                 max-width: 420px !important;
                 min-width: 280px !important;
                 padding: 16px 24px !important;
-            }
-            .custom-alert span {
-                font-size: 0.9rem !important;
-            }
-            .custom-alert i {
-                font-size: 1.5rem !important;
             }
         }
     `;
@@ -798,15 +648,6 @@
         `;
         
         document.body.appendChild(confirmDiv);
-        
-        const styleConfirm = document.createElement('style');
-        styleConfirm.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-        `;
-        document.head.appendChild(styleConfirm);
     };
 
     // ============================================
@@ -841,7 +682,7 @@
     };
 
     // ============================================
-    // 🔥 NOVA FUNÇÃO: ENTRAR NA ESCOLA
+    // 🔥 CORRIGIDO: ENTRAR NA ESCOLA
     // ============================================
     window.entrarNaEscola = function(slug) {
         if (!slug) {
@@ -849,15 +690,19 @@
             return;
         }
         
-        // Mostrar loading
         showMessage('⏳ Entrando na escola...', 'info');
         
-        // Redirecionar para a URL da escola
+        // 🔥 AGORA USA /escola/entrar/ (NOVO CAMINHO)
         setTimeout(function() {
-            window.location.href = '/escola/' + slug + '/';
+            window.location.href = '/escola/entrar/' + slug + '/';
         }, 500);
     };
 
     console.log('✅ Funções de escolas registradas no window');
 })();
 </script>
+
+<!-- ============================================ -->
+<!-- FIM DO CONTEÚDO                            -->
+<!-- ============================================ -->
+{% endblock %}
