@@ -14,6 +14,7 @@ urlpatterns = [
     path('escola/', include('escola.urls')),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+# 🔥 SERVE ARQUIVOS DE MÍDIA E ESTÁTICOS EM TODOS OS AMBIENTES
+# Removida a condição 'if settings.DEBUG' para funcionar em produção
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
