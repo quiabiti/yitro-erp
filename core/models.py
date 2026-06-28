@@ -66,3 +66,100 @@ class UsuarioDepartamento(models.Model):
     
     def __str__(self):
         return f"{self.usuario.username} - {self.departamento.nome} ({self.get_nivel_acesso_display()})"
+
+
+# ============================================
+# 🔥 FUNÇÕES AUXILIARES PARA DEPARTAMENTOS
+# ============================================
+
+def get_departamentos_usuario(usuario):
+    """
+    Retorna lista de departamentos que o usuário tem acesso
+    """
+    if usuario.is_superuser:
+        return Departamento.objects.filter(ativo=True)
+    
+    return [ud.departamento for ud in UsuarioDepartamento.objects.filter(
+        usuario=usuario,
+        ativo=True
+    ).select_related('departamento')]
+
+
+def get_departamentos_slugs_usuario(usuario):
+    """
+    Retorna lista de slugs dos departamentos do usuário
+    """
+    return [dep.slug for dep in get_departamentos_usuario(usuario)]
+
+
+def tem_acesso_departamento(usuario, departamento_slug):
+    """
+    Verifica se o usuário tem acesso a um departamento específico
+    """
+    if usuario.is_superuser:
+        return True
+    
+    return UsuarioDepartamento.objects.filter(
+        usuario=usuario,
+        departamento__slug=departamento_slug,
+        ativo=True
+    ).exists()
+
+
+def get_nivel_acesso_departamento(usuario, departamento_slug):
+    """
+    Retorna o nível de acesso do usuário em um departamento
+    """
+    if usuario.is_superuser:
+        return 'ADMIN'
+    
+    try:
+        ud = UsuarioDepartamento.objects.get(
+            usuario=usuario,
+            departamento__slug=departamento_slug,
+            ativo=True
+        )
+        return ud.nivel_acesso
+    except UsuarioDepartamento.DoesNotExist:
+        return None
+
+
+def pode_editar_departamento(usuario, departamento_slug):
+    """
+    Verifica se o usuário pode editar no departamento
+    """
+    nivel = get_nivel_acesso_departamento(usuario, departamento_slug)
+    return nivel in ['EDIT', 'MANAGE', 'ADMIN'] or usuario.is_superuser
+
+
+def pode_gerenciar_departamento(usuario, departamento_slug):
+    """
+    Verifica se o usuário pode gerenciar no departamento
+    """
+    nivel = get_nivel_acesso_departamento(usuario, departamento_slug)
+    return nivel in ['MANAGE', 'ADMIN'] or usuario.is_superuser
+
+
+def get_departamentos_do_usuario(usuario):
+    """
+    Retorna um dicionário com informações dos departamentos do usuário
+    """
+    if usuario.is_superuser:
+        deps = Departamento.objects.filter(ativo=True)
+    else:
+        deps = [ud.departamento for ud in UsuarioDepartamento.objects.filter(
+            usuario=usuario,
+            ativo=True
+        ).select_related('departamento')]
+    
+    result = []
+    for dep in deps:
+        result.append({
+            'id': dep.id,
+            'nome': dep.nome,
+            'slug': dep.slug,
+            'icone': dep.icone,
+            'nivel_acesso': get_nivel_acesso_departamento(usuario, dep.slug),
+        })
+    
+    return result

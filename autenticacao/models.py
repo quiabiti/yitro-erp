@@ -6,7 +6,6 @@ class Usuario(AbstractUser):
     cargo = models.CharField(max_length=100, blank=True, null=True)
     telefone = models.CharField(max_length=20, blank=True, null=True)
     
-    # Campos adicionais para o sistema Yitro
     departamento_principal = models.ForeignKey(
         'core.Departamento',
         on_delete=models.SET_NULL,
@@ -27,54 +26,57 @@ class Usuario(AbstractUser):
     
     def get_departamentos(self):
         """Retorna lista de departamentos que o usuário tem acesso"""
-        if self.is_superuser:
-            from core.models import Departamento
-            return Departamento.objects.filter(ativo=True)
-        
-        from core.models import UsuarioDepartamento
-        return [ud.departamento for ud in UsuarioDepartamento.objects.filter(
-            usuario=self,
-            ativo=True
-        ).select_related('departamento')]
+        from core.models import get_departamentos_usuario
+        return get_departamentos_usuario(self)
     
     def get_departamentos_slugs(self):
         """Retorna lista de slugs dos departamentos do usuário"""
-        return [dep.slug for dep in self.get_departamentos()]
+        from core.models import get_departamentos_slugs_usuario
+        return get_departamentos_slugs_usuario(self)
     
     def tem_acesso_departamento(self, departamento_slug):
         """Verifica se o usuário tem acesso a um departamento específico"""
-        if self.is_superuser:
-            return True
-        
-        from core.models import UsuarioDepartamento
-        return UsuarioDepartamento.objects.filter(
-            usuario=self,
-            departamento__slug=departamento_slug,
-            ativo=True
-        ).exists()
+        from core.models import tem_acesso_departamento
+        return tem_acesso_departamento(self, departamento_slug)
     
     def get_nivel_acesso_departamento(self, departamento_slug):
         """Retorna o nível de acesso do usuário em um departamento"""
-        if self.is_superuser:
-            return 'ADMIN'
-        
-        from core.models import UsuarioDepartamento
-        try:
-            ud = UsuarioDepartamento.objects.get(
-                usuario=self,
-                departamento__slug=departamento_slug,
-                ativo=True
-            )
-            return ud.nivel_acesso
-        except UsuarioDepartamento.DoesNotExist:
-            return None
+        from core.models import get_nivel_acesso_departamento
+        return get_nivel_acesso_departamento(self, departamento_slug)
     
     def pode_editar_departamento(self, departamento_slug):
         """Verifica se o usuário pode editar no departamento"""
-        nivel = self.get_nivel_acesso_departamento(departamento_slug)
-        return nivel in ['EDIT', 'MANAGE', 'ADMIN'] or self.is_superuser
+        from core.models import pode_editar_departamento
+        return pode_editar_departamento(self, departamento_slug)
     
     def pode_gerenciar_departamento(self, departamento_slug):
         """Verifica se o usuário pode gerenciar no departamento"""
-        nivel = self.get_nivel_acesso_departamento(departamento_slug)
-        return nivel in ['MANAGE', 'ADMIN'] or self.is_superuser
+        from core.models import pode_gerenciar_departamento
+        return pode_gerenciar_departamento(self, departamento_slug)
+    
+    def get_departamentos_info(self):
+        """Retorna informações detalhadas dos departamentos do usuário"""
+        from core.models import get_departamentos_do_usuario
+        return get_departamentos_do_usuario(self)
+    
+    def tem_acesso_escola(self, escola_id):
+        """Verifica se o usuário tem acesso a uma escola específica"""
+        from escola.configuracao.models import UsuarioInstituicao
+        if self.is_superuser:
+            return True
+        return UsuarioInstituicao.objects.filter(
+            usuario=self,
+            instituicao_id=escola_id,
+            ativo=True
+        ).exists()
+    
+    def get_escolas(self):
+        """Retorna lista de escolas que o usuário tem acesso"""
+        from escola.configuracao.models import UsuarioInstituicao, Instituicao
+        if self.is_superuser:
+            return Instituicao.objects.filter(ativo=True)
+        
+        return [ui.instituicao for ui in UsuarioInstituicao.objects.filter(
+            usuario=self,
+            ativo=True
+        ).select_related('instituicao')]
