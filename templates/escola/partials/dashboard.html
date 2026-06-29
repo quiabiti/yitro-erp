@@ -6,22 +6,22 @@
     <div class="metal-header mb-4 fade-in-up">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
             <div>
-                <h1 class="metal-title" style="font-size: 1.4rem; color: #ffffff !important;">
+                <h1 class="metal-title">
                     <i class="bi bi-grid-1x2-fill me-2"></i> Dashboard
                 </h1>
                 {% if escola %}
-                    <p class="metal-subtitle mt-2" style="font-size: 0.9rem; color: rgba(255,255,255,0.9) !important;">
+                    <p class="metal-subtitle mt-2">
                         <i class="bi bi-building me-1"></i> {{ escola.nome }}
                         <span class="badge bg-success ms-2" style="font-size: 0.7rem;">{{ escola.ativo|yesno:"Ativo,Inativo" }}</span>
                     </p>
                 {% else %}
-                    <p class="metal-subtitle mt-2" style="font-size: 0.9rem; color: rgba(255,255,255,0.9) !important;">
+                    <p class="metal-subtitle mt-2">
                         Bem-vindo ao sistema de gestão escolar
                     </p>
                 {% endif %}
             </div>
             <div>
-                <span class="metal-btn-primary" style="cursor: default; font-size: 0.85rem; padding: 8px 16px;">
+                <span class="metal-btn-primary" style="cursor: default;">
                     <i class="bi bi-calendar3 me-2"></i> {% now "d/m/Y H:i" %}
                 </span>
             </div>
@@ -32,30 +32,30 @@
     <div class="row g-3 g-sm-4 mb-4 fade-in-up delay-1">
         <div class="col-6 col-sm-6 col-xl-3">
             <div class="glass-card text-center p-3 p-sm-4">
-                <div style="font-size: 2rem; color: #00d4ff;"><i class="bi bi-people"></i></div>
-                <h3 style="font-size: 1.8rem; font-weight: 700; color: #ffffff !important; margin: 8px 0 4px;">{{ total_alunos|default:0 }}</h3>
-                <p style="font-size: 0.75rem; color: rgba(255,255,255,0.7) !important; margin: 0;">Total de Alunos</p>
+                <div class="card-icon azul"><i class="bi bi-people"></i></div>
+                <h3 class="card-number">{{ total_alunos|default:0 }}</h3>
+                <p class="card-label">Total de Alunos</p>
             </div>
         </div>
         <div class="col-6 col-sm-6 col-xl-3">
             <div class="glass-card text-center p-3 p-sm-4">
-                <div style="font-size: 2rem; color: #2ed573;"><i class="bi bi-collection"></i></div>
-                <h3 style="font-size: 1.8rem; font-weight: 700; color: #ffffff !important; margin: 8px 0 4px;">{{ total_turmas|default:0 }}</h3>
-                <p style="font-size: 0.75rem; color: rgba(255,255,255,0.7) !important; margin: 0;">Total de Turmas</p>
+                <div class="card-icon verde"><i class="bi bi-collection"></i></div>
+                <h3 class="card-number">{{ total_turmas|default:0 }}</h3>
+                <p class="card-label">Total de Turmas</p>
             </div>
         </div>
         <div class="col-6 col-sm-6 col-xl-3">
             <div class="glass-card text-center p-3 p-sm-4">
-                <div style="font-size: 2rem; color: #ffa502;"><i class="bi bi-person-badge"></i></div>
-                <h3 style="font-size: 1.8rem; font-weight: 700; color: #ffffff !important; margin: 8px 0 4px;">{{ total_professores|default:0 }}</h3>
-                <p style="font-size: 0.75rem; color: rgba(255,255,255,0.7) !important; margin: 0;">Total de Professores</p>
+                <div class="card-icon laranja"><i class="bi bi-person-badge"></i></div>
+                <h3 class="card-number">{{ total_professores|default:0 }}</h3>
+                <p class="card-label">Total de Professores</p>
             </div>
         </div>
         <div class="col-6 col-sm-6 col-xl-3">
             <div class="glass-card text-center p-3 p-sm-4">
-                <div style="font-size: 2rem; color: #00d4ff;"><i class="bi bi-book"></i></div>
-                <h3 style="font-size: 1.8rem; font-weight: 700; color: #ffffff !important; margin: 8px 0 4px;">{{ total_disciplinas|default:0 }}</h3>
-                <p style="font-size: 0.75rem; color: rgba(255,255,255,0.7) !important; margin: 0;">Total de Disciplinas</p>
+                <div class="card-icon azul"><i class="bi bi-book"></i></div>
+                <h3 class="card-number">{{ total_disciplinas|default:0 }}</h3>
+                <p class="card-label">Total de Disciplinas</p>
             </div>
         </div>
     </div>
@@ -65,23 +65,23 @@
     <div class="glass-card mb-4 fade-in-up delay-2" style="padding: 1rem 1.2rem;">
         <div class="d-flex align-items-center gap-3 gap-md-4 flex-wrap">
             {% if escola.logo %}
-                <img src="{{ escola.logo.url }}" alt="{{ escola.nome }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1); flex-shrink: 0;">
+                <img src="{{ escola.logo.url }}" alt="{{ escola.nome }}" class="escola-logo">
             {% else %}
-                <div class="d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, #00d4ff, #7b2ffc); font-size: 1.5rem; font-weight: 700; color: #ffffff !important; flex-shrink: 0;">
+                <div class="escola-avatar">
                     {{ escola.nome|first|upper }}
                 </div>
             {% endif %}
-            <div>
-                <div style="color: #ffffff !important; font-weight: 600; font-size: 1.05rem;">{{ escola.nome }}</div>
-                <div style="color: rgba(255,255,255,0.7) !important; font-size: 0.8rem;">
+            <div class="escola-info">
+                <div class="escola-nome">{{ escola.nome }}</div>
+                <div class="escola-detalhe">
                     <i class="bi bi-geo-alt"></i> {{ escola.cidade }}/{{ escola.estado }}
                 </div>
-                <div style="color: rgba(255,255,255,0.7) !important; font-size: 0.8rem;">
+                <div class="escola-detalhe">
                     <i class="bi bi-envelope"></i> {{ escola.email }}
                 </div>
             </div>
             <div class="ms-auto">
-                <span class="badge" style="font-size: 0.7rem; padding: 5px 16px; background-color: #2ed573; color: #ffffff !important;">
+                <span class="badge badge-status">
                     <i class="bi bi-check-circle me-1"></i> Ativo
                 </span>
             </div>
@@ -92,36 +92,36 @@
     <!-- ACESSO RÁPIDO -->
     <div class="row g-3 g-sm-3 mb-4 fade-in-up delay-2">
         <div class="col-12">
-            <h5 style="color: #ffffff !important; font-weight: 600; font-size: 1rem; margin-bottom: 12px;">
+            <h5 class="section-title">
                 <i class="bi bi-lightning-fill text-warning me-2"></i>Acesso Rápido
             </h5>
         </div>
         <div class="col-6 col-sm-3">
             <div class="glass-card text-center p-3" onclick="loadPage('pedagogico/lista_alunos')" style="cursor: pointer;">
-                <div style="font-size: 1.8rem; color: #00d4ff;"><i class="bi bi-people"></i></div>
-                <div style="color: #ffffff !important; font-weight: 500; font-size: 0.85rem;">Alunos</div>
-                <small style="color: rgba(255,255,255,0.5) !important; font-size: 0.65rem;">Lista de alunos</small>
+                <div class="card-icon azul"><i class="bi bi-people"></i></div>
+                <div class="card-label-text">Alunos</div>
+                <small class="card-label-small">Lista de alunos</small>
             </div>
         </div>
         <div class="col-6 col-sm-3">
             <div class="glass-card text-center p-3" onclick="loadPage('pedagogico/professores')" style="cursor: pointer;">
-                <div style="font-size: 1.8rem; color: #2ed573;"><i class="bi bi-person-badge"></i></div>
-                <div style="color: #ffffff !important; font-weight: 500; font-size: 0.85rem;">Professores</div>
-                <small style="color: rgba(255,255,255,0.5) !important; font-size: 0.65rem;">Lista de professores</small>
+                <div class="card-icon verde"><i class="bi bi-person-badge"></i></div>
+                <div class="card-label-text">Professores</div>
+                <small class="card-label-small">Lista de professores</small>
             </div>
         </div>
         <div class="col-6 col-sm-3">
             <div class="glass-card text-center p-3" onclick="loadPage('secretaria/matriculas')" style="cursor: pointer;">
-                <div style="font-size: 1.8rem; color: #ffa502;"><i class="bi bi-file-earmark-text"></i></div>
-                <div style="color: #ffffff !important; font-weight: 500; font-size: 0.85rem;">Matrículas</div>
-                <small style="color: rgba(255,255,255,0.5) !important; font-size: 0.65rem;">Nova matrícula</small>
+                <div class="card-icon laranja"><i class="bi bi-file-earmark-text"></i></div>
+                <div class="card-label-text">Matrículas</div>
+                <small class="card-label-small">Nova matrícula</small>
             </div>
         </div>
         <div class="col-6 col-sm-3">
             <div class="glass-card text-center p-3" onclick="loadPage('pedagogico/pautas')" style="cursor: pointer;">
-                <div style="font-size: 1.8rem; color: #7b2ffc;"><i class="bi bi-journal"></i></div>
-                <div style="color: #ffffff !important; font-weight: 500; font-size: 0.85rem;">Pautas</div>
-                <small style="color: rgba(255,255,255,0.5) !important; font-size: 0.65rem;">Lançar notas</small>
+                <div class="card-icon roxo"><i class="bi bi-journal"></i></div>
+                <div class="card-label-text">Pautas</div>
+                <small class="card-label-small">Lançar notas</small>
             </div>
         </div>
     </div>
@@ -131,25 +131,25 @@
         <div class="col-12 col-md-8">
             <div class="glass-card p-3">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 style="color: #ffffff !important; font-weight: 600; font-size: 0.9rem; margin-bottom: 0;">
+                    <h6 class="card-subtitle">
                         <i class="bi bi-graph-up-arrow text-success me-2"></i>Atividade Recente
                     </h6>
-                    <span class="badge" style="font-size: 0.6rem; padding: 4px 12px; background-color: rgba(0,212,255,0.15); color: #00d4ff !important;">Últimos 30 dias</span>
+                    <span class="badge badge-recent">Últimos 30 dias</span>
                 </div>
                 <div class="text-center py-4">
-                    <i class="bi bi-bar-chart" style="font-size: 3rem; color: rgba(255,255,255,0.05);"></i>
-                    <p style="color: rgba(255,255,255,0.3) !important; font-size: 0.85rem; margin-top: 8px;">Gráfico de atividades em breve</p>
+                    <i class="bi bi-bar-chart empty-icon"></i>
+                    <p class="empty-text">Gráfico de atividades em breve</p>
                 </div>
             </div>
         </div>
         <div class="col-12 col-md-4">
             <div class="glass-card p-3">
-                <h6 style="color: #ffffff !important; font-weight: 600; font-size: 0.9rem; margin-bottom: 12px;">
+                <h6 class="card-subtitle">
                     <i class="bi bi-clock-history text-warning me-2"></i>Últimas Ações
                 </h6>
                 <div class="text-center py-4">
-                    <i class="bi bi-inbox" style="font-size: 3rem; color: rgba(255,255,255,0.05);"></i>
-                    <p style="color: rgba(255,255,255,0.3) !important; font-size: 0.85rem; margin-top: 8px;">Nenhuma ação recente</p>
+                    <i class="bi bi-inbox empty-icon"></i>
+                    <p class="empty-text">Nenhuma ação recente</p>
                 </div>
             </div>
         </div>
@@ -158,7 +158,7 @@
     <!-- RODAPÉ -->
     <div class="row mt-4">
         <div class="col-12 text-center">
-            <small style="color: rgba(255,255,255,0.2) !important; font-size: 0.65rem;">
+            <small class="footer-text">
                 <i class="bi bi-dot"></i> Sistema Yitro - Gestão Escolar
                 <i class="bi bi-dot"></i> Versão 1.0
                 <i class="bi bi-dot"></i> {% now "Y" %}
@@ -168,6 +168,9 @@
 </div>
 
 <style>
+    /* ============================================
+       HEADER
+       ============================================ */
     .metal-header {
         background: linear-gradient(135deg, #00d4ff, #7b2ffc);
         border-radius: 16px;
@@ -179,6 +182,12 @@
         font-weight: 700;
         font-size: 1.4rem;
         text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        margin: 0;
+    }
+    .metal-subtitle {
+        color: rgba(255,255,255,0.9) !important;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
     }
     .metal-btn-primary {
         background: rgba(255,255,255,0.15);
@@ -194,22 +203,154 @@
         font-size: 0.85rem;
     }
 
+    /* ============================================
+       CARDS PADRONIZADOS (MESMA OPACIDADE)
+       ============================================ */
     .glass-card {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.05) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
         border-radius: 16px;
         padding: 1.2rem;
         transition: all 0.3s ease;
         color: #ffffff !important;
     }
     .glass-card:hover {
-        border-color: rgba(0, 212, 255, 0.2);
-        box-shadow: 0 8px 32px rgba(0, 212, 255, 0.05);
+        border-color: rgba(0, 212, 255, 0.2) !important;
+        box-shadow: 0 8px 32px rgba(0, 212, 255, 0.05) !important;
         transform: translateY(-2px);
     }
 
+    /* ÍCONES DOS CARDS */
+    .card-icon {
+        font-size: 2rem;
+        margin-bottom: 4px;
+    }
+    .card-icon.azul { color: #00d4ff; }
+    .card-icon.verde { color: #2ed573; }
+    .card-icon.laranja { color: #ffa502; }
+    .card-icon.roxo { color: #7b2ffc; }
+    .card-icon.vermelho { color: #ff4757; }
+    .card-icon.amarelo { color: #ffd93d; }
+
+    /* NÚMEROS DOS CARDS */
+    .card-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #ffffff !important;
+        margin: 8px 0 4px;
+    }
+
+    /* LABELS DOS CARDS */
+    .card-label {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.7) !important;
+        margin: 0;
+    }
+
+    /* LABELS DO ACESSO RÁPIDO */
+    .card-label-text {
+        color: #ffffff !important;
+        font-weight: 500;
+        font-size: 0.85rem;
+        margin-top: 4px;
+    }
+    .card-label-small {
+        color: rgba(255, 255, 255, 0.5) !important;
+        font-size: 0.65rem;
+    }
+
+    /* ============================================
+       INFORMAÇÕES DA ESCOLA
+       ============================================ */
+    .escola-logo {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 2px solid rgba(255,255,255,0.1);
+        flex-shrink: 0;
+    }
+    .escola-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ffffff !important;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .escola-info {
+        flex: 1;
+        min-width: 150px;
+    }
+    .escola-nome {
+        color: #ffffff !important;
+        font-weight: 600;
+        font-size: 1.05rem;
+    }
+    .escola-detalhe {
+        color: rgba(255, 255, 255, 0.7) !important;
+        font-size: 0.8rem;
+    }
+    .badge-status {
+        font-size: 0.7rem;
+        padding: 5px 16px;
+        background-color: #2ed573;
+        color: #ffffff !important;
+    }
+
+    /* ============================================
+       SUBTÍTULOS DOS CARDS
+       ============================================ */
+    .section-title {
+        color: #ffffff !important;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 12px;
+    }
+    .card-subtitle {
+        color: #ffffff !important;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+    .badge-recent {
+        font-size: 0.6rem;
+        padding: 4px 12px;
+        background-color: rgba(0,212,255,0.15);
+        color: #00d4ff !important;
+    }
+
+    /* ============================================
+       ELEMENTOS VAZIOS
+       ============================================ */
+    .empty-icon {
+        font-size: 3rem;
+        color: rgba(255,255,255,0.05);
+    }
+    .empty-text {
+        color: rgba(255,255,255,0.3) !important;
+        font-size: 0.85rem;
+        margin-top: 8px;
+    }
+
+    /* ============================================
+       RODAPÉ
+       ============================================ */
+    .footer-text {
+        color: rgba(255,255,255,0.2) !important;
+        font-size: 0.65rem;
+    }
+
+    /* ============================================
+       ANIMAÇÕES
+       ============================================ */
     .fade-in-up {
         animation: fadeInUp 0.5s ease forwards;
         opacity: 0;
@@ -221,14 +362,31 @@
     .delay-1 { animation-delay: 0.1s; }
     .delay-2 { animation-delay: 0.2s; }
 
+    /* ============================================
+       RESPONSIVIDADE
+       ============================================ */
     @media (max-width: 576px) {
         .metal-header { padding: 0.8rem 1rem; }
         .metal-title { font-size: 1.1rem; }
         .metal-subtitle { font-size: 0.75rem !important; }
         .metal-btn-primary { font-size: 0.7rem; padding: 6px 12px; }
         .glass-card { padding: 0.8rem; }
-        .glass-card h3 { font-size: 1.4rem !important; }
-        .glass-card p { font-size: 0.65rem !important; }
-        .glass-card .display-6 { font-size: 1.4rem !important; }
+        .card-number { font-size: 1.4rem !important; }
+        .card-label { font-size: 0.65rem !important; }
+        .card-icon { font-size: 1.5rem; }
+        .escola-logo { width: 48px; height: 48px; }
+        .escola-avatar { width: 48px; height: 48px; font-size: 1.2rem; }
+        .escola-nome { font-size: 0.9rem; }
+        .escola-detalhe { font-size: 0.7rem; }
+        .section-title { font-size: 0.85rem; }
+        .card-label-text { font-size: 0.75rem; }
+    }
+
+    @media (max-width: 400px) {
+        .glass-card { padding: 0.6rem; }
+        .card-number { font-size: 1.2rem !important; }
+        .card-icon { font-size: 1.3rem; }
+        .metal-title { font-size: 0.95rem; }
+        .metal-btn-primary { font-size: 0.65rem; padding: 4px 10px; }
     }
 </style>

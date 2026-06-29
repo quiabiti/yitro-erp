@@ -1,4 +1,5 @@
-# escola/pedagogico/views.py
+# escola/pedagogico/views.py - VERSÃO CORRIGIDA COM SUPORTE A ManyToMany
+
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -22,10 +23,8 @@ logger = logging.getLogger(__name__)
 
 def get_tenant_escola(request):
     """Retorna a escola (tenant) da requisição"""
-    # 🔥 Verifica se o tenant está na sessão ou no request
     tenant = getattr(request, 'tenant', None)
     
-    # Se não tiver tenant, tenta buscar da sessão
     if not tenant and hasattr(request, 'session'):
         tenant_id = request.session.get('tenant_id')
         if tenant_id:
@@ -38,7 +37,6 @@ def get_tenant_escola(request):
             except Exception as e:
                 logger.error(f"❌ Erro ao buscar tenant: {e}")
     
-    # Se ainda não tiver tenant, tenta buscar do GET
     if not tenant:
         tenant_slug = request.GET.get('tenant')
         if tenant_slug:
@@ -96,7 +94,6 @@ def api_pedagogico_dashboard(request):
     logger.info(f"👤 Usuário: {request.user.username}")
     logger.info(f"🔐 Autenticado: {request.user.is_authenticated}")
     
-    # 🔥 Verificar tenant
     tenant = get_tenant_escola(request)
     logger.info(f"🏫 Tenant: {tenant}")
     logger.info("=" * 50)
@@ -123,7 +120,6 @@ def pedagogico_dashboard(request):
 def api_stats(request):
     """Retorna estatísticas para o dashboard - filtrando pela escola"""
     try:
-        # 🔥 Buscar o tenant
         tenant = get_tenant_escola(request)
         tenant_id = tenant.id if tenant else None
         
@@ -167,7 +163,6 @@ def api_listar(request, categoria):
         if not Model:
             return JsonResponse({'success': False, 'error': 'Categoria inválida'})
         
-        # 🔥 Buscar o tenant
         tenant = get_tenant_escola(request)
         tenant_id = tenant.id if tenant else None
         
@@ -207,6 +202,13 @@ def api_listar(request, categoria):
                 item_data['descricao'] = item.descricao
             if hasattr(item, 'tenant_id'):
                 item_data['tenant_id'] = item.tenant_id
+            
+            # 🔥 PARA DISCIPLINA - ADICIONAR CLASSES ASSOCIADAS
+            if categoria == 'disciplina' and hasattr(item, 'classes'):
+                classes = item.classes.all()
+                item_data['classes_ids'] = list(classes.values_list('id', flat=True))
+                item_data['classes_nomes'] = list(classes.values_list('nome', flat=True))
+                item_data['classes_display'] = ", ".join(classes.values_list('nome', flat=True))
             
             # Relações
             if hasattr(item, 'ano_lectivo') and item.ano_lectivo:
@@ -265,6 +267,18 @@ def api_form_criar(request, categoria):
             'tenant_id': tenant_id,
         }
         
+        # 🔥 PARA DISCIPLINA - PASSAR CLASSES DISPONÍVEIS
+        if categoria == 'disciplina':
+            if tenant_id:
+                context['classes_disponiveis'] = Classe.objects.filter(
+                    tenant_id=tenant_id, ativo=True
+                ).select_related('nivel_ensino').order_by('nivel_ensino__ordem', 'nome')
+            else:
+                context['classes_disponiveis'] = Classe.objects.filter(
+                    ativo=True
+                ).select_related('nivel_ensino').order_by('nivel_ensino__ordem', 'nome')
+            context['classes_selecionadas'] = []
+        
         # Adicionar querysets para selects (filtrados por tenant)
         if categoria in ['trimestre', 'classe', 'turma']:
             if tenant_id:
@@ -278,7 +292,7 @@ def api_form_criar(request, categoria):
             else:
                 context['niveis_ensino'] = NivelEnsino.objects.filter(ativo=True)
         
-        if categoria in ['disciplina', 'turma']:
+        if categoria in ['turma']:
             if tenant_id:
                 context['classes'] = Classe.objects.filter(tenant_id=tenant_id, ativo=True)
             else:
@@ -287,6 +301,8 @@ def api_form_criar(request, categoria):
         return render(request, f'escola/partials/pedagogico/{categoria}_form.html', context)
     except Exception as e:
         logger.error(f"❌ Erro em api_form_criar ({categoria}): {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
         return JsonResponse({'success': False, 'error': str(e)})
 
 
@@ -318,6 +334,18 @@ def api_form_editar(request, categoria, item_id):
             'tenant_id': tenant_id,
         }
         
+        # 🔥 PARA DISCIPLINA - PASSAR CLASSES DISPONÍVEIS E SELECIONADAS
+        if categoria == 'disciplina':
+            if tenant_id:
+                context['classes_disponiveis'] = Classe.objects.filter(
+                    tenant_id=tenant_id, ativo=True
+                ).select_related('nivel_ensino').order_by('nivel_ensino__ordem', 'nome')
+            else:
+                context['classes_disponiveis'] = Classe.objects.filter(
+                    ativo=True
+                ).select_related('nivel_ensino').order_by('nivel_ensino__ordem', 'nome')
+            context['classes_selecionadas'] = list(item.classes.values_list('id', flat=True))
+        
         if categoria in ['trimestre', 'classe', 'turma']:
             if tenant_id:
                 context['ano_lectivos'] = AnoLectivo.objects.filter(tenant_id=tenant_id, ativo=True)
@@ -330,7 +358,7 @@ def api_form_editar(request, categoria, item_id):
             else:
                 context['niveis_ensino'] = NivelEnsino.objects.filter(ativo=True)
         
-        if categoria in ['disciplina', 'turma']:
+        if categoria in ['turma']:
             if tenant_id:
                 context['classes'] = Classe.objects.filter(tenant_id=tenant_id, ativo=True)
             else:
@@ -339,6 +367,8 @@ def api_form_editar(request, categoria, item_id):
         return render(request, f'escola/partials/pedagogico/{categoria}_form.html', context)
     except Exception as e:
         logger.error(f"❌ Erro em api_form_editar ({categoria}, {item_id}): {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
         return JsonResponse({'success': False, 'error': str(e)})
 
 
@@ -378,7 +408,15 @@ def api_salvar(request, categoria, item_id=None):
                 item.tenant_id = tenant_id
             
             item.save()
-            form.save_m2m() if hasattr(form, 'save_m2m') else None
+            
+            # 🔥 SALVAR RELACIONAMENTOS MANYTOMANY (classes)
+            if hasattr(form, 'save_m2m'):
+                form.save_m2m()
+            
+            # 🔥 PARA DISCIPLINA - LOG DAS CLASSES ASSOCIADAS
+            if categoria == 'disciplina' and hasattr(item, 'classes'):
+                classes_ids = request.POST.getlist('classes')
+                logger.info(f"📋 Disciplina {item.id} - Classes associadas: {classes_ids}")
             
             return JsonResponse({
                 'success': True,
@@ -389,9 +427,12 @@ def api_salvar(request, categoria, item_id=None):
             errors = {}
             for field, error_list in form.errors.items():
                 errors[field] = error_list[0]
+            logger.error(f"❌ Erros no formulário: {errors}")
             return JsonResponse({'success': False, 'errors': errors})
     except Exception as e:
         logger.error(f"❌ Erro em api_salvar ({categoria}, {item_id}): {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
         return JsonResponse({'success': False, 'error': str(e)})
 
 

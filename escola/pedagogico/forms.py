@@ -1,3 +1,5 @@
+# forms.py - VERSÃO COMPLETAMENTE CORRIGIDA
+
 from django import forms
 from .models import AnoLectivo, Trimestre, NivelEnsino, Classe, Disciplina, Turma
 
@@ -57,10 +59,10 @@ class NivelEnsinoForm(forms.ModelForm):
 
 
 class ClasseForm(forms.ModelForm):
-    """Formulário para Classe - Atualizado com NivelEnsino e is_exame"""
+    """Formulário para Classe"""
     class Meta:
         model = Classe
-        fields = ['nome', 'nivel_ensino', 'ano_lectivo', 'is_exame', 'descricao', 'ativo']  # 🔥 ADICIONADO is_exame
+        fields = ['nome', 'nivel_ensino', 'ano_lectivo', 'is_exame', 'descricao', 'ativo']
         widgets = {
             'nome': forms.TextInput(attrs={
                 'class': 'metal-form-control',
@@ -72,7 +74,7 @@ class ClasseForm(forms.ModelForm):
             'ano_lectivo': forms.Select(attrs={
                 'class': 'metal-form-select'
             }),
-            'is_exame': forms.CheckboxInput(attrs={  # 🔥 NOVO
+            'is_exame': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             }),
             'descricao': forms.Textarea(attrs={
@@ -88,44 +90,50 @@ class ClasseForm(forms.ModelForm):
             'nome': 'Nome da Classe',
             'nivel_ensino': 'Nível de Ensino',
             'ano_lectivo': 'Ano Lectivo',
-            'is_exame': 'Classe de Exame',  # 🔥 NOVO
+            'is_exame': 'Classe de Exame',
             'descricao': 'Descrição',
             'ativo': 'Ativo'
         }
 
 
+# 🔥 FORMULÁRIO DE DISCIPLINA CORRIGIDO
 class DisciplinaForm(forms.ModelForm):
-    """Formulário para Disciplina - Atualizado com tipo e is_chave"""
+    """Formulário para Disciplina - Suporte a Múltiplas Classes (ManyToMany)"""
+    
     class Meta:
         model = Disciplina
-        fields = ['nome', 'codigo', 'carga_horaria', 'classe', 'tipo', 'is_chave', 'descricao', 'ativo']  # 🔥 ADICIONADO tipo e is_chave
+        # 🔥 USAR 'classes' (ManyToMany) em vez de 'classe' (ForeignKey)
+        fields = ['nome', 'codigo', 'carga_horaria', 'classes', 'tipo', 'is_chave', 'descricao', 'ativo']
         widgets = {
             'nome': forms.TextInput(attrs={
                 'class': 'metal-form-control',
-                'placeholder': 'Ex: Matemática'
+                'placeholder': 'Ex: Matemática, Português, Ciências...'
             }),
             'codigo': forms.TextInput(attrs={
                 'class': 'metal-form-control',
-                'placeholder': 'Ex: MAT-001'
+                'placeholder': 'Ex: MAT-001, PORT-001...'
             }),
             'carga_horaria': forms.NumberInput(attrs={
                 'class': 'metal-form-control',
                 'placeholder': '60',
-                'min': 1
+                'min': 1,
+                'max': 240
             }),
-            'classe': forms.Select(attrs={
+            # 🔥 SelectMultiple para múltiplas classes
+            'classes': forms.SelectMultiple(attrs={
+                'class': 'metal-form-control',
+                'style': 'height: auto; min-height: 150px;'
+            }),
+            'tipo': forms.Select(attrs={
                 'class': 'metal-form-select'
             }),
-            'tipo': forms.Select(attrs={  # 🔥 NOVO
-                'class': 'metal-form-select'
-            }),
-            'is_chave': forms.CheckboxInput(attrs={  # 🔥 NOVO
+            'is_chave': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             }),
             'descricao': forms.Textarea(attrs={
                 'class': 'metal-form-control',
                 'rows': 3,
-                'placeholder': 'Descrição da disciplina'
+                'placeholder': 'Descreva os objetivos, conteúdo programático e competências da disciplina'
             }),
             'ativo': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
@@ -135,12 +143,46 @@ class DisciplinaForm(forms.ModelForm):
             'nome': 'Nome da Disciplina',
             'codigo': 'Código',
             'carga_horaria': 'Carga Horária (horas)',
-            'classe': 'Classe',
-            'tipo': 'Tipo de Disciplina',  # 🔥 NOVO
-            'is_chave': 'Disciplina Chave',  # 🔥 NOVO
+            'classes': 'Classes Associadas',
+            'tipo': 'Tipo de Disciplina',
+            'is_chave': 'Disciplina Chave',
             'descricao': 'Descrição',
             'ativo': 'Ativo'
         }
+        help_texts = {
+            'codigo': 'Código único para identificar a disciplina',
+            'carga_horaria': 'Total de horas por trimestre/semestre',
+            'tipo': 'Curricular: obrigatória | Extra: atividades complementares | Opcional: escolha do aluno',
+            'is_chave': 'Disciplinas chave são fundamentais para o currículo básico',
+            'ativo': 'Desative para ocultar esta disciplina do sistema',
+            'classes': 'Selecione uma ou mais classes onde esta disciplina será ministrada'
+        }
+        error_messages = {
+            'classes': {
+                'required': 'Selecione pelo menos uma classe para associar à disciplina',
+            }
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # 🔥 Filtrar apenas classes ativas, ordenadas por nível e nome
+        self.fields['classes'].queryset = Classe.objects.filter(
+            ativo=True
+        ).select_related('nivel_ensino').order_by(
+            'nivel_ensino__ordem', 
+            'nivel_ensino__nome',
+            'nome'
+        )
+        # 🔥 Tornar o campo obrigatório
+        self.fields['classes'].required = True
+        
+        # 🔥 Opções para o campo tipo com ícones
+        TIPO_CHOICES = [
+            ('curricular', '📚 Curricular'),
+            ('extra_curricular', '🎯 Extra-Curricular'),
+            ('opcional', '⭐ Opcional'),
+        ]
+        self.fields['tipo'].choices = TIPO_CHOICES
 
 
 class TurmaForm(forms.ModelForm):

@@ -1,3 +1,5 @@
+# escola/views.py - VERSÃO CORRIGIDA
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -15,8 +17,20 @@ from .configuracao.models import Instituicao, UsuarioInstituicao
 from django.contrib.auth import get_user_model
 import logging
 
-logger = logging.getLogger(__name__)
+# 🔥 IMPORTAR MODELOS PEDAGÓGICOS
+from .pedagogico.models import Classe, Disciplina, Turma, AnoLectivo
 
+# 🔥 TENTAR IMPORTAR MODELOS DE SECRETARIA (se existirem)
+try:
+    from .secretaria.models import Aluno, Professor, Matricula
+except ImportError:
+    Aluno = None
+    Professor = None
+    Matricula = None
+    logger = logging.getLogger(__name__)
+    logger.warning("⚠️ Modelos de secretaria não encontrados")
+
+logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
@@ -26,10 +40,8 @@ User = get_user_model()
 
 def get_tenant_escola(request):
     """Retorna a escola (tenant) da requisição"""
-    # 🔥 Verifica se o tenant está na sessão ou no request
     tenant = getattr(request, 'tenant', None)
     
-    # Se não tiver tenant, tenta buscar da sessão
     if not tenant and hasattr(request, 'session'):
         tenant_id = request.session.get('tenant_id')
         if tenant_id:
@@ -42,7 +54,6 @@ def get_tenant_escola(request):
             except Exception as e:
                 logger.error(f"❌ Erro ao buscar tenant: {e}")
     
-    # Se ainda não tiver tenant, tenta buscar do GET
     if not tenant:
         tenant_slug = request.GET.get('tenant')
         if tenant_slug:
@@ -63,21 +74,14 @@ def get_tenant_escola(request):
 # ============================================
 
 def get_tenant_id_para_salvar(request, item=None):
-    """
-    Retorna o tenant_id para salvar no registro.
-    Se o item já existe, mantém o tenant_id existente.
-    Se é novo, usa o tenant da requisição.
-    """
-    # Se o item existe e tem tenant_id, mantém
+    """Retorna o tenant_id para salvar no registro."""
     if item and hasattr(item, 'tenant_id') and item.tenant_id:
         return item.tenant_id
     
-    # Buscar tenant da requisição
     tenant = get_tenant_escola(request)
     if tenant:
         return tenant.id
     
-    # Se não encontrou tenant, retorna None (super admin)
     return None
 
 
@@ -92,10 +96,8 @@ def index(request):
     
     tenant_slug = request.GET.get('tenant')
     
-    # 🔥 SEPARAR: is_super_admin (Yitro) e is_admin_escola (dentro da escola)
     is_super_admin = user.is_superuser
-    # is_admin_escola = user.tem_acesso_departamento('administrativo')  # Temporariamente comentado
-    is_admin_escola = user.is_superuser  # Temporário - apenas super admin tem acesso
+    is_admin_escola = user.is_superuser
     
     tenant_nome = None
     tenant_nome_fantasia = None
@@ -109,7 +111,6 @@ def index(request):
             tenant_nome_fantasia = escola.nome_fantasia
             carregar_dashboard = True
             esta_na_escola = True
-            # 🔥 Salvar tenant na sessão
             request.session['tenant_id'] = escola.id
         except Instituicao.DoesNotExist:
             pass
@@ -144,10 +145,7 @@ def entrar_escola(request, slug):
             messages.error(request, 'Você não tem acesso a esta escola.')
             return redirect('escola:lista_escolas')
     
-    # 🔥 SALVAR TENANT NA SESSÃO
     request.session['tenant_id'] = escola.id
-    
-    # 🔥 REDIRECIONA PARA O AMBIENTE DA ESCOLA COM O TENANT
     return redirect(f'/escola/ambiente/?tenant={escola.slug}')
 
 
@@ -331,68 +329,117 @@ def api_escola_deletar(request, escola_id):
 
 
 # ============================================
-# DASHBOARD - UNIFICADO
+# 🔥 DASHBOARD - CORRIGIDO
 # ============================================
 
 @login_required
 def api_dashboard(request):
-    """Dashboard - Unifica dashboard geral e dashboard da escola"""
+    """Dashboard - Exibe dados da escola atual"""
     user = request.user
+    is_admin = user.is_superuser
     
-    # is_admin = user.is_superuser or user.tem_acesso_departamento('administrativo')
-    is_admin = user.is_superuser  # Temporário
-    
-    # 🔥 Buscar o tenant
+    # 🔥 Buscar o tenant (escola)
     tenant = get_tenant_escola(request)
     tenant_id = tenant.id if tenant else None
     
-    if is_admin:
-        context = {
-            'is_admin': True,
-            'total_escolas': Instituicao.objects.count(),
-            'total_usuarios': User.objects.count(),
-            'escolas_ativas': Instituicao.objects.filter(ativo=True).count(),
-            'escolas_inativas': Instituicao.objects.filter(ativo=False).count(),
-            'ultimas_escolas': Instituicao.objects.all().order_by('-data_criacao')[:5],
-            'tenant_id': tenant_id,
-        }
-    else:
+    # 🔥 LOG PARA DIAGNÓSTICO
+    logger.info("=" * 50)
+    logger.info("📊 DASHBOARD - DIAGNÓSTICO")
+    logger.info(f"👤 Usuário: {user.username}")
+    logger.info(f"🏫 Tenant: {tenant}")
+    logger.info(f"🆔 Tenant ID: {tenant_id}")
+    logger.info("=" * 50)
+    
+    # 🔥 Buscar dados da escola
+    escola = tenant
+    
+    # 🔥 Inicializar contadores
+    total_alunos = 0
+    total_turmas = 0
+    total_professores = 0
+    total_disciplinas = 0
+    
+    # 🔥 Se houver tenant, buscar dados
+    if tenant_id:
+        # 🔥 BUSCAR TURMAS
         try:
-            usuario_instituicao = UsuarioInstituicao.objects.filter(usuario=user).first()
-            if usuario_instituicao:
-                escola = usuario_instituicao.instituicao
-                context = {
-                    'is_admin': False,
-                    'escola': escola,
-                    'escola_nome': escola.nome,
-                    'total_alunos': 0,
-                    'total_turmas': 0,
-                    'total_professores': 0,
-                    'total_disciplinas': 0,
-                    'tenant_id': escola.id,
-                }
-            else:
-                context = {
-                    'is_admin': False,
-                    'escola': None,
-                    'escola_nome': 'Nenhuma escola associada',
-                    'total_alunos': 0,
-                    'total_turmas': 0,
-                    'total_professores': 0,
-                    'total_disciplinas': 0,
-                    'tenant_id': None,
-                }
+            total_turmas = Turma.objects.filter(tenant_id=tenant_id, ativo=True).count()
+            logger.info(f"📊 Turmas (ativas): {total_turmas}")
+        except Exception as e:
+            logger.warning(f"Erro ao buscar turmas: {e}")
+            total_turmas = 0
+        
+        # 🔥 BUSCAR DISCIPLINAS
+        try:
+            total_disciplinas = Disciplina.objects.filter(tenant_id=tenant_id, ativo=True).count()
+            logger.info(f"📊 Disciplinas (ativas): {total_disciplinas}")
+        except Exception as e:
+            logger.warning(f"Erro ao buscar disciplinas: {e}")
+            total_disciplinas = 0
+        
+        # 🔥 BUSCAR CLASSES (para debug)
+        try:
+            total_classes = Classe.objects.filter(tenant_id=tenant_id, ativo=True).count()
+            logger.info(f"📊 Classes (ativas): {total_classes}")
         except:
-            context = {
-                'is_admin': False,
-                'escola': None,
-                'escola_nome': 'Erro ao carregar escola',
-                'total_alunos': 0,
-                'total_turmas': 0,
-                'total_professores': 0,
-                'total_disciplinas': 0,
-                'tenant_id': None,
-            }
+            pass
+        
+        # 🔥 BUSCAR ALUNOS (se existir o modelo)
+        if Aluno is not None:
+            try:
+                total_alunos = Aluno.objects.filter(tenant_id=tenant_id, ativo=True).count()
+                logger.info(f"📊 Alunos: {total_alunos}")
+            except Exception as e:
+                logger.warning(f"Erro ao buscar alunos: {e}")
+                total_alunos = 0
+        else:
+            logger.warning("⚠️ Modelo Aluno não encontrado")
+            total_alunos = 0
+        
+        # 🔥 BUSCAR PROFESSORES (se existir o modelo)
+        if Professor is not None:
+            try:
+                total_professores = Professor.objects.filter(tenant_id=tenant_id, ativo=True).count()
+                logger.info(f"📊 Professores: {total_professores}")
+            except Exception as e:
+                logger.warning(f"Erro ao buscar professores: {e}")
+                total_professores = 0
+        else:
+            logger.warning("⚠️ Modelo Professor não encontrado")
+            total_professores = 0
+    
+    # 🔥 Se NÃO houver tenant, buscar todos os dados (fallback)
+    else:
+        logger.warning("⚠️ Nenhum tenant encontrado! Buscando todos os dados...")
+        total_turmas = Turma.objects.filter(ativo=True).count()
+        total_disciplinas = Disciplina.objects.filter(ativo=True).count()
+        logger.info(f"📊 Todos os dados - Turmas: {total_turmas}, Disciplinas: {total_disciplinas}")
+    
+    # 🔥 LOG FINAL
+    logger.info("=" * 50)
+    logger.info("📊 DADOS FINAIS DO DASHBOARD:")
+    logger.info(f"👨‍🎓 Alunos: {total_alunos}")
+    logger.info(f"📚 Turmas: {total_turmas}")
+    logger.info(f"👨‍🏫 Professores: {total_professores}")
+    logger.info(f"📖 Disciplinas: {total_disciplinas}")
+    logger.info("=" * 50)
+    
+    # 🔥 Construir contexto
+    context = {
+        'is_admin': is_admin,
+        'escola': escola,
+        'total_alunos': total_alunos,
+        'total_turmas': total_turmas,
+        'total_professores': total_professores,
+        'total_disciplinas': total_disciplinas,
+        'tenant_id': tenant_id,
+        # Dados para admin Yitro
+        'total_escolas': Instituicao.objects.count() if is_admin else 0,
+        'total_usuarios': User.objects.count() if is_admin else 0,
+        'escolas_ativas': Instituicao.objects.filter(ativo=True).count() if is_admin else 0,
+        'escolas_inativas': Instituicao.objects.filter(ativo=False).count() if is_admin else 0,
+        'ultimas_escolas': Instituicao.objects.all().order_by('-data_criacao')[:5] if is_admin else [],
+    }
     
     return render(request, 'escola/partials/dashboard.html', context)
 

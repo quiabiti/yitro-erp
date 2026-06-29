@@ -1,6 +1,9 @@
+# escola/urls.py
+
 from django.urls import path, include
 from .pedagogico import views as pedagogico_views
 from . import views as escola_views
+from .secretaria import views as secretaria_views
 
 app_name = 'escola'
 
@@ -103,4 +106,42 @@ urlpatterns = [
     path('api/pedagogico/turma/salvar/', pedagogico_views.api_salvar, {'categoria': 'turma'}, name='turma_salvar'),
     path('api/pedagogico/turma/salvar/<int:item_id>/', pedagogico_views.api_salvar, {'categoria': 'turma'}, name='turma_atualizar'),
     path('api/pedagogico/turma/deletar/<int:item_id>/', pedagogico_views.api_deletar, {'categoria': 'turma'}, name='turma_deletar'),
+    
+    # ============================================
+    # 🔥 SECRETARIA GERAL - URLs da API
+    # ============================================
+    path('api/secretaria/matriculas/', secretaria_views.secretaria_matriculas, name='api_secretaria_matriculas'),
+    path('api/secretaria/pagamentos/', secretaria_views.secretaria_pagamentos, name='api_secretaria_pagamentos'),
+    path('api/secretaria/alunos/', secretaria_views.secretaria_alunos, name='api_secretaria_alunos'),
+    path('api/secretaria/documentos/', secretaria_views.secretaria_documentos, name='api_secretaria_documentos'),
+    
+    # 🔥 NOVAS URLs DA SECRETARIA
+    path('api/secretaria/matriculas/stats/', secretaria_views.api_matriculas_stats, name='api_matriculas_stats'),
+    path('api/secretaria/matriculas/listar/', secretaria_views.api_matriculas_listar, name='api_matriculas_listar'),
+    path('api/secretaria/matricula/form/', secretaria_views.api_matricula_form, name='api_matricula_form'),
+    path('api/secretaria/matricula/editar/<int:matricula_id>/', secretaria_views.api_matricula_form, name='api_matricula_editar'),
+    path('api/secretaria/matricula/salvar/', secretaria_views.api_matricula_salvar, name='api_matricula_salvar'),
+    path('api/secretaria/matricula/salvar/<int:matricula_id>/', secretaria_views.api_matricula_salvar, name='api_matricula_atualizar'),
+    path('api/secretaria/matricula/confirmar/<int:matricula_id>/', secretaria_views.api_matricula_confirmar, name='api_matricula_confirmar'),
+    path('api/secretaria/matricula/deletar/<int:matricula_id>/', secretaria_views.api_matricula_deletar, name='api_matricula_deletar'),
+    path('api/secretaria/alunos/buscar/', secretaria_views.api_alunos_buscar, name='api_alunos_buscar'),
+    
+    # 🔥 IMPRESSÃO
+    path('impressao/matricula/<int:matricula_id>/', secretaria_views.impressao_matricula, name='impressao_matricula'),
+    
+    # ============================================
+    # 🔥 ÁREA ADMINISTRATIVA - URLs da API
+    # ============================================
+    path('api/admin/funcionarios/', escola_views.admin_funcionarios, name='api_admin_funcionarios'),
+    path('api/admin/documentos/', escola_views.admin_documentos, name='api_admin_documentos'),
+    path('api/admin/relatorios/', escola_views.admin_relatorios, name='api_admin_relatorios'),
+    path('api/admin/custos/', escola_views.admin_custos, name='api_admin_custos'),
+    path('api/admin/folha_salarial/', escola_views.admin_folha_salarial, name='api_admin_folha_salarial'),
+    path('api/admin/usuarios/', escola_views.admin_usuarios, name='api_admin_usuarios'),
+    
+    # ============================================
+    # 🔥 ÁREA FINANCEIRA - URLs da API
+    # ============================================
+    path('api/financeiro/relatorio/', escola_views.financeiro_relatorio, name='api_financeiro_relatorio'),
+    path('api/financeiro/tributario/', escola_views.financeiro_tributario, name='api_financeiro_tributario'),
 ]

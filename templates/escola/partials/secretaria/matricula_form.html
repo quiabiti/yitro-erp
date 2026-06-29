@@ -1,0 +1,393 @@
+<!-- escola/templates/escola/partials/secretaria/matricula_form.html -->
+
+{% load static %}
+<form id="formMatricula" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="aluno_id" id="aluno_id" value="{{ aluno.id|default:'' }}">
+    {% if edit %}
+        <input type="hidden" name="matricula_id" value="{{ matricula.id }}">
+    {% endif %}
+    
+    <!-- BUSCAR ALUNO -->
+    <div class="glass-card p-3 mb-3">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-8">
+                <label class="metal-form-label">Buscar Aluno</label>
+                <div class="d-flex gap-2">
+                    <input type="text" id="buscarAluno" class="metal-form-control" placeholder="Digite o BI ou Nome do aluno..." style="font-size: 0.85rem;">
+                    <button type="button" class="metal-btn-primary" onclick="window.buscarAluno()" style="font-size: 0.75rem; padding: 4px 14px;">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                    <button type="button" class="metal-btn-secondary" onclick="window.limparBusca()" style="font-size: 0.75rem; padding: 4px 14px;">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+                <div id="resultadoBusca" class="mt-2" style="display: none;"></div>
+            </div>
+            <div class="col-md-4 text-end">
+                {% if aluno %}
+                    <div class="alert alert-info" style="background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.2); padding: 8px 12px; border-radius: 8px;">
+                        <i class="bi bi-person-check me-2"></i>
+                        <strong>{{ aluno.nome_completo }}</strong>
+                        <br>
+                        <small class="text-muted">BI: {{ aluno.bi }}</small>
+                        {% if matricula %}
+                            <br><small class="text-muted">{{ matricula.ano_lectivo }} - {{ matricula.classe.nome }}</small>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- TIPO DE MATRÍCULA -->
+    <div class="glass-card p-3 mb-3">
+        <label class="metal-form-label">Tipo de Matrícula</label>
+        <div class="d-flex gap-3 flex-wrap">
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="tipo" id="tipoNova" value="nova" 
+                       {% if not edit or matricula.tipo == 'nova' %}checked{% endif %}
+                       onchange="window.atualizarCampos()">
+                <label class="form-check-label text-white" for="tipoNova">Nova Matrícula</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="tipo" id="tipoRenovacao" value="renovacao"
+                       {% if matricula.tipo == 'renovacao' %}checked{% endif %}
+                       onchange="window.atualizarCampos()">
+                <label class="form-check-label text-white" for="tipoRenovacao">Renovação</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="tipo" id="tipoTransferencia" value="transferencia"
+                       {% if matricula.tipo == 'transferencia' %}checked{% endif %}
+                       onchange="window.atualizarCampos()">
+                <label class="form-check-label text-white" for="tipoTransferencia">Transferência</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- DADOS DO ALUNO -->
+    <div class="glass-card p-3 mb-3">
+        <h6 class="text-white mb-3"><i class="bi bi-person me-2"></i>Dados do Aluno (conforme BI)</h6>
+        
+        <div class="row g-2">
+            <div class="col-md-6">
+                <label class="metal-form-label">Nome Completo <span class="text-danger">*</span></label>
+                <input type="text" name="nome_completo" id="nome_completo" 
+                       class="metal-form-control" 
+                       placeholder="Ex: João Manuel Silva"
+                       value="{{ aluno.nome_completo|default:'' }}" required>
+            </div>
+            <div class="col-md-3">
+                <label class="metal-form-label">Data Nascimento <span class="text-danger">*</span></label>
+                <input type="date" name="data_nascimento" id="data_nascimento" 
+                       class="metal-form-control" 
+                       value="{{ aluno.data_nascimento|date:'Y-m-d'|default:'' }}" required>
+            </div>
+            <div class="col-md-3">
+                <label class="metal-form-label">Gênero <span class="text-danger">*</span></label>
+                <select name="genero" id="genero" class="metal-form-control" required>
+                    <option value="M" {% if aluno.genero == 'M' %}selected{% endif %}>Masculino</option>
+                    <option value="F" {% if aluno.genero == 'F' %}selected{% endif %}>Feminino</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row g-2 mt-2">
+            <div class="col-md-4">
+                <label class="metal-form-label">BI <span class="text-danger">*</span></label>
+                <input type="text" name="bi" id="bi" 
+                       class="metal-form-control" 
+                       placeholder="Ex: 001-123456-AA"
+                       value="{{ aluno.bi|default:'' }}" required>
+            </div>
+            <div class="col-md-4">
+                <label class="metal-form-label">NIF</label>
+                <input type="text" name="nif" id="nif" 
+                       class="metal-form-control" 
+                       placeholder="Ex: 5001234567"
+                       value="{{ aluno.nif|default:'' }}">
+            </div>
+            <div class="col-md-4">
+                <label class="metal-form-label">Naturalidade</label>
+                <input type="text" name="naturalidade" id="naturalidade" 
+                       class="metal-form-control" 
+                       placeholder="Ex: Luanda"
+                       value="{{ aluno.naturalidade|default:'' }}">
+            </div>
+        </div>
+
+        <div class="row g-2 mt-2">
+            <div class="col-md-4">
+                <label class="metal-form-label">Nacionalidade</label>
+                <input type="text" name="nacionalidade" id="nacionalidade" 
+                       class="metal-form-control" 
+                       value="{{ aluno.nacionalidade|default:'Angola' }}">
+            </div>
+            <div class="col-md-4">
+                <label class="metal-form-label">Telefone <span class="text-danger">*</span></label>
+                <input type="text" name="telefone" id="telefone" 
+                       class="metal-form-control" 
+                       placeholder="Ex: 923456789"
+                       value="{{ aluno.telefone|default:'' }}" required>
+            </div>
+            <div class="col-md-4">
+                <label class="metal-form-label">E-mail</label>
+                <input type="email" name="email" id="email" 
+                       class="metal-form-control" 
+                       placeholder="Ex: aluno@email.com"
+                       value="{{ aluno.email|default:'' }}">
+            </div>
+        </div>
+
+        <div class="row g-2 mt-2">
+            <div class="col-12">
+                <label class="metal-form-label">Endereço</label>
+                <textarea name="endereco" id="endereco" 
+                          class="metal-form-control" 
+                          rows="2"
+                          placeholder="Ex: Rua X, Bairro Y, Luanda">{{ aluno.endereco|default:'' }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESPONSÁVEIS -->
+    <div class="glass-card p-3 mb-3">
+        <h6 class="text-white mb-3"><i class="bi bi-people me-2"></i>Responsáveis (Filiação)</h6>
+        
+        <div class="row g-2">
+            <div class="col-md-6">
+                <label class="metal-form-label">Nome do Pai</label>
+                <input type="text" name="nome_pai" id="nome_pai" 
+                       class="metal-form-control" 
+                       placeholder="Ex: José Silva"
+                       value="{{ aluno.nome_pai|default:'' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="metal-form-label">Nome da Mãe</label>
+                <input type="text" name="nome_mae" id="nome_mae" 
+                       class="metal-form-control" 
+                       placeholder="Ex: Maria Silva"
+                       value="{{ aluno.nome_mae|default:'' }}">
+            </div>
+        </div>
+        <div class="row g-2 mt-2">
+            <div class="col-md-6">
+                <label class="metal-form-label">Telefone do Responsável <span class="text-danger">*</span></label>
+                <input type="text" name="telefone_responsavel" id="telefone_responsavel" 
+                       class="metal-form-control" 
+                       placeholder="Ex: 934567890"
+                       value="{{ aluno.telefone_responsavel|default:'' }}" required>
+            </div>
+            <div class="col-md-6">
+                <label class="metal-form-label">E-mail do Responsável</label>
+                <input type="email" name="email_responsavel" id="email_responsavel" 
+                       class="metal-form-control" 
+                       placeholder="Ex: responsavel@email.com"
+                       value="{{ aluno.email_responsavel|default:'' }}">
+            </div>
+        </div>
+    </div>
+
+    <!-- DADOS DA MATRÍCULA -->
+    <div class="glass-card p-3 mb-3">
+        <h6 class="text-white mb-3"><i class="bi bi-book me-2"></i>Dados da Matrícula</h6>
+        
+        <div class="row g-2">
+            <div class="col-md-3">
+                <label class="metal-form-label">Ano Lectivo <span class="text-danger">*</span></label>
+                <select name="ano_lectivo" id="ano_lectivo" class="metal-form-control" required>
+                    <option value="">Selecione...</option>
+                    {% for ano in ano_lectivos %}
+                        <option value="{{ ano.id }}" {% if matricula.ano_lectivo.id == ano.id %}selected{% endif %}>
+                            {{ ano.ano }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="metal-form-label">Classe <span class="text-danger">*</span></label>
+                <select name="classe" id="classe" class="metal-form-control" required>
+                    <option value="">Selecione...</option>
+                    {% for classe in classes %}
+                        <option value="{{ classe.id }}" {% if matricula.classe.id == classe.id or proxima_classe_sugerida.id == classe.id %}selected{% endif %}>
+                            {{ classe.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="metal-form-label">Turma</label>
+                <select name="turma" id="turma" class="metal-form-control">
+                    <option value="">Selecione...</option>
+                    {% for turma in turmas %}
+                        <option value="{{ turma.id }}" {% if matricula.turma.id == turma.id %}selected{% endif %}>
+                            {{ turma.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="metal-form-label">Status</label>
+                <select name="status" id="status" class="metal-form-control">
+                    <option value="pendente" {% if matricula.status == 'pendente' or not matricula %}selected{% endif %}>Pendente</option>
+                    <option value="confirmada" {% if matricula.status == 'confirmada' %}selected{% endif %}>Confirmada</option>
+                    <option value="trancada" {% if matricula.status == 'trancada' %}selected{% endif %}>Trancada</option>
+                    <option value="cancelada" {% if matricula.status == 'cancelada' %}selected{% endif %}>Cancelada</option>
+                    <option value="concluida" {% if matricula.status == 'concluida' %}selected{% endif %}>Concluída</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Matrícula Anterior -->
+        <div id="matriculaAnteriorContainer" style="display: none;" class="mt-3">
+            <div class="alert alert-info" style="background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.15); padding: 8px 12px; border-radius: 8px;">
+                <i class="bi bi-arrow-repeat me-2"></i>
+                <strong>Matrícula Anterior:</strong>
+                <div id="matriculaAnteriorInfo" class="mt-1"></div>
+            </div>
+        </div>
+
+        <div class="row g-2 mt-2">
+            <div class="col-12">
+                <label class="metal-form-label">Observações</label>
+                <textarea name="observacoes" id="observacoes" 
+                          class="metal-form-control" 
+                          rows="2"
+                          placeholder="Observações sobre a matrícula...">{{ matricula.observacoes|default:'' }}</textarea>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Scripts do formulário - FUNÇÕES GLOBAIS -->
+<script>
+// ============================================
+// FUNÇÕES GLOBAIS DO FORMULÁRIO
+// ============================================
+
+window.atualizarCampos = function() {
+    const tipo = document.querySelector('input[name="tipo"]:checked');
+    if (!tipo) return;
+    
+    const isBloqueado = tipo.value !== 'nova';
+    
+    const camposBloqueados = ['bi', 'data_nascimento', 'genero', 'naturalidade', 'nacionalidade'];
+    camposBloqueados.forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo) {
+            campo.readOnly = isBloqueado;
+            campo.style.opacity = isBloqueado ? '0.6' : '1';
+            campo.style.cursor = isBloqueado ? 'not-allowed' : 'text';
+        }
+    });
+};
+
+window.buscarAluno = function() {
+    const termo = document.getElementById('buscarAluno').value.trim();
+    if (!termo) {
+        window.mostrarToast('Digite o BI ou nome do aluno', 'warning');
+        return;
+    }
+    
+    fetch(`/escola/api/secretaria/alunos/buscar/?termo=${encodeURIComponent(termo)}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(d => {
+        const container = document.getElementById('resultadoBusca');
+        if (d.success && d.data.length > 0) {
+            let html = '<div class="list-group">';
+            d.data.forEach(aluno => {
+                html += `
+                    <div class="list-group-item" style="cursor:pointer; background: rgba(255,255,255,0.05);" 
+                         onclick="window.carregarAluno(${aluno.id})">
+                        <strong>${aluno.nome_completo}</strong>
+                        <span class="badge bg-primary ms-2">${aluno.bi}</span>
+                        <br>
+                        <small class="text-muted">${aluno.telefone || 'Sem telefone'}</small>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+            container.style.display = 'block';
+        } else {
+            container.innerHTML = `
+                <div class="alert alert-warning mt-2">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Nenhum aluno encontrado. 
+                    <button class="btn btn-sm btn-outline-primary ms-2" onclick="window.limparBusca()">
+                        Cadastrar novo
+                    </button>
+                </div>
+            `;
+            container.style.display = 'block';
+        }
+    })
+    .catch(e => {
+        console.error('Erro:', e);
+        window.mostrarToast('Erro ao buscar aluno', 'error');
+    });
+};
+
+window.carregarAluno = function(alunoId) {
+    fetch(`/escola/api/secretaria/alunos/buscar/?termo=${alunoId}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success && d.data.length > 0) {
+            const aluno = d.data[0];
+            document.getElementById('aluno_id').value = aluno.id;
+            document.getElementById('nome_completo').value = aluno.nome_completo;
+            document.getElementById('bi').value = aluno.bi;
+            document.getElementById('data_nascimento').value = aluno.data_nascimento;
+            document.getElementById('genero').value = aluno.genero;
+            document.getElementById('naturalidade').value = aluno.naturalidade || '';
+            document.getElementById('nacionalidade').value = aluno.nacionalidade || 'Angola';
+            document.getElementById('nif').value = aluno.nif || '';
+            document.getElementById('telefone').value = aluno.telefone || '';
+            document.getElementById('email').value = aluno.email || '';
+            document.getElementById('endereco').value = aluno.endereco || '';
+            document.getElementById('nome_pai').value = aluno.nome_pai || '';
+            document.getElementById('nome_mae').value = aluno.nome_mae || '';
+            document.getElementById('telefone_responsavel').value = aluno.telefone_responsavel || '';
+            document.getElementById('email_responsavel').value = aluno.email_responsavel || '';
+            
+            document.getElementById('resultadoBusca').style.display = 'none';
+            document.getElementById('resultadoBusca').innerHTML = '';
+            
+            window.mostrarToast('Aluno carregado com sucesso!', 'success');
+            window.atualizarCampos();
+        }
+    })
+    .catch(e => {
+        console.error('Erro:', e);
+        window.mostrarToast('Erro ao carregar aluno', 'error');
+    });
+};
+
+window.limparBusca = function() {
+    document.getElementById('resultadoBusca').style.display = 'none';
+    document.getElementById('resultadoBusca').innerHTML = '';
+    document.getElementById('buscarAluno').value = '';
+    document.getElementById('aluno_id').value = '';
+};
+
+// Inicializar quando o DOM carregar
+document.addEventListener('DOMContentLoaded', function() {
+    {% if aluno %}
+        document.getElementById('aluno_id').value = '{{ aluno.id }}';
+        window.atualizarCampos();
+    {% endif %}
+    
+    // Adicionar event listeners para os radio buttons
+    document.querySelectorAll('input[name="tipo"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            window.atualizarCampos();
+        });
+    });
+});
+
+console.log('✅ Funções do formulário carregadas!');
+</script>

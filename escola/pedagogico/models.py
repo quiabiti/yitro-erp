@@ -1,12 +1,10 @@
-# escola/pedagogico/models.py
 from django.db import models
 from django.utils import timezone
 
 class AnoLectivo(models.Model):
-    # 🔥 ADICIONAR ESTE CAMPO
-    tenant_id = models.IntegerField('ID da Escola', db_index=True, null=True, blank=True, help_text='ID da instituição/tenant')
+    tenant_id = models.IntegerField('ID da Escola', db_index=True, null=True, blank=True)
     
-    ano = models.CharField('Ano', max_length=9, unique=True, help_text='Ex: 2024/2025')
+    ano = models.CharField('Ano', max_length=9, help_text='Ex: 2024/2025')
     data_inicio = models.DateField('Data de Início')
     data_fim = models.DateField('Data de Fim')
     descricao = models.TextField('Descrição', blank=True)
@@ -18,16 +16,14 @@ class AnoLectivo(models.Model):
         verbose_name = 'Ano Lectivo'
         verbose_name_plural = 'Anos Lectivos'
         ordering = ['-ano']
-        # 🔥 REMOVA O unique=True do campo 'ano' se existir
-        # unique_together = [['tenant_id', 'ano']]  # ← ADICIONAR
+        unique_together = [['tenant_id', 'ano']]
 
     def __str__(self):
         return self.ano
 
 
 class Trimestre(models.Model):
-    # 🔥 ADICIONAR ESTE CAMPO
-    tenant_id = models.IntegerField('ID da Escola', db_index=True, null=True, blank=True, help_text='ID da instituição/tenant')
+    tenant_id = models.IntegerField('ID da Escola', db_index=True, null=True, blank=True)
     
     NUMERO_CHOICES = [
         (1, '1º Trimestre'),
@@ -49,19 +45,18 @@ class Trimestre(models.Model):
         verbose_name = 'Trimestre'
         verbose_name_plural = 'Trimestres'
         ordering = ['ano_lectivo', 'numero']
-        unique_together = [['tenant_id', 'ano_lectivo', 'numero']]  # 🔥 ALTERAR
+        unique_together = [['tenant_id', 'ano_lectivo', 'numero']]
 
     def __str__(self):
         return f"{self.ano_lectivo.ano} - {self.get_numero_display()}"
 
 
 class NivelEnsino(models.Model):
-    # 🔥 ADICIONAR ESTE CAMPO
-    tenant_id = models.IntegerField('ID da Escola', db_index=True, null=True, blank=True, help_text='ID da instituição/tenant')
+    tenant_id = models.IntegerField('ID da Escola', db_index=True, null=True, blank=True)
     
     nome = models.CharField('Nome', max_length=100, help_text='Ex: Ensino Fundamental, Ensino Médio')
     descricao = models.TextField('Descrição', blank=True)
-    ordem = models.IntegerField('Ordem de Exibição', default=0, help_text='Números menores aparecem primeiro')
+    ordem = models.IntegerField('Ordem de Exibição', default=0)
     ativo = models.BooleanField('Ativo', default=True)
     data_criacao = models.DateTimeField('Data de Criação', auto_now_add=True)
     data_atualizacao = models.DateTimeField('Última Atualização', auto_now=True)
@@ -70,26 +65,20 @@ class NivelEnsino(models.Model):
         verbose_name = 'Nível de Ensino'
         verbose_name_plural = 'Níveis de Ensino'
         ordering = ['ordem', 'nome']
-        unique_together = [['tenant_id', 'nome']]  # 🔥 ALTERAR
+        unique_together = [['tenant_id', 'nome']]
 
     def __str__(self):
         return self.nome
 
 
 class Classe(models.Model):
-    # 🔥 ADICIONAR ESTE CAMPO
-    tenant_id = models.IntegerField('ID da Escola', db_index=True, null=True, blank=True, help_text='ID da instituição/tenant')
+    tenant_id = models.IntegerField('ID da Escola', db_index=True, null=True, blank=True)
     
     nome = models.CharField('Nome', max_length=50, help_text='Ex: 1º Ano A')
-    nivel_ensino = models.ForeignKey(
-        NivelEnsino, 
-        on_delete=models.CASCADE, 
-        related_name='classes',
-        verbose_name='Nível de Ensino'
-    )
+    nivel_ensino = models.ForeignKey(NivelEnsino, on_delete=models.CASCADE, related_name='classes')
     ano_lectivo = models.ForeignKey(AnoLectivo, on_delete=models.CASCADE, related_name='classes')
     descricao = models.TextField('Descrição', blank=True)
-    is_exame = models.BooleanField('Classe de Exame', default=False, help_text='Indica se esta classe possui exames finais')
+    is_exame = models.BooleanField('Classe de Exame', default=False)
     ativo = models.BooleanField('Ativo', default=True)
     data_criacao = models.DateTimeField('Data de Criação', auto_now_add=True)
     data_atualizacao = models.DateTimeField('Última Atualização', auto_now=True)
@@ -98,15 +87,16 @@ class Classe(models.Model):
         verbose_name = 'Classe'
         verbose_name_plural = 'Classes'
         ordering = ['ano_lectivo', 'nivel_ensino', 'nome']
-        unique_together = [['tenant_id', 'ano_lectivo', 'nivel_ensino', 'nome']]  # 🔥 ALTERAR
+        unique_together = [['tenant_id', 'ano_lectivo', 'nivel_ensino', 'nome']]
 
     def __str__(self):
         return f"{self.nome} ({self.nivel_ensino.nome})"
 
 
+# models.py - VERSÃO CORRIGIDA
+
 class Disciplina(models.Model):
-    # 🔥 ADICIONAR ESTE CAMPO
-    tenant_id = models.IntegerField('ID da Escola', db_index=True, null=True, blank=True, help_text='ID da instituição/tenant')
+    tenant_id = models.IntegerField('ID da Escola', db_index=True, null=True, blank=True)
     
     TIPO_CHOICES = [
         ('curricular', 'Curricular'),
@@ -117,10 +107,18 @@ class Disciplina(models.Model):
     nome = models.CharField('Nome', max_length=100)
     codigo = models.CharField('Código', max_length=20)
     carga_horaria = models.IntegerField('Carga Horária (horas)', default=60)
-    classe = models.ForeignKey(Classe, on_delete=models.CASCADE, related_name='disciplinas')
+    
+    # 🔥 MUDAR DE ForeignKey para ManyToManyField
+    classes = models.ManyToManyField(
+        Classe, 
+        related_name='disciplinas',
+        verbose_name='Classes Associadas',
+        help_text='Selecione uma ou mais classes onde esta disciplina será ministrada'
+    )
+    
     descricao = models.TextField('Descrição', blank=True)
     tipo = models.CharField('Tipo', max_length=20, choices=TIPO_CHOICES, default='curricular')
-    is_chave = models.BooleanField('Disciplina Chave', default=False, help_text='Disciplina fundamental para o currículo')
+    is_chave = models.BooleanField('Disciplina Chave', default=False)
     ativo = models.BooleanField('Ativo', default=True)
     data_criacao = models.DateTimeField('Data de Criação', auto_now_add=True)
     data_atualizacao = models.DateTimeField('Última Atualização', auto_now=True)
@@ -128,16 +126,20 @@ class Disciplina(models.Model):
     class Meta:
         verbose_name = 'Disciplina'
         verbose_name_plural = 'Disciplinas'
-        ordering = ['classe', 'nome']
-        unique_together = [['tenant_id', 'classe', 'nome']]  # 🔥 ALTERAR
+        ordering = ['nome']
+        # 🔥 REMOVER unique_together com classe (já que agora é ManyToMany)
+        # unique_together = [['tenant_id', 'nome']]  # Apenas nome único por tenant
 
     def __str__(self):
         return f"{self.nome} ({self.codigo})"
-
+    
+    def get_classes_nomes(self):
+        """Retorna os nomes das classes associadas"""
+        return ", ".join([c.nome for c in self.classes.all()])
+        
 
 class Turma(models.Model):
-    # 🔥 ADICIONAR ESTE CAMPO
-    tenant_id = models.IntegerField('ID da Escola', db_index=True, null=True, blank=True, help_text='ID da instituição/tenant')
+    tenant_id = models.IntegerField('ID da Escola', db_index=True, null=True, blank=True)
     
     nome = models.CharField('Nome', max_length=50)
     codigo = models.CharField('Código', max_length=20)
@@ -153,7 +155,7 @@ class Turma(models.Model):
         verbose_name = 'Turma'
         verbose_name_plural = 'Turmas'
         ordering = ['ano_lectivo', 'classe', 'nome']
-        unique_together = [['tenant_id', 'ano_lectivo', 'classe', 'nome']]  # 🔥 ALTERAR
+        unique_together = [['tenant_id', 'ano_lectivo', 'classe', 'nome']]
 
     def __str__(self):
         return f"{self.nome} - {self.classe.nome}"

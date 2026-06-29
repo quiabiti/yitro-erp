@@ -1,0 +1,808 @@
+<!-- escola/templates/escola/impressao/matricula.html -->
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de Matrícula - {{ aluno.nome_completo }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Times New Roman', serif; 
+            background: #f0f0f0; 
+            color: #1a1a1a;
+            padding: 15px;
+        }
+        
+        .container {
+            max-width: 210mm;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 25px 30px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.15);
+            min-height: 297mm;
+        }
+        
+        /* ============================================================
+           CABEÇALHO CENTRALIZADO
+           ============================================================ */
+        .header {
+            text-align: center;
+            border-bottom: 4px solid #0d1b4a;
+            padding-bottom: 15px;
+            margin-bottom: 18px;
+        }
+        
+        .header .logo {
+            max-height: 85px;
+            width: auto;
+            margin: 0 auto 6px;
+            display: block;
+        }
+        
+        .header .logo-placeholder {
+            width: 85px;
+            height: 85px;
+            border: 3px solid #0d1b4a;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            font-weight: bold;
+            color: #0d1b4a;
+            margin: 0 auto 6px;
+            background: #f5f7fc;
+        }
+        
+        .header .escola-nome {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0d1b4a;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+        
+        .header .escola-info {
+            font-size: 13px;
+            color: #555;
+            margin-top: 3px;
+        }
+        
+        .header .escola-info .separator {
+            margin: 0 8px;
+            color: #ccc;
+        }
+        
+        .header .titulo-documento {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #0d1b4a;
+        }
+        
+        .header .titulo-documento h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #0d1b4a;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        .header .titulo-documento .numero-data {
+            margin-top: 6px;
+            font-size: 14px;
+            color: #555;
+            text-align: left;
+            padding-left: 10px;
+        }
+        
+        .header .titulo-documento .numero-data strong {
+            color: #0d1b4a;
+        }
+        
+        /* ============================================================
+           SEÇÕES
+           ============================================================ */
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0d1b4a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #0d1b4a;
+            padding-bottom: 4px;
+            margin: 16px 0 10px;
+        }
+        
+        .campo-linha {
+            display: flex;
+            padding: 3px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .campo-linha .label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            width: 220px;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .campo-linha .value {
+            font-size: 14px;
+            color: #1a1a1a;
+            flex: 1;
+        }
+        
+        .campo-linha .value .destaque {
+            font-weight: 700;
+            color: #0d1b4a;
+        }
+        
+        /* ============================================================
+           STATUS BADGE
+           ============================================================ */
+        .status-badge {
+            display: inline-block;
+            padding: 2px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .status-badge.confirmada { background: #2ed573; }
+        .status-badge.pendente { background: #ffa502; }
+        .status-badge.trancada { background: #6c757d; }
+        .status-badge.cancelada { background: #ff4757; }
+        .status-badge.concluida { background: #7b2ffc; }
+        
+        /* ============================================================
+           OBSERVAÇÕES
+           ============================================================ */
+        .observacoes-box {
+            background: #fff8e1;
+            border-left: 4px solid #ffa502;
+            padding: 10px 14px;
+            margin: 8px 0;
+            border-radius: 4px;
+        }
+        
+        .observacoes-box p {
+            font-size: 13px;
+            color: #555;
+        }
+        
+        /* ============================================================
+           ASSINATURAS
+           ============================================================ */
+        .assinaturas {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            margin: 15px 0 20px;
+        }
+        
+        .assinaturas .assinatura {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .assinaturas .assinatura .linha {
+            width: 100%;
+            max-width: 200px;
+            margin: 5px auto;
+            border-top: 1px solid #1a1a1a;
+            min-height: 30px;
+        }
+        
+        .assinaturas .assinatura .cargo {
+            font-size: 11px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .assinaturas .assinatura .sub {
+            font-size: 10px;
+            color: #999;
+            margin-top: 2px;
+        }
+        
+        /* ============================================================
+           RODAPÉ
+           ============================================================ */
+        .footer {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #0d1b4a;
+        }
+        
+        .via-label {
+            text-align: center;
+            font-size: 11px;
+            color: #888;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 2px dashed #ccc;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .rodape-texto {
+            text-align: center;
+            font-size: 10px;
+            color: #999;
+            margin-top: 8px;
+        }
+        
+        .rodape-texto strong {
+            color: #0d1b4a;
+        }
+        
+        .rodape-texto .separator {
+            margin: 0 8px;
+            color: #ddd;
+        }
+        
+        .rodape-legal {
+            text-align: center;
+            font-size: 9px;
+            color: #bbb;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        
+        /* ============================================================
+           CORTE
+           ============================================================ */
+        .corte {
+            text-align: center;
+            font-size: 11px;
+            color: #aaa;
+            padding: 12px 0;
+            letter-spacing: 4px;
+            border-top: 2px dashed #ccc;
+            border-bottom: 2px dashed #ccc;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .corte span {
+            background: #fff;
+            padding: 0 20px;
+        }
+        
+        /* ============================================================
+           COMPROVANTE (VIA DO ENCARREGADO)
+           ============================================================ */
+        .comprovante {
+            padding-top: 5px;
+        }
+        
+        .comprovante .header-comprovante {
+            text-align: center;
+            border-bottom: 2px solid #0d1b4a;
+            padding-bottom: 12px;
+            margin-bottom: 14px;
+        }
+        
+        .comprovante .header-comprovante .logo-pequeno {
+            max-height: 60px;
+            width: auto;
+            margin: 0 auto 4px;
+            display: block;
+        }
+        
+        .comprovante .header-comprovante .logo-placeholder-pequeno {
+            width: 60px;
+            height: 60px;
+            border: 3px solid #0d1b4a;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #0d1b4a;
+            margin: 0 auto 4px;
+            background: #f5f7fc;
+        }
+        
+        .comprovante .header-comprovante .escola-nome-peq {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0d1b4a;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        
+        .comprovante .header-comprovante .escola-info-peq {
+            font-size: 11px;
+            color: #555;
+        }
+        
+        .comprovante .header-comprovante .titulo-comprovante {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0d1b4a;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-top: 4px;
+        }
+        
+        .comprovante .header-comprovante .numero-data-comprovante {
+            font-size: 13px;
+            color: #555;
+            margin-top: 4px;
+        }
+        
+        .comprovante .header-comprovante .numero-data-comprovante strong {
+            color: #0d1b4a;
+        }
+        
+        .comprovante .msg-confirmacao {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+        }
+        
+        .comprovante .dados-aluno-comp {
+            background: #f8f9fc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .comprovante .dados-aluno-comp .linha-comp {
+            display: flex;
+            padding: 3px 0;
+        }
+        
+        .comprovante .dados-aluno-comp .linha-comp .label-comp {
+            font-size: 11px;
+            font-weight: 600;
+            color: #555;
+            width: 130px;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .comprovante .dados-aluno-comp .linha-comp .value-comp {
+            font-size: 14px;
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+        
+        .comprovante .confirmado-em {
+            background: #e8f5e9;
+            padding: 8px 14px;
+            border-radius: 6px;
+            margin: 8px 0 12px;
+            text-align: center;
+        }
+        
+        .comprovante .confirmado-em span {
+            font-size: 13px;
+            color: #1a1a1a;
+        }
+        
+        .comprovante .confirmado-em strong {
+            color: #0d1b4a;
+        }
+        
+        .codigo-validacao {
+            text-align: center;
+            margin: 12px 0;
+            padding: 12px;
+            background: #f5f7fc;
+            border-radius: 8px;
+            border: 2px dashed #0d1b4a;
+        }
+        
+        .codigo-validacao .codigo-label {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+        
+        .codigo-validacao .codigo-value {
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            letter-spacing: 5px;
+            color: #0d1b4a;
+            font-weight: 700;
+        }
+        
+        .codigo-validacao .codigo-sub {
+            font-size: 10px;
+            color: #999;
+            margin-top: 4px;
+        }
+        
+        .codigo-validacao .barras {
+            font-family: 'Courier New', monospace;
+            font-size: 28px;
+            letter-spacing: 4px;
+            color: #0d1b4a;
+            font-weight: 700;
+            opacity: 0.3;
+            margin: 2px 0;
+        }
+        
+        .assinatura-comp {
+            text-align: center;
+            margin: 15px 0 10px;
+        }
+        
+        .assinatura-comp .linha-ass {
+            width: 220px;
+            border-top: 1px solid #1a1a1a;
+            margin: 5px auto;
+        }
+        
+        .assinatura-comp .cargo-ass {
+            font-size: 11px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .assinatura-comp .sub-ass {
+            font-size: 10px;
+            color: #999;
+        }
+        
+        @media print {
+            body { background: #fff; padding: 0; }
+            .container { box-shadow: none; padding: 15px 20px; min-height: auto; }
+            .no-print { display: none !important; }
+            .corte { border-color: #999; }
+            .corte span { background: #fff; }
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .header .escola-nome { font-size: 20px; letter-spacing: 2px; }
+            .header .titulo-documento h1 { font-size: 24px; letter-spacing: 3px; }
+            .header .titulo-documento .numero-data { text-align: center; padding-left: 0; }
+            .campo-linha { flex-direction: column; padding: 4px 0; }
+            .campo-linha .label { width: 100%; font-size: 11px; }
+            .campo-linha .value { font-size: 13px; }
+            .assinaturas { flex-direction: column; gap: 15px; }
+            .assinaturas .assinatura .linha { max-width: 100%; }
+            .comprovante .dados-aluno-comp .linha-comp { flex-direction: column; }
+            .comprovante .dados-aluno-comp .linha-comp .label-comp { width: 100%; font-size: 10px; }
+            .comprovante .dados-aluno-comp .linha-comp .value-comp { font-size: 13px; }
+            .codigo-validacao .codigo-value { font-size: 16px; letter-spacing: 3px; }
+        }
+        
+        @media (max-width: 480px) {
+            .container { padding: 10px; }
+            .header .escola-nome { font-size: 16px; letter-spacing: 1px; }
+            .header .titulo-documento h1 { font-size: 18px; letter-spacing: 2px; }
+            .header .escola-info { font-size: 11px; }
+            .header .logo { max-height: 60px; }
+            .section-title { font-size: 13px; }
+            .campo-linha .value { font-size: 12px; }
+            .comprovante .header-comprovante .titulo-comprovante { font-size: 15px; }
+            .codigo-validacao .codigo-value { font-size: 14px; letter-spacing: 2px; }
+            .assinatura-comp .linha-ass { width: 150px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="conteudo">
+        
+        <!-- ============================================================
+             VIA DA ESCOLA - FICHA COMPLETA
+             ============================================================ -->
+        
+        <!-- CABEÇALHO -->
+        <div class="header">
+            <div style="text-align: center; margin-bottom: 6px;">
+                {% if escola_logo %}
+                    <img src="{{ escola_logo }}" alt="{{ escola_nome }}" class="logo" 
+                         onerror="this.style.display='none'; this.parentElement.querySelector('.logo-placeholder').style.display='inline-flex';">
+                    <div class="logo-placeholder" style="display: none;">{{ escola_nome|first|upper }}</div>
+                {% else %}
+                    <div class="logo-placeholder">{{ escola_nome|first|upper }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="escola-nome">{{ escola_nome|default:'ESCOLA YITRO' }}</div>
+            <div class="escola-info">
+                {% if escola %}
+                    {{ escola.endereco|default:'Endereço não informado' }}
+                    {% if escola.cidade %}
+                        <span class="separator">|</span> {{ escola.cidade }}
+                    {% endif %}
+                    {% if escola.telefone %}
+                        <span class="separator">|</span> Tel: {{ escola.telefone }}
+                    {% endif %}
+                    {% if escola.email %}
+                        <span class="separator">|</span> Email: {{ escola.email }}
+                    {% endif %}
+                {% endif %}
+            </div>
+            
+            <div class="titulo-documento">
+                <h1>Ficha de Matrícula</h1>
+                <div class="numero-data">
+                    Nº: <strong>{{ matricula.id|stringformat:"06d" }}</strong>
+                    <span style="margin: 0 20px;">|</span>
+                    Data de Emissão: <strong>{{ data_emissao }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- DADOS PESSOAIS DO ALUNO -->
+        <div class="section-title">📋 Dados Pessoais do Aluno</div>
+        
+        <div class="campo-linha">
+            <span class="label">Nome Completo</span>
+            <span class="value destaque">{{ aluno.nome_completo }}</span>
+        </div>
+        <div class="campo-linha">
+            <span class="label">Data de Nascimento</span>
+            <span class="value">{{ aluno.data_nascimento|date:'d \d\e F \d\e Y' }}</span>
+        </div>
+        <div class="campo-linha">
+            <span class="label">Gênero</span>
+            <span class="value">{{ aluno.get_genero_display }}</span>
+        </div>
+        <div class="campo-linha">
+            <span class="label">BI / NIF</span>
+            <span class="value">{{ aluno.bi }}{% if aluno.nif %} / {{ aluno.nif }}{% endif %}</span>
+        </div>
+        <div class="campo-linha">
+            <span class="label">Naturalidade</span>
+            <span class="value">{{ aluno.naturalidade|default:'-' }}</span>
+        </div>
+        <div class="campo-linha">
+            <span class="label">Nacionalidade</span>
+            <span class="value">{{ aluno.nacionalidade|default:'Angola' }}</span>
+        </div>
+        <div class="campo-linha">
+            <span class="label">Telefone</span>
+            <span class="value">{{ aluno.telefone|default:'-' }}</span>
+        </div>
+        <div class="campo-linha">
+            <span class="label">E-mail</span>
+            <span class="value">{{ aluno.email|default:'-' }}</span>
+        </div>
+        <div class="campo-linha">
+            <span class="label">Endereço</span>
+            <span class="value">{{ aluno.endereco|default:'-' }}</span>
+        </div>
+
+        <!-- RESPONSÁVEIS -->
+        <div class="section-title">👨‍👩‍👦 Filiação / Responsáveis</div>
+        
+        <div class="campo-linha">
+            <span class="label">Nome do Pai</span>
+            <span class="value">{{ aluno.nome_pai|default:'-' }}</span>
+        </div>
+        <div class="campo-linha">
+            <span class="label">Nome da Mãe</span>
+            <span class="value">{{ aluno.nome_mae|default:'-' }}</span>
+        </div>
+        <div class="campo-linha">
+            <span class="label">Telefone do Responsável</span>
+            <span class="value">{{ aluno.telefone_responsavel|default:'-' }}</span>
+        </div>
+        <div class="campo-linha">
+            <span class="label">E-mail do Responsável</span>
+            <span class="value">{{ aluno.email_responsavel|default:'-' }}</span>
+        </div>
+
+        <!-- DADOS DA MATRÍCULA -->
+        <div class="section-title">📚 Dados da Matrícula</div>
+        
+        <div class="campo-linha">
+            <span class="label">Ano Lectivo</span>
+            <span class="value destaque">{{ ano_lectivo.ano }}</span>
+        </div>
+        <div class="campo-linha">
+            <span class="label">Classe</span>
+            <span class="value destaque">{{ classe.nome }}</span>
+        </div>
+        <div class="campo-linha">
+            <span class="label">Turma</span>
+            <span class="value destaque">{{ turma.nome|default:'A definir' }}</span>
+        </div>
+        <div class="campo-linha">
+            <span class="label">Tipo de Matrícula</span>
+            <span class="value">{{ matricula.get_tipo_display }}</span>
+        </div>
+        <div class="campo-linha">
+            <span class="label">Data da Matrícula</span>
+            <span class="value">{{ matricula.data_matricula|date:'d \d\e F \d\e Y' }}</span>
+        </div>
+        <div class="campo-linha">
+            <span class="label">Status</span>
+            <span class="value">
+                <span class="status-badge {{ matricula.status }}">
+                    {{ matricula.get_status_display }}
+                </span>
+            </span>
+        </div>
+
+        <!-- OBSERVAÇÕES -->
+        {% if matricula.observacoes %}
+        <div class="section-title">📝 Observações</div>
+        <div class="observacoes-box">
+            <p>{{ matricula.observacoes }}</p>
+        </div>
+        {% endif %}
+
+        <!-- ASSINATURAS -->
+        <div class="section-title" style="border-bottom: none; margin-bottom: 10px;">✍️ Assinaturas</div>
+        
+        <div class="assinaturas">
+            <div class="assinatura">
+                <div class="linha"></div>
+                <div class="cargo">Secretário(a)</div>
+                <div class="sub">ou Chefe de Secretaria</div>
+            </div>
+            <div class="assinatura">
+                <div class="linha"></div>
+                <div class="cargo">Director(a) da Escola</div>
+                <div class="sub">Carimbo da Escola</div>
+            </div>
+            <div class="assinatura">
+                <div class="linha"></div>
+                <div class="cargo">Encarregado de Educação</div>
+                <div class="sub">Pai / Mãe / Responsável</div>
+            </div>
+        </div>
+
+        <!-- RODAPÉ VIA ESCOLA -->
+        <div class="footer">
+            <div class="via-label">🏷️ Via da Escola - Arquivo</div>
+            <div class="rodape-texto">
+                <strong>Sistema Yitro - Gestão Escolar</strong>
+                <span class="separator">|</span>
+                Código: {{ matricula.id|stringformat:"06d" }}
+                <span class="separator">|</span>
+                {{ data_emissao }}
+            </div>
+            <div class="rodape-legal">
+                Documento gerado eletronicamente - Válido para todos os efeitos legais
+            </div>
+        </div>
+
+        <!-- ============================================================
+             CORTE
+             ============================================================ -->
+        <div class="corte">
+            <span>✂️ CORTE AQUI ✂️</span>
+        </div>
+
+        <!-- ============================================================
+             VIA DO ENCARREGADO - COMPROVANTE
+             ============================================================ -->
+        <div class="comprovante">
+            
+            <!-- CABEÇALHO DO COMPROVANTE -->
+            <div class="header-comprovante">
+                <div style="text-align: center; margin-bottom: 4px;">
+                    {% if escola_logo %}
+                        <img src="{{ escola_logo }}" alt="{{ escola_nome }}" class="logo-pequeno" 
+                             onerror="this.style.display='none'; this.parentElement.querySelector('.logo-placeholder-pequeno').style.display='inline-flex';">
+                        <div class="logo-placeholder-pequeno" style="display: none;">{{ escola_nome|first|upper }}</div>
+                    {% else %}
+                        <div class="logo-placeholder-pequeno">{{ escola_nome|first|upper }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="escola-nome-peq">{{ escola_nome|default:'ESCOLA YITRO' }}</div>
+                <div class="escola-info-peq">
+                    {% if escola.endereco %}{{ escola.endereco }}{% endif %}
+                    {% if escola.telefone %}
+                        <span class="separator">|</span> Tel: {{ escola.telefone }}
+                    {% endif %}
+                </div>
+                
+                <div class="titulo-comprovante">Comprovante de Matrícula</div>
+                <div class="numero-data-comprovante">
+                    Nº: <strong>{{ matricula.id|stringformat:"06d" }}</strong>
+                    <span style="margin: 0 15px;">|</span>
+                    {{ data_emissao }}
+                </div>
+            </div>
+
+            <!-- CONTEÚDO DO COMPROVANTE -->
+            <div class="msg-confirmacao">
+                ✅ O(A) aluno(a) abaixo está devidamente matriculado(a):
+            </div>
+            
+            <div class="dados-aluno-comp">
+                <div class="linha-comp">
+                    <span class="label-comp">Aluno</span>
+                    <span class="value-comp">{{ aluno.nome_completo }}</span>
+                </div>
+                <div class="linha-comp">
+                    <span class="label-comp">BI</span>
+                    <span class="value-comp">{{ aluno.bi }}</span>
+                </div>
+                <div class="linha-comp">
+                    <span class="label-comp">Turma</span>
+                    <span class="value-comp">{{ classe.nome }} - {{ turma.nome|default:'A definir' }}</span>
+                </div>
+                <div class="linha-comp">
+                    <span class="label-comp">Ano Lectivo</span>
+                    <span class="value-comp">{{ ano_lectivo.ano }}</span>
+                </div>
+            </div>
+            
+            <div class="linha-comp" style="padding: 3px 0;">
+                <span style="font-size: 11px; font-weight: 600; color: #555; width: 130px; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.3px;">Responsável</span>
+                <span style="font-size: 14px; color: #1a1a1a;">{{ aluno.nome_pai|default:aluno.nome_mae|default:'-' }}</span>
+            </div>
+            <div class="linha-comp" style="padding: 3px 0; margin-bottom: 8px;">
+                <span style="font-size: 11px; font-weight: 600; color: #555; width: 130px; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.3px;">Contato</span>
+                <span style="font-size: 14px; color: #1a1a1a;">{{ aluno.telefone_responsavel|default:'-' }}</span>
+            </div>
+            
+            <div class="confirmado-em">
+                <span>✅ Matrícula confirmada em: <strong>{{ matricula.data_confirmacao|date:'d \d\e F \d\e Y'|default:matricula.data_matricula|date:'d \d\e F \d\e Y' }}</strong></span>
+            </div>
+
+            <!-- CÓDIGO DE VALIDAÇÃO -->
+            <div class="codigo-validacao">
+                <div class="codigo-label">🔐 Código de Validação</div>
+                <div class="barras">████████████████████████████████████████████████</div>
+                <div class="codigo-value">{{ matricula.id|stringformat:"06d" }}-{{ aluno.bi|slice:"-4" }}-{{ data_emissao|slice:"-4"|cut:"/" }}</div>
+                <div class="codigo-sub">Este código comprova a autenticidade do documento</div>
+            </div>
+
+            <!-- ASSINATURA DO COMPROVANTE -->
+            <div class="assinatura-comp">
+                <div class="linha-ass"></div>
+                <div class="cargo-ass">Director(a) da Escola</div>
+                <div class="sub-ass">ou Secretário(a) - Carimbo da Escola</div>
+            </div>
+
+            <!-- RODAPÉ COMPROVANTE -->
+            <div class="via-label" style="border-top: 2px dashed #ccc; margin-top: 10px; padding-top: 10px;">
+                🏷️ Via do Encarregado - Comprovante
+            </div>
+            <div class="rodape-texto" style="margin-top: 5px; padding-top: 5px; border-top: none; font-size: 9px; color: #bbb;">
+                Este comprovante deve ser apresentado sempre que solicitado
+                <br>
+                <strong>Sistema Yitro - Gestão Escolar</strong> | {{ data_emissao }}
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- ===== BOTÕES DE IMPRESSÃO ===== -->
+    <div style="text-align: center; margin-top: 15px;" class="no-print">
+        <button onclick="window.print()" style="background: #0d1b4a; color: #fff; border: none; padding: 12px 40px; border-radius: 8px; font-size: 16px; cursor: pointer; margin: 0 10px;">
+            🖨️ Imprimir / Salvar PDF
+        </button>
+        <button onclick="window.close()" style="background: #6c757d; color: #fff; border: none; padding: 12px 30px; border-radius: 8px; font-size: 16px; cursor: pointer; margin: 0 10px;">
+            ✖️ Fechar
+        </button>
+    </div>
+
+    <script>
+        // Opcional: Imprimir automaticamente após 2 segundos
+        // setTimeout(function() { window.print(); }, 2000);
+        
+        // Fechar automaticamente após imprimir
+        window.onafterprint = function() {
+            // window.close();
+        };
+    </script>
+</body>
+</html>
