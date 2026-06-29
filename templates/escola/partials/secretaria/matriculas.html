@@ -29,42 +29,42 @@
     <div class="col-4 col-md-2">
         <div class="glass-card text-center p-1 p-sm-2" onclick="filtrarPorStatus('')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px;">
             <div class="display-6 text-primary" style="font-size: clamp(1rem, 3.5vw, 1.2rem);"><i class="bi bi-people"></i></div>
-            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalAlunos">0</h3>
+            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalAlunos">{{ total_alunos|default:0 }}</h3>
             <p class="text-muted small" style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: rgba(255,255,255,0.5) !important; margin: 0;">Total</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
         <div class="glass-card text-center p-1 p-sm-2" onclick="filtrarPorStatus('pendente')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px;">
             <div class="display-6 text-warning" style="font-size: clamp(1rem, 3.5vw, 1.2rem);"><i class="bi bi-clock"></i></div>
-            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalPendentes">0</h3>
+            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalPendentes">{{ total_pendentes|default:0 }}</h3>
             <p class="text-muted small" style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: rgba(255,255,255,0.5) !important; margin: 0;">Pend.</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
         <div class="glass-card text-center p-1 p-sm-2" onclick="filtrarPorStatus('confirmada')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px;">
             <div class="display-6 text-success" style="font-size: clamp(1rem, 3.5vw, 1.2rem);"><i class="bi bi-check-circle"></i></div>
-            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalConfirmadas">0</h3>
+            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalConfirmadas">{{ total_confirmadas|default:0 }}</h3>
             <p class="text-muted small" style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: rgba(255,255,255,0.5) !important; margin: 0;">Conf.</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
         <div class="glass-card text-center p-1 p-sm-2" onclick="filtrarPorStatus('concluida')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px;">
             <div class="display-6 text-info" style="font-size: clamp(1rem, 3.5vw, 1.2rem);"><i class="bi bi-mortarboard"></i></div>
-            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalConcluidas">0</h3>
+            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalConcluidas">{{ total_concluidas|default:0 }}</h3>
             <p class="text-muted small" style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: rgba(255,255,255,0.5) !important; margin: 0;">Conc.</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
         <div class="glass-card text-center p-1 p-sm-2" onclick="filtrarPorStatus('trancada')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px;">
             <div class="display-6 text-secondary" style="font-size: clamp(1rem, 3.5vw, 1.2rem);"><i class="bi bi-pause-circle"></i></div>
-            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalTrancadas">0</h3>
+            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalTrancadas">{{ total_trancadas|default:0 }}</h3>
             <p class="text-muted small" style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: rgba(255,255,255,0.5) !important; margin: 0;">Tran.</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
         <div class="glass-card text-center p-1 p-sm-2" onclick="filtrarPorStatus('cancelada')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px;">
             <div class="display-6 text-danger" style="font-size: clamp(1rem, 3.5vw, 1.2rem);"><i class="bi bi-x-circle"></i></div>
-            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalCanceladas">0</h3>
+            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalCanceladas">{{ total_canceladas|default:0 }}</h3>
             <p class="text-muted small" style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: rgba(255,255,255,0.5) !important; margin: 0;">Canc.</p>
         </div>
     </div>
@@ -107,29 +107,67 @@
     </div>
 </div>
 
-<!-- LISTA DE MATRÍCULAS -->
+<!-- LISTA DE MATRÍCULAS - SEMPRE VISÍVEL -->
 <section class="fade-in-up delay-3">
     <div class="glass-card" style="padding: 0.6rem 0.8rem;">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h6 class="text-white mb-0" style="font-size: clamp(0.75rem, 2.5vw, 0.85rem);">
                 <i class="bi bi-list-ul me-2 text-primary"></i> Matrículas
-                <span class="badge bg-primary ms-1" id="count-matriculas" style="font-size: clamp(0.5rem, 1.2vw, 0.6rem); color: #ffffff !important;">0</span>
+                <span class="badge bg-primary ms-1" id="count-matriculas" style="font-size: clamp(0.5rem, 1.2vw, 0.6rem); color: #ffffff !important;">{{ total_matriculas|default:0 }}</span>
             </h6>
             <button type="button" class="metal-btn-primary" onclick="window.abrirModalMatricula()" style="font-size: clamp(0.55rem, 1.5vw, 0.65rem); padding: 2px 8px; min-height: 28px;">
                 <i class="bi bi-plus-circle me-1"></i> Nova
             </button>
         </div>
         <div id="lista-matriculas" class="lista-items" style="max-height: 400px; -webkit-overflow-scrolling: touch;">
-            <div class="text-center py-3 text-muted" style="font-size: clamp(0.6rem, 1.8vw, 0.7rem); color: rgba(255,255,255,0.5) !important;">
-                <i class="bi bi-hourglass-split me-1"></i> Carregando...
-            </div>
+            <!-- CONTEÚDO RENDERIZADO PELO SERVIDOR -->
+            {% if matriculas %}
+                {% for matricula in matriculas %}
+                    <div class="item-matricula" data-id="{{ matricula.id }}">
+                        <div class="matricula-info">
+                            <span class="aluno-nome">{{ matricula.aluno.nome_completo|default:'N/A' }}</span>
+                            <span class="aluno-bi">{{ matricula.aluno.bi|default:'' }}</span>
+                            <div class="matricula-detalhes">
+                                <span class="badge bg-secondary">{{ matricula.ano_lectivo.ano|default:'' }}</span>
+                                <span class="badge bg-primary">{{ matricula.classe.nome|default:'' }}</span>
+                                {% if matricula.turma %}
+                                    <span class="badge bg-info">{{ matricula.turma.nome }}</span>
+                                {% endif %}
+                                <span class="badge bg-dark">{{ matricula.get_tipo_display|default:matricula.tipo }}</span>
+                                <span class="status-badge {{ matricula.status|default:'pendente' }}">
+                                    {{ matricula.get_status_display|default:matricula.status|default:'Pendente' }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="matricula-actions">
+                            {% if matricula.status == 'pendente' %}
+                                <button class="btn btn-sm btn-outline-success" onclick="window.abrirConfirmarModal({{ matricula.id }}, '{{ matricula.aluno.nome_completo|escapejs }}')" title="Confirmar">
+                                    <i class="bi bi-check-circle"></i>
+                                </button>
+                            {% endif %}
+                            <button class="btn btn-sm btn-outline-primary" onclick="window.abrirModalMatricula({{ matricula.id }})" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="window.abrirDeleteMatriculaModal({{ matricula.id }}, '{{ matricula.aluno.nome_completo|escapejs }}')" title="Excluir">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-3 text-muted" style="font-size: clamp(0.6rem, 1.8vw, 0.7rem); color: rgba(255,255,255,0.5) !important;">
+                    <i class="bi bi-inbox me-1"></i> Nenhuma matrícula cadastrada
+                </div>
+            {% endif %}
         </div>
     </div>
 </section>
 
 <!-- ============================================ -->
-<!-- MODAL: MATRÍCULA -->
+<!-- MODAIS -->
 <!-- ============================================ -->
+
+<!-- MODAL: MATRÍCULA -->
 <div class="modal fade" id="modalMatricula" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg modal-xl">
         <div class="modal-content metal-modal-content" style="border-radius: 12px; margin: 10px;">
@@ -538,25 +576,19 @@
 </style>
 
 <!-- ============================================ -->
-<!-- SCRIPTS - FUNÇÕES GLOBAIS DEFINIDAS PRIMEIRO -->
+<!-- SCRIPTS -->
 <!-- ============================================ -->
 <script>
 // ============================================
-// 🔥 FUNÇÕES GLOBAIS DO FORMULÁRIO (DEFINIDAS PRIMEIRO)
+// 🔥 FUNÇÕES GLOBAIS DO FORMULÁRIO
 // ============================================
 
-// Função para atualizar campos baseado no tipo de matrícula
+// Atualizar campos baseado no tipo de matrícula
 window.atualizarCampos = function() {
-    console.log('🔄 atualizarCampos chamado');
     const tipo = document.querySelector('input[name="tipo"]:checked');
-    if (!tipo) {
-        console.log('⚠️ Nenhum tipo selecionado');
-        return;
-    }
+    if (!tipo) return;
     
     const isBloqueado = tipo.value !== 'nova';
-    console.log(`📌 Tipo: ${tipo.value}, Bloqueado: ${isBloqueado}`);
-    
     const camposBloqueados = ['bi', 'data_nascimento', 'genero', 'naturalidade', 'nacionalidade'];
     camposBloqueados.forEach(id => {
         const campo = document.getElementById(id);
@@ -568,7 +600,7 @@ window.atualizarCampos = function() {
     });
 };
 
-// Função para buscar aluno
+// Buscar aluno
 window.buscarAluno = function() {
     const termo = document.getElementById('buscarAluno')?.value?.trim();
     if (!termo) {
@@ -619,7 +651,7 @@ window.buscarAluno = function() {
     });
 };
 
-// Função para carregar aluno selecionado
+// Carregar aluno selecionado
 window.carregarAluno = function(alunoId) {
     fetch(`/escola/api/secretaria/alunos/buscar/?termo=${alunoId}`, {
         headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -629,7 +661,6 @@ window.carregarAluno = function(alunoId) {
         if (d.success && d.data.length > 0) {
             const aluno = d.data[0];
             
-            // Mapear campos
             const campos = {
                 'aluno_id': aluno.id,
                 'nome_completo': aluno.nome_completo,
@@ -650,9 +681,7 @@ window.carregarAluno = function(alunoId) {
             
             Object.keys(campos).forEach(id => {
                 const el = document.getElementById(id);
-                if (el) {
-                    el.value = campos[id];
-                }
+                if (el) el.value = campos[id];
             });
             
             const container = document.getElementById('resultadoBusca');
@@ -671,7 +700,7 @@ window.carregarAluno = function(alunoId) {
     });
 };
 
-// Função para limpar busca
+// Limpar busca
 window.limparBusca = function() {
     const container = document.getElementById('resultadoBusca');
     if (container) {
@@ -684,20 +713,10 @@ window.limparBusca = function() {
     if (alunoId) alunoId.value = '';
 };
 
-console.log('✅ Funções globais do formulário carregadas!');
-</script>
-
-<!-- ============================================ -->
-<!-- SCRIPTS (MANTIDOS) -->
-<!-- ============================================ -->
-<script>
 // ============================================
 // VARIÁVEIS GLOBAIS
 // ============================================
 const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
-console.log('🚀 Matrícula - Diagnóstico');
-console.log('🔐 CSRF Token:', csrfToken ? '✅ OK' : '❌ NÃO ENCONTRADO');
-
 let matriculaIdAtual = null;
 let deleteIdAtual = null;
 let confirmarIdAtual = null;
@@ -731,15 +750,13 @@ function carregarStats() {
             document.getElementById('totalConcluidas').textContent = concluidas;
             document.getElementById('totalTrancadas').textContent = trancadas;
             document.getElementById('totalCanceladas').textContent = canceladas;
-            
-            console.log('✅ Cards atualizados!');
         }
     })
     .catch(e => console.error('❌ Stats error:', e));
 }
 
 // ============================================
-// CARREGAR MATRÍCULAS
+// CARREGAR MATRÍCULAS (ATUALIZAÇÃO)
 // ============================================
 function carregarMatriculas() {
     const busca = document.getElementById('buscarMatricula')?.value || '';
@@ -807,7 +824,6 @@ function carregarMatriculas() {
                 `;
             });
             container.innerHTML = html;
-            console.log('✅ Matrículas renderizadas:', items.length);
         } else {
             container.innerHTML = `<div class="text-center py-2 text-muted" style="font-size:0.65rem;">${d.error || 'Erro ao carregar'}</div>`;
         }
@@ -836,7 +852,7 @@ function limparFiltros() {
 // ============================================
 // MODAL MATRÍCULA
 // ============================================
-function abrirModalMatricula(id = null) {
+window.abrirModalMatricula = function(id = null) {
     const isEdit = !!id;
     matriculaIdAtual = id;
     
@@ -860,19 +876,17 @@ function abrirModalMatricula(id = null) {
     .then(r => r.text())
     .then(html => { 
         body.innerHTML = html; 
-        // 🔥 Chamar a função global
         if (typeof window.atualizarCampos === 'function') {
             window.atualizarCampos();
-        } else {
-            console.warn('⚠️ window.atualizarCampos não está definida');
         }
     })
     .catch(e => {
         body.innerHTML = `<div class="alert alert-danger" style="font-size:0.85rem;padding:12px 15px;"><i class="bi bi-exclamation-triangle me-2"></i>${e.message}</div>`;
     });
-}
+};
 
-function salvarMatricula() {
+// Salvar matrícula
+window.salvarMatricula = function() {
     const form = document.getElementById('formMatricula');
     if (!form) return mostrarToast('Formulário não encontrado', 'error');
     
@@ -898,7 +912,7 @@ function salvarMatricula() {
             mostrarToast('✅ ' + (d.message || 'Matrícula salva com sucesso!'), 'success');
             fecharModal('modalMatricula');
             
-            // 🔥 ABRIR TELA DE IMPRESSÃO
+            // Abrir impressão
             const matriculaId = d.id || d.data?.matricula?.id;
             if (matriculaId) {
                 const printUrl = `/escola/impressao/matricula/${matriculaId}/`;
@@ -921,18 +935,18 @@ function salvarMatricula() {
         btn.textContent = orig;
         mostrarToast('❌ Erro: ' + e.message, 'error');
     });
-}
+};
 
 // ============================================
 // MODAL CONFIRMAR
 // ============================================
-function abrirConfirmarModal(id, nome) {
+window.abrirConfirmarModal = function(id, nome) {
     confirmarIdAtual = id;
     document.getElementById('confirmarNome').textContent = nome;
     new bootstrap.Modal(document.getElementById('modalConfirmar')).show();
-}
+};
 
-function confirmarMatricula() {
+window.confirmarMatricula = function() {
     if (!confirmarIdAtual) return;
     
     const btn = document.getElementById('confirmarBtn');
@@ -962,12 +976,12 @@ function confirmarMatricula() {
         btn.textContent = orig;
         mostrarToast('❌ Erro: ' + e.message, 'error');
     });
-}
+};
 
 // ============================================
 // MODAL DELETAR
 // ============================================
-function abrirDeleteMatriculaModal(id, nome) {
+window.abrirDeleteMatriculaModal = function(id, nome) {
     deleteIdAtual = id;
     document.getElementById('deleteNome').textContent = nome;
     document.getElementById('deleteConfirm').value = '';
@@ -976,9 +990,9 @@ function abrirDeleteMatriculaModal(id, nome) {
         document.getElementById('deleteBtn').disabled = this.value.trim().toUpperCase() !== 'DELETAR';
     };
     new bootstrap.Modal(document.getElementById('modalDelete')).show();
-}
+};
 
-function confirmarDeleteMatricula() {
+window.confirmarDeleteMatricula = function() {
     if (!deleteIdAtual) return;
     
     const btn = document.getElementById('deleteBtn');
@@ -1007,7 +1021,7 @@ function confirmarDeleteMatricula() {
         btn.textContent = 'Excluir';
         mostrarToast('❌ Erro: ' + e.message, 'error');
     });
-}
+};
 
 // ============================================
 // UTILITÁRIOS
@@ -1046,27 +1060,12 @@ function mostrarToast(msg, type = 'success') {
 }
 
 // ============================================
-// EXPOR FUNÇÕES GLOBAIS
-// ============================================
-window.abrirModalMatricula = abrirModalMatricula;
-window.salvarMatricula = salvarMatricula;
-window.abrirConfirmarModal = abrirConfirmarModal;
-window.confirmarMatricula = confirmarMatricula;
-window.abrirDeleteMatriculaModal = abrirDeleteMatriculaModal;
-window.confirmarDeleteMatricula = confirmarDeleteMatricula;
-window.carregarMatriculas = carregarMatriculas;
-window.carregarStats = carregarStats;
-window.filtrarPorStatus = filtrarPorStatus;
-window.limparFiltros = limparFiltros;
-window.mostrarToast = mostrarToast;
-window.fecharModal = fecharModal;
-
-// ============================================
 // INICIALIZAÇÃO
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Matrícula - Inicializando...');
     
+    // Configurar modais
     ['modalMatricula', 'modalDelete', 'modalConfirmar'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -1077,21 +1076,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Carregar estatísticas (atualiza os cards)
     carregarStats();
-    setTimeout(carregarMatriculas, 500);
-    setTimeout(carregarMatriculas, 1500);
     
+    // 🔥 A LISTA JÁ ESTÁ NO HTML - NÃO PRECISA CARREGAR NOVAMENTE
+    // Só atualizamos após alguns segundos para garantir dados frescos
     setTimeout(() => {
-        console.log('🔄 Forçando remoção do loading...');
+        carregarMatriculas(); // Atualiza a lista em background
+    }, 2000);
+    
+    // Remover loading overlay
+    setTimeout(() => {
         const overlay = document.getElementById('globalLoadingOverlay');
         if (overlay) {
             overlay.classList.remove('active');
             overlay.style.display = 'none';
             document.body.style.overflow = '';
         }
-        console.log('✅ Loading removido!');
-    }, 2000);
+        console.log('✅ Inicialização completa!');
+    }, 1500);
     
-    console.log('✅ Matrícula inicializada!');
+    console.log('✅ Matrícula inicializada com dados do servidor!');
 });
 </script>

@@ -1,4 +1,4 @@
-# escola/secretaria/views.py - VERSÃO COMPLETA COM IMPRESSÃO
+# escola/secretaria/views.py - VERSÃO COMPLETA
 
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpResponse
@@ -69,17 +69,56 @@ def secretaria_matriculas(request):
     """Matrícula e Confirmação - Secretaria Geral"""
     tenant_id = get_tenant_id(request)
     
-    classes = Classe.objects.filter(tenant_id=tenant_id, ativo=True).order_by('nome') if tenant_id else Classe.objects.filter(ativo=True).order_by('nome')
+    # Buscar classes para o filtro
+    if tenant_id:
+        classes = Classe.objects.filter(tenant_id=tenant_id, ativo=True).order_by('nome')
+    else:
+        classes = Classe.objects.filter(ativo=True).order_by('nome')
+    
+    # 🔥 BUSCAR MATRÍCULAS PARA EXIBIR INICIALMENTE
+    if tenant_id:
+        matriculas = Matricula.objects.filter(
+            tenant_id=tenant_id, 
+            ativo=True
+        ).select_related(
+            'aluno', 'classe', 'turma', 'ano_lectivo'
+        ).order_by('-data_matricula')[:50]
+        
+        total_alunos = Aluno.objects.filter(tenant_id=tenant_id, ativo=True).count()
+        pendentes = Matricula.objects.filter(tenant_id=tenant_id, status='pendente', ativo=True).count()
+        confirmadas = Matricula.objects.filter(tenant_id=tenant_id, status='confirmada', ativo=True).count()
+        concluidas = Matricula.objects.filter(tenant_id=tenant_id, status='concluida', ativo=True).count()
+        trancadas = Matricula.objects.filter(tenant_id=tenant_id, status='trancada', ativo=True).count()
+        canceladas = Matricula.objects.filter(tenant_id=tenant_id, status='cancelada', ativo=True).count()
+    else:
+        matriculas = Matricula.objects.filter(ativo=True).select_related(
+            'aluno', 'classe', 'turma', 'ano_lectivo'
+        ).order_by('-data_matricula')[:50]
+        
+        total_alunos = Aluno.objects.filter(ativo=True).count()
+        pendentes = Matricula.objects.filter(status='pendente', ativo=True).count()
+        confirmadas = Matricula.objects.filter(status='confirmada', ativo=True).count()
+        concluidas = Matricula.objects.filter(status='concluida', ativo=True).count()
+        trancadas = Matricula.objects.filter(status='trancada', ativo=True).count()
+        canceladas = Matricula.objects.filter(status='cancelada', ativo=True).count()
     
     context = {
         'titulo': 'Matrícula e Confirmação',
         'icone': 'bi-file-earmark-text',
         'modulo': 'Secretaria Geral',
         'classes': classes,
-        'total_confirmadas': Matricula.objects.filter(tenant_id=tenant_id, status='confirmada', ativo=True).count() if tenant_id else Matricula.objects.filter(status='confirmada', ativo=True).count(),
+        # DADOS PARA OS CARDS
+        'total_alunos': total_alunos,
+        'total_pendentes': pendentes,
+        'total_confirmadas': confirmadas,
+        'total_concluidas': concluidas,
+        'total_trancadas': trancadas,
+        'total_canceladas': canceladas,
+        # DADOS PARA A LISTA
+        'matriculas': matriculas,
+        'total_matriculas': len(matriculas),
     }
     return render(request, 'escola/partials/secretaria/matriculas.html', context)
-
 
 @login_required
 def secretaria_pagamentos(request):
@@ -237,7 +276,7 @@ def api_alunos_listar(request):
 
 @login_required
 def api_alunos_buscar(request):
-    """Busca aluno por BI ou Nome (para matrícula)"""
+    """Busca aluno por BI, Nome ou ID (para matrícula)"""
     try:
         tenant_id = get_tenant_id(request)
         termo = request.GET.get('termo', '')
@@ -250,10 +289,20 @@ def api_alunos_buscar(request):
         else:
             alunos = Aluno.objects.all()
         
-        alunos = alunos.filter(
-            Q(bi__iexact=termo) |
-            Q(nome_completo__icontains=termo)
-        ).order_by('nome_completo')[:10].select_related('usuario')
+        # 🔥 TENTAR BUSCAR POR ID PRIMEIRO (se for número)
+        if termo.isdigit():
+            # Busca por ID exato
+            alunos = alunos.filter(id=int(termo))
+            print(f"🔍 Buscando por ID: {termo}, encontrados: {alunos.count()}")
+        else:
+            # Busca por BI exato ou nome contém
+            alunos = alunos.filter(
+                Q(bi__iexact=termo) |
+                Q(nome_completo__icontains=termo)
+            )
+            print(f"🔍 Buscando por texto: {termo}, encontrados: {alunos.count()}")
+        
+        alunos = alunos.order_by('nome_completo')[:10].select_related('usuario')
         
         data = []
         for aluno in alunos:
@@ -267,7 +316,6 @@ def api_alunos_buscar(request):
     except Exception as e:
         logger.error(f"❌ Erro em api_alunos_buscar: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)})
-
 
 @login_required
 def api_alunos_stats(request):
@@ -353,6 +401,10 @@ def api_matriculas_listar(request):
         return JsonResponse({'success': False, 'error': str(e)})
 
 
+# ============================================
+# 🔥 API - SALVAR MATRÍCULA
+# ============================================
+
 @login_required
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -360,6 +412,10 @@ def api_matricula_salvar(request, matricula_id=None):
     """Salva matrícula (cria aluno + matrícula ou apenas matrícula)"""
     try:
         tenant_id = get_tenant_id(request)
+        
+        # 🔥 LOG PARA DEBUG
+        print(f"🔍 Salvando matrícula - Tenant ID: {tenant_id}")
+        print(f"🔍 Dados recebidos: {request.POST}")
         
         # Dados do Aluno
         aluno_id = request.POST.get('aluno_id')
@@ -377,7 +433,7 @@ def api_matricula_salvar(request, matricula_id=None):
         telefone_responsavel = request.POST.get('telefone_responsavel', '')
         email_responsavel = request.POST.get('email_responsavel', '')
         
-        # 🔥 CONVERTER DATA DE NASCIMENTO
+        # CONVERTER DATA DE NASCIMENTO
         data_nascimento_raw = request.POST.get('data_nascimento')
         data_nascimento = None
         if data_nascimento_raw:
@@ -409,12 +465,34 @@ def api_matricula_salvar(request, matricula_id=None):
         if not classe_id:
             return JsonResponse({'success': False, 'errors': {'classe': 'Classe é obrigatória'}})
         
-        # Buscar ou criar aluno
-        if aluno_id:
-            aluno = get_object_or_404(Aluno, id=aluno_id, tenant_id=tenant_id)
+        # ============================================
+        # 🔥 BUSCAR OU CRIAR ALUNO - CORRIGIDO
+        # ============================================
+        aluno = None
+        
+        # 1. Se tem aluno_id, busca por ID
+        if aluno_id and aluno_id != '':
+            try:
+                aluno = Aluno.objects.get(id=aluno_id, tenant_id=tenant_id)
+                print(f"✅ Aluno encontrado por ID: {aluno.nome_completo} (ID: {aluno.id})")
+            except Aluno.DoesNotExist:
+                print(f"⚠️ Aluno não encontrado por ID: {aluno_id}")
+                aluno = None
+        
+        # 2. Se não encontrou por ID, tenta por BI
+        if not aluno and bi:
+            aluno = Aluno.objects.filter(bi=bi, tenant_id=tenant_id).first()
+            if aluno:
+                print(f"✅ Aluno encontrado por BI: {aluno.nome_completo} (ID: {aluno.id})")
+            else:
+                print(f"⚠️ Nenhum aluno encontrado com BI: {bi}")
+        
+        # 3. Se encontrou aluno, ATUALIZA os dados
+        if aluno:
+            print(f"📝 Atualizando dados do aluno: {aluno.nome_completo}")
             aluno.nome_completo = nome_completo
             aluno.bi = bi
-            aluno.data_nascimento = data_nascimento  # 🔥 AGORA É OBJETO DATE
+            aluno.data_nascimento = data_nascimento
             aluno.genero = genero
             aluno.naturalidade = naturalidade
             aluno.nacionalidade = nacionalidade
@@ -427,18 +505,15 @@ def api_matricula_salvar(request, matricula_id=None):
             aluno.telefone_responsavel = telefone_responsavel
             aluno.email_responsavel = email_responsavel
             aluno.save()
+            print(f"✅ Aluno atualizado: {aluno.nome_completo}")
         else:
-            if Aluno.objects.filter(bi=bi, tenant_id=tenant_id).exists():
-                return JsonResponse({
-                    'success': False,
-                    'errors': {'bi': f'Já existe um aluno com este BI: {bi}'}
-                })
-            
+            # 4. Cria novo aluno
+            print(f"📝 Criando novo aluno: {nome_completo}")
             aluno = Aluno.objects.create(
                 tenant_id=tenant_id,
                 nome_completo=nome_completo,
                 bi=bi,
-                data_nascimento=data_nascimento,  # 🔥 AGORA É OBJETO DATE
+                data_nascimento=data_nascimento,
                 genero=genero,
                 naturalidade=naturalidade,
                 nacionalidade=nacionalidade,
@@ -452,6 +527,7 @@ def api_matricula_salvar(request, matricula_id=None):
                 email_responsavel=email_responsavel,
                 ativo=True
             )
+            print(f"✅ Novo aluno criado: {aluno.nome_completo} (ID: {aluno.id})")
         
         # Buscar ano lectivo, classe e turma
         ano_lectivo = get_object_or_404(AnoLectivo, id=ano_lectivo_id, tenant_id=tenant_id)
@@ -460,19 +536,35 @@ def api_matricula_salvar(request, matricula_id=None):
         if turma_id:
             turma = get_object_or_404(Turma, id=turma_id, tenant_id=tenant_id)
         
-        # Verificar se já existe matrícula
-        matricula_existente = Matricula.objects.filter(
-            aluno=aluno, ano_lectivo=ano_lectivo, tenant_id=tenant_id
-        ).first()
+        # ============================================
+        # 🔥 VERIFICAR MATRÍCULA EXISTENTE - CORRIGIDO
+        # ============================================
+        # Só verifica se NÃO é edição
+        if not matricula_id:
+            # 🔥 BUSCA APENAS MATRÍCULAS ATIVAS E NÃO CANCELADAS
+            matricula_existente = Matricula.objects.filter(
+                aluno=aluno,
+                ano_lectivo=ano_lectivo,
+                tenant_id=tenant_id,
+                ativo=True
+            ).exclude(
+                status__in=['cancelada', 'concluida']  # 🔥 EXCLUI CANCELADAS E CONCLUÍDAS
+            ).first()
+            
+            if matricula_existente:
+                print(f"⚠️ Matrícula existente encontrada: ID {matricula_existente.id} - Status: {matricula_existente.status}")
+                return JsonResponse({
+                    'success': False,
+                    'errors': {'ano_lectivo': f'{aluno.nome_completo} já possui uma matrícula ATIVA em {ano_lectivo.ano}'}
+                })
+            else:
+                print(f"✅ Nenhuma matrícula ativa encontrada para {aluno.nome_completo} em {ano_lectivo.ano}")
         
-        if matricula_existente and not matricula_id:
-            return JsonResponse({
-                'success': False,
-                'errors': {'ano_lectivo': f'{aluno.nome_completo} já está matriculado em {ano_lectivo.ano}'}
-            })
-        
-        # Editar ou criar matrícula
+        # ============================================
+        # 🔥 EDITAR OU CRIAR MATRÍCULA
+        # ============================================
         if matricula_id:
+            print(f"📝 Editando matrícula ID: {matricula_id}")
             matricula = get_object_or_404(Matricula, id=matricula_id, tenant_id=tenant_id)
             matricula.aluno = aluno
             matricula.ano_lectivo = ano_lectivo
@@ -498,7 +590,11 @@ def api_matricula_salvar(request, matricula_id=None):
                 'data': {'aluno': aluno.to_dict(), 'matricula': matricula.to_dict()}
             })
         
-        # Criar nova matrícula
+        # ============================================
+        # 🔥 CRIAR NOVA MATRÍCULA
+        # ============================================
+        print(f"📝 Criando nova matrícula para {aluno.nome_completo}")
+        
         matricula = Matricula.objects.create(
             tenant_id=tenant_id,
             aluno=aluno,
@@ -511,15 +607,9 @@ def api_matricula_salvar(request, matricula_id=None):
             ativo=True
         )
         
-        if tipo in ['renovacao', 'transferencia']:
-            matricula_anterior = Matricula.objects.filter(
-                aluno=aluno, ativo=True
-            ).exclude(id=matricula.id).order_by('-ano_lectivo').first()
-            if matricula_anterior:
-                matricula.matricula_anterior = matricula_anterior
-                matricula_anterior.trancar()
-                matricula.save()
+        print(f"✅ Matrícula criada: ID {matricula.id}")
         
+        # Criar histórico
         HistoricoAluno.objects.create(
             tenant_id=tenant_id,
             aluno=aluno,
@@ -531,6 +621,8 @@ def api_matricula_salvar(request, matricula_id=None):
             aprovado=False,
             observacoes=f"Matrícula {tipo} criada em {date.today().strftime('%d/%m/%Y')}"
         )
+        
+        print(f"✅ Histórico criado para matrícula {matricula.id}")
         
         return JsonResponse({
             'success': True,
@@ -544,6 +636,9 @@ def api_matricula_salvar(request, matricula_id=None):
         logger.error(traceback.format_exc())
         return JsonResponse({'success': False, 'error': str(e)})
 
+# ============================================
+# 🔥 API - CONFIRMAR MATRÍCULA
+# ============================================
 
 @login_required
 @csrf_exempt
@@ -561,15 +656,21 @@ def api_matricula_confirmar(request, matricula_id):
             historico.status = 'confirmada'
             historico.save()
         
+        logger.info(f"✅ Matrícula confirmada: {matricula.aluno.nome_completo} (ID: {matricula.id})")
+        
         return JsonResponse({
             'success': True,
-            'message': f'Matrícula de {matricula.aluno.nome_completo} confirmada!',
+            'message': f'Matrícula de {matricula.aluno.nome_completo} confirmada com sucesso!',
             'data': matricula.to_dict()
         })
     except Exception as e:
         logger.error(f"❌ Erro em api_matricula_confirmar: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)})
 
+
+# ============================================
+# 🔥 API - CANCELAR MATRÍCULA
+# ============================================
 
 @login_required
 @csrf_exempt
@@ -580,6 +681,13 @@ def api_matricula_cancelar(request, matricula_id):
         tenant_id = get_tenant_id(request)
         matricula = get_object_or_404(Matricula, id=matricula_id, tenant_id=tenant_id)
         
+        # Verificar se já está cancelada
+        if matricula.status == 'cancelada':
+            return JsonResponse({
+                'success': False,
+                'error': 'Esta matrícula já está cancelada.'
+            })
+        
         matricula.cancelar()
         
         historico = HistoricoAluno.objects.filter(matricula=matricula).first()
@@ -587,15 +695,60 @@ def api_matricula_cancelar(request, matricula_id):
             historico.status = 'cancelada'
             historico.save()
         
+        logger.info(f"✅ Matrícula cancelada: {matricula.aluno.nome_completo} (ID: {matricula.id})")
+        
         return JsonResponse({
             'success': True,
-            'message': f'Matrícula de {matricula.aluno.nome_completo} cancelada!',
+            'message': f'Matrícula de {matricula.aluno.nome_completo} cancelada com sucesso!',
             'data': matricula.to_dict()
         })
     except Exception as e:
         logger.error(f"❌ Erro em api_matricula_cancelar: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)})
 
+
+# ============================================
+# 🔥 API - TRANSCAR MATRÍCULA
+# ============================================
+
+@login_required
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_matricula_trancar(request, matricula_id):
+    """Tranca uma matrícula"""
+    try:
+        tenant_id = get_tenant_id(request)
+        matricula = get_object_or_404(Matricula, id=matricula_id, tenant_id=tenant_id)
+        
+        # Verificar se já está trancada
+        if matricula.status == 'trancada':
+            return JsonResponse({
+                'success': False,
+                'error': 'Esta matrícula já está trancada.'
+            })
+        
+        matricula.trancar()
+        
+        historico = HistoricoAluno.objects.filter(matricula=matricula).first()
+        if historico:
+            historico.status = 'trancada'
+            historico.save()
+        
+        logger.info(f"✅ Matrícula trancada: {matricula.aluno.nome_completo} (ID: {matricula.id})")
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Matrícula de {matricula.aluno.nome_completo} trancada com sucesso!',
+            'data': matricula.to_dict()
+        })
+    except Exception as e:
+        logger.error(f"❌ Erro em api_matricula_trancar: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+# ============================================
+# 🔥 API - DELETAR MATRÍCULA
+# ============================================
 
 @login_required
 @csrf_exempt
@@ -609,6 +762,8 @@ def api_matricula_deletar(request, matricula_id):
         HistoricoAluno.objects.filter(matricula=matricula).delete()
         nome_aluno = matricula.aluno.nome_completo
         matricula.delete()
+        
+        logger.info(f"✅ Matrícula deletada: {matricula_id} - {nome_aluno}")
         
         return JsonResponse({
             'success': True,
