@@ -1,5 +1,3 @@
-# financeiro/urls.py
-
 from django.urls import path, include
 from . import views
 from clientes.views import ClienteListView  # 🔥 IMPORTAR DO APP CLIENTES
@@ -20,6 +18,11 @@ urlpatterns = [
     
     # 🔥 URL para compatibilidade (usa a view importada)
     path('clientes/lista/', ClienteListView.as_view(), name='clientes_lista'),
+    
+    # ============================================================
+    # 🔥 UPLOAD DE IMAGEM - ADICIONAR ESTA LINHA
+    # ============================================================
+    path('api/produto/<int:produto_id>/upload-imagem/', views.upload_produto_imagem, name='upload_produto_imagem'),
     
     # APIs
     path('api/faturas/', views.FaturaAPIListCreateView.as_view(), name='faturas_api_list'),
