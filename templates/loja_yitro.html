@@ -373,6 +373,197 @@
         text-decoration: none;
     }
     
+    /* 🔥 MODAL DE UPLOAD DE IMAGEM */
+    .modal-upload {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .modal-upload.active {
+        display: flex;
+    }
+    
+    .modal-upload-content {
+        background: #1a1a2e;
+        border-radius: 16px;
+        padding: 30px;
+        max-width: 500px;
+        width: 100%;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .modal-upload-content .modal-title {
+        color: #fff;
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+    
+    .modal-upload-content .preview-image {
+        width: 100%;
+        height: 200px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px dashed rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+    }
+    
+    .modal-upload-content .preview-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    
+    .modal-upload-content .preview-image .placeholder {
+        color: rgba(255, 255, 255, 0.2);
+        font-size: 3rem;
+    }
+    
+    .modal-upload-content .upload-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+    
+    .modal-upload-content .upload-buttons button {
+        flex: 1;
+        min-width: 120px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: none;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .modal-upload-content .upload-buttons .btn-galeria {
+        background: rgba(0, 212, 255, 0.15);
+        color: #00d4ff;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+    }
+    
+    .modal-upload-content .upload-buttons .btn-galeria:hover {
+        background: rgba(0, 212, 255, 0.25);
+    }
+    
+    .modal-upload-content .upload-buttons .btn-camera {
+        background: rgba(46, 213, 115, 0.15);
+        color: #2ed573;
+        border: 1px solid rgba(46, 213, 115, 0.2);
+    }
+    
+    .modal-upload-content .upload-buttons .btn-camera:hover {
+        background: rgba(46, 213, 115, 0.25);
+    }
+    
+    .modal-upload-content .upload-buttons .btn-remover {
+        background: rgba(255, 71, 87, 0.15);
+        color: #ff4757;
+        border: 1px solid rgba(255, 71, 87, 0.2);
+    }
+    
+    .modal-upload-content .upload-buttons .btn-remover:hover {
+        background: rgba(255, 71, 87, 0.25);
+    }
+    
+    .modal-upload-content .progress-bar {
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 12px 0;
+        display: none;
+    }
+    
+    .modal-upload-content .progress-bar .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #00d4ff, #7b2ffc);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+    
+    .modal-upload-content .modal-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 16px;
+    }
+    
+    .modal-upload-content .modal-actions button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 10px;
+        border: none;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .modal-upload-content .modal-actions .btn-cancel {
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .modal-upload-content .modal-actions .btn-cancel:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .modal-upload-content .modal-actions .btn-save {
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+        color: white;
+    }
+    
+    .modal-upload-content .modal-actions .btn-save:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+    }
+    
+    .modal-upload-content .modal-actions .btn-save:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .btn-upload {
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.15);
+        color: #00d4ff;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.6rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .btn-upload:hover {
+        background: rgba(0, 212, 255, 0.2);
+    }
+    
     /* Responsivo */
     @media (max-width: 768px) {
         .categoria-header {
@@ -392,6 +583,14 @@
         .categoria-header .categoria-count {
             font-size: 0.6rem;
             padding: 3px 10px;
+        }
+        .modal-upload-content {
+            padding: 20px;
+        }
+        .modal-upload-content .upload-buttons button {
+            min-width: 80px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
         }
     }
     
@@ -416,6 +615,12 @@
             padding: 4px 10px;
             font-size: 0.65rem;
         }
+        .modal-upload-content .upload-buttons {
+            flex-direction: column;
+        }
+        .modal-upload-content .upload-buttons button {
+            min-width: 100%;
+        }
     }
 </style>
 
@@ -426,13 +631,18 @@
                 <h1 class="text-white fw-bold">Produtos e Serviços</h1>
                 <p class="text-white-50">Soluções tecnológicas para o seu negócio</p>
             </div>
-            <div>
+            <div class="d-flex gap-2">
                 <a href="{% url 'servicos:carrinho' %}" class="metal-btn-primary">
                     <i class="bi bi-cart-fill me-2"></i> Carrinho
                     {% if total_carrinho_itens > 0 %}
                     <span class="badge bg-light text-dark ms-1">{{ total_carrinho_itens }}</span>
                     {% endif %}
                 </a>
+                {% if user.is_superuser or user.is_staff %}
+                <a href="{% url 'admin:servicos_item_add' %}" class="metal-btn-primary" style="background: rgba(46, 213, 115, 0.15); border-color: rgba(46, 213, 115, 0.2);">
+                    <i class="bi bi-plus-circle me-1"></i> Novo
+                </a>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -537,7 +747,7 @@
                 
                 <div class="product-image-wrapper">
                     {% if item.imagem %}
-                    <img src="{{ item.imagem.url }}" alt="{{ item.nome }}">
+                    <img src="{{ item.imagem.url }}" alt="{{ item.nome }}" id="img-{{ item.id }}">
                     {% else %}
                     <div class="product-image-placeholder">
                         <i class="bi bi-box-seam"></i>
@@ -558,7 +768,12 @@
                             </div>
                             {% endwith %}
                         </div>
-                        <div class="d-flex gap-1">
+                        <div class="d-flex gap-1 align-items-center">
+                            {% if user.is_superuser or user.is_staff %}
+                            <button class="btn-upload" onclick="abrirUpload({{ item.id }})" title="Alterar imagem">
+                                <i class="bi bi-camera"></i>
+                            </button>
+                            {% endif %}
                             <a href="{% url 'servicos:detalhe_item' item.id %}" class="btn-detalhes" title="Detalhes">
                                 <i class="bi bi-eye"></i>
                             </a>
@@ -591,7 +806,7 @@
                 
                 <div class="product-image-wrapper">
                     {% if item.imagem %}
-                    <img src="{{ item.imagem.url }}" alt="{{ item.nome }}">
+                    <img src="{{ item.imagem.url }}" alt="{{ item.nome }}" id="img-{{ item.id }}">
                     {% else %}
                     <div class="product-image-placeholder">
                         <i class="bi bi-gear"></i>
@@ -612,7 +827,12 @@
                             </div>
                             {% endif %}
                         </div>
-                        <div class="d-flex gap-1">
+                        <div class="d-flex gap-1 align-items-center">
+                            {% if user.is_superuser or user.is_staff %}
+                            <button class="btn-upload" onclick="abrirUpload({{ item.id }})" title="Alterar imagem">
+                                <i class="bi bi-camera"></i>
+                            </button>
+                            {% endif %}
                             <a href="{% url 'servicos:detalhe_item' item.id %}" class="btn-detalhes" title="Detalhes">
                                 <i class="bi bi-eye"></i>
                             </a>
@@ -645,7 +865,7 @@
                 
                 <div class="product-image-wrapper">
                     {% if item.imagem %}
-                    <img src="{{ item.imagem.url }}" alt="{{ item.nome }}">
+                    <img src="{{ item.imagem.url }}" alt="{{ item.nome }}" id="img-{{ item.id }}">
                     {% else %}
                     <div class="product-image-placeholder">
                         <i class="bi bi-code-square"></i>
@@ -666,7 +886,12 @@
                             </div>
                             {% endif %}
                         </div>
-                        <div class="d-flex gap-1">
+                        <div class="d-flex gap-1 align-items-center">
+                            {% if user.is_superuser or user.is_staff %}
+                            <button class="btn-upload" onclick="abrirUpload({{ item.id }})" title="Alterar imagem">
+                                <i class="bi bi-camera"></i>
+                            </button>
+                            {% endif %}
                             <a href="{% url 'servicos:detalhe_item' item.id %}" class="btn-detalhes" title="Detalhes">
                                 <i class="bi bi-eye"></i>
                             </a>
@@ -699,7 +924,7 @@
                 
                 <div class="product-image-wrapper">
                     {% if item.imagem %}
-                    <img src="{{ item.imagem.url }}" alt="{{ item.nome }}">
+                    <img src="{{ item.imagem.url }}" alt="{{ item.nome }}" id="img-{{ item.id }}">
                     {% else %}
                     <div class="product-image-placeholder">
                         <i class="bi bi-person-badge"></i>
@@ -720,7 +945,12 @@
                             </div>
                             {% endif %}
                         </div>
-                        <div class="d-flex gap-1">
+                        <div class="d-flex gap-1 align-items-center">
+                            {% if user.is_superuser or user.is_staff %}
+                            <button class="btn-upload" onclick="abrirUpload({{ item.id }})" title="Alterar imagem">
+                                <i class="bi bi-camera"></i>
+                            </button>
+                            {% endif %}
                             <a href="{% url 'servicos:detalhe_item' item.id %}" class="btn-detalhes" title="Detalhes">
                                 <i class="bi bi-eye"></i>
                             </a>
@@ -756,7 +986,285 @@
 </a>
 {% endif %}
 
+<!-- ============================================ -->
+<!-- 🔥 MODAL DE UPLOAD DE IMAGEM -->
+<!-- ============================================ -->
+<div class="modal-upload" id="modalUpload">
+    <div class="modal-upload-content">
+        <h5 class="modal-title">
+            <i class="bi bi-image me-2"></i> Alterar Imagem
+        </h5>
+        
+        <div class="preview-image" id="previewContainer">
+            <img id="previewImg" src="" alt="Pré-visualização" style="display: none;">
+            <div class="placeholder" id="previewPlaceholder">
+                <i class="bi bi-image"></i>
+                <p style="font-size: 0.8rem; margin-top: 8px;">Nenhuma imagem selecionada</p>
+            </div>
+        </div>
+        
+        <div class="upload-buttons">
+            <button class="btn-galeria" onclick="selecionarArquivo()">
+                <i class="bi bi-folder-open"></i> Galeria
+            </button>
+            <button class="btn-camera" onclick="capturarCamera()">
+                <i class="bi bi-camera"></i> Tirar Foto
+            </button>
+            <button class="btn-remover" onclick="removerImagem()">
+                <i class="bi bi-trash"></i> Remover
+            </button>
+        </div>
+        
+        <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="previewFile(this)">
+        
+        <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <p id="uploadStatus" style="color: rgba(255,255,255,0.6); font-size: 0.8rem; text-align: center; display: none;"></p>
+        
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="fecharUpload()">Cancelar</button>
+            <button class="btn-save" id="btnSaveUpload" onclick="salvarImagem()" disabled>
+                <i class="bi bi-check-circle me-1"></i> Salvar
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
+    // ============================================
+    // VARIÁVEIS
+    // ============================================
+    let uploadItemId = null;
+    let uploadFileData = null;
+    let uploadFileBase64 = null;
+    let isUploading = false;
+    
+    // ============================================
+    // CSRF TOKEN
+    // ============================================
+    function getCsrfToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+    }
+    
+    // ============================================
+    // ABRIR MODAL DE UPLOAD
+    // ============================================
+    function abrirUpload(itemId) {
+        uploadItemId = itemId;
+        uploadFileData = null;
+        uploadFileBase64 = null;
+        
+        // Resetar preview
+        document.getElementById('previewImg').style.display = 'none';
+        document.getElementById('previewPlaceholder').style.display = 'block';
+        document.getElementById('previewImg').src = '';
+        document.getElementById('progressBar').style.display = 'none';
+        document.getElementById('progressFill').style.width = '0%';
+        document.getElementById('uploadStatus').style.display = 'none';
+        document.getElementById('btnSaveUpload').disabled = true;
+        
+        // Verificar se já tem imagem
+        const imgElement = document.getElementById('img-' + itemId);
+        if (imgElement && imgElement.src) {
+            document.getElementById('previewImg').src = imgElement.src;
+            document.getElementById('previewImg').style.display = 'block';
+            document.getElementById('previewPlaceholder').style.display = 'none';
+            document.getElementById('btnSaveUpload').disabled = false;
+        }
+        
+        document.getElementById('modalUpload').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // ============================================
+    // FECHAR MODAL
+    // ============================================
+    function fecharUpload() {
+        document.getElementById('modalUpload').classList.remove('active');
+        document.body.style.overflow = '';
+        uploadFileData = null;
+        uploadFileBase64 = null;
+        isUploading = false;
+    }
+    
+    // ============================================
+    // SELECIONAR ARQUIVO (GALERIA)
+    // ============================================
+    function selecionarArquivo() {
+        document.getElementById('fileInput').click();
+    }
+    
+    // ============================================
+    // PREVIEW DO ARQUIVO
+    // ============================================
+    function previewFile(input) {
+        const file = input.files[0];
+        if (!file) return;
+        
+        // Validar tamanho (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showMessage('❌ Imagem muito grande (máx 5MB)', 'error');
+            input.value = '';
+            return;
+        }
+        
+        // Validar tipo
+        const tiposPermitidos = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
+        if (!tiposPermitidos.includes(file.type)) {
+            showMessage('❌ Formato não suportado. Use JPEG, PNG, GIF ou WEBP.', 'error');
+            input.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            uploadFileBase64 = e.target.result;
+            document.getElementById('previewImg').src = uploadFileBase64;
+            document.getElementById('previewImg').style.display = 'block';
+            document.getElementById('previewPlaceholder').style.display = 'none';
+            document.getElementById('btnSaveUpload').disabled = false;
+            uploadFileData = file;
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    // ============================================
+    // CAPTURAR COM CÂMERA (MÓVEL)
+    // ============================================
+    function capturarCamera() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.capture = 'environment';
+        input.onchange = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validar tamanho
+                if (file.size > 5 * 1024 * 1024) {
+                    showMessage('❌ Imagem muito grande (máx 5MB)', 'error');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    uploadFileBase64 = event.target.result;
+                    document.getElementById('previewImg').src = uploadFileBase64;
+                    document.getElementById('previewImg').style.display = 'block';
+                    document.getElementById('previewPlaceholder').style.display = 'none';
+                    document.getElementById('btnSaveUpload').disabled = false;
+                    uploadFileData = file;
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+        input.click();
+    }
+    
+    // ============================================
+    // REMOVER IMAGEM
+    // ============================================
+    function removerImagem() {
+        if (confirm('Tem certeza que deseja remover a imagem?')) {
+            uploadFileData = null;
+            uploadFileBase64 = null;
+            document.getElementById('previewImg').style.display = 'none';
+            document.getElementById('previewPlaceholder').style.display = 'block';
+            document.getElementById('previewImg').src = '';
+            document.getElementById('btnSaveUpload').disabled = false;
+            document.getElementById('fileInput').value = '';
+        }
+    }
+    
+    // ============================================
+    // SALVAR IMAGEM
+    // ============================================
+    function salvarImagem() {
+        if (isUploading) return;
+        
+        const btn = document.getElementById('btnSaveUpload');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Enviando...';
+        
+        // Mostrar progresso
+        document.getElementById('progressBar').style.display = 'block';
+        document.getElementById('uploadStatus').style.display = 'block';
+        document.getElementById('uploadStatus').textContent = 'Enviando imagem...';
+        
+        let formData = new FormData();
+        
+        if (uploadFileBase64 && uploadFileBase64.startsWith('data:image')) {
+            // Upload via Base64 (câmera ou celular)
+            formData.append('imagem_base64', uploadFileBase64);
+        } else if (uploadFileData) {
+            // Upload via arquivo (computador)
+            formData.append('imagem', uploadFileData);
+        } else {
+            // Remover imagem
+            formData.append('remover', 'true');
+        }
+        
+        // Simular progresso
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 10;
+            if (progress <= 90) {
+                document.getElementById('progressFill').style.width = progress + '%';
+            }
+        }, 200);
+        
+        fetch(`/financeiro/api/produto/${uploadItemId}/upload-imagem/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+            },
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            clearInterval(interval);
+            document.getElementById('progressFill').style.width = '100%';
+            
+            if (data.success) {
+                document.getElementById('uploadStatus').textContent = '✅ ' + data.message;
+                document.getElementById('uploadStatus').style.color = '#2ed573';
+                
+                // Atualizar imagem na lista
+                const imgElement = document.getElementById('img-' + uploadItemId);
+                if (imgElement && data.url) {
+                    imgElement.src = data.url + '?t=' + Date.now();
+                }
+                
+                setTimeout(() => {
+                    fecharUpload();
+                    showMessage('✅ Imagem atualizada com sucesso!', 'success');
+                    // Recarregar a página para atualizar tudo
+                    setTimeout(() => location.reload(), 500);
+                }, 1000);
+            } else {
+                document.getElementById('uploadStatus').textContent = '❌ ' + data.error;
+                document.getElementById('uploadStatus').style.color = '#ff4757';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-circle me-1"></i> Salvar';
+                showMessage('❌ ' + data.error, 'error');
+            }
+        })
+        .catch(error => {
+            clearInterval(interval);
+            document.getElementById('progressFill').style.width = '100%';
+            document.getElementById('uploadStatus').textContent = '❌ Erro: ' + error.message;
+            document.getElementById('uploadStatus').style.color = '#ff4757';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check-circle me-1"></i> Salvar';
+            showMessage('❌ Erro ao enviar imagem', 'error');
+        })
+        .finally(() => {
+            isUploading = false;
+        });
+    }
+    
     // ============================================
     // ADICIONAR AO CARRINHO (AJAX)
     // ============================================
@@ -801,10 +1309,6 @@
     // ============================================
     // UTILITÁRIOS
     // ============================================
-    function getCsrfToken() {
-        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
-    }
-    
     function showMessage(message, type = 'success') {
         const colors = {
             success: '#2ed573',
@@ -835,8 +1339,23 @@
         }, 3000);
     }
     
-    const style = document.createElement('style');
-    style.textContent = `
+    // Fechar modal com ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.getElementById('modalUpload').classList.contains('active')) {
+            fecharUpload();
+        }
+    });
+    
+    // Fechar modal clicando fora
+    document.getElementById('modalUpload').addEventListener('click', function(e) {
+        if (e.target === this) {
+            fecharUpload();
+        }
+    });
+    
+    // Estilos para animações
+    const styleAnim = document.createElement('style');
+    styleAnim.textContent = `
         @keyframes slideIn {
             from { transform: translateX(100px); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
@@ -846,6 +1365,6 @@
             to { transform: translateX(100px); opacity: 0; }
         }
     `;
-    document.head.appendChild(style);
+    document.head.appendChild(styleAnim);
 </script>
 {% endblock %}

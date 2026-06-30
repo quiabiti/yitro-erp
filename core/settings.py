@@ -37,26 +37,50 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',  # 🔥 DEVE ESTAR ATIVO
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'core.middleware.AjaxRedirectMiddleware',  # 🔥 ADICIONADO - Trata redirecionamentos AJAX
+    'core.middleware.AjaxRedirectMiddleware',
     'core.middleware.ConfiguracaoMiddleware',
     'core.middleware.MultiTenancyMiddleware',
     'core.middleware.ContadorTentativasLoginMiddleware',
 ]
 
-# 🔥 CONFIGURAÇÕES CSRF
-CSRF_COOKIE_SECURE = False  # True em produção (HTTPS)
-CSRF_COOKIE_HTTPONLY = False
+# 🔥 CONFIGURAÇÕES CSRF - CORRIGIDAS PARA MÓVEL
+CSRF_COOKIE_SECURE = False  # True em produção com HTTPS
+CSRF_COOKIE_HTTPONLY = False  # 🔥 PRECISA SER False para JS ler o token
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000', 
     'http://127.0.0.1:8000',
-    'https://*.onrender.com',  # Para produção no Render
+    'https://*.onrender.com',
+    'https://yitro-erp.onrender.com',
 ]
-CSRF_FAILURE_VIEW = 'autenticacao.views.csrf_failure'  # View personalizada
+CSRF_FAILURE_VIEW = 'autenticacao.views.csrf_failure'
+
+# 🔥 CONFIGURAÇÕES DE UPLOAD - CORRIGIDAS
+# Aumentar limite de upload para imagens
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800   # 50MB
+MAX_UPLOAD_SIZE = 52428800               # 50MB
+
+# 🔥 ACEITAR MAIS FORMATOS DE IMAGEM
+ALLOWED_UPLOAD_IMAGE_TYPES = [
+    'image/jpeg', 'image/png', 'image/gif', 
+    'image/webp', 'image/bmp', 'image/tiff',
+    'image/svg+xml', 'image/x-icon', 'image/vnd.microsoft.icon',
+    'image/heic', 'image/heif'  # 🔥 FORMATOS DE iPhone
+]
+
+# 🔥 CONFIGURAÇÃO PARA UPLOAD DE ARQUIVOS
+FILE_UPLOAD_HANDLERS = [
+    'django.core.files.uploadhandler.MemoryFileUploadHandler',
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+]
+
+# 🔥 CONFIGURAÇÃO PARA PROCESSAMENTO DE FORMULÁRIOS
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000  # Aumentar número de campos permitidos
 
 ROOT_URLCONF = 'core.urls'
 
@@ -91,8 +115,6 @@ DATABASES = {
     }
 }
 
-# 🔥 CONFIGURAÇÃO PARA PRODUÇÃO (Render.com)
-# Se estiver em produção, use DATABASE_URL
 if os.environ.get('DATABASE_URL'):
     DATABASES['default'] = dj_database_url.config(
         default=os.environ.get('DATABASE_URL'),
@@ -114,7 +136,6 @@ TIME_ZONE = 'Africa/Luanda'
 USE_I18N = True
 USE_TZ = True
 
-# 🔥 CONFIGURAÇÕES DE ARQUIVOS ESTÁTICOS
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
@@ -125,24 +146,20 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# 🔥 CONFIGURAÇÕES DE AUTENTICAÇÃO
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
 
-# 🔥 CONFIGURAÇÕES DE SESSÃO
-SESSION_COOKIE_AGE = 1209600  # 2 semanas
+SESSION_COOKIE_AGE = 1209600
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SECURE = False  # True em produção (HTTPS)
+SESSION_COOKIE_SECURE = False
 
-# 🔥 CONFIGURAÇÕES DE SEGURANÇA
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
-SECURE_SSL_REDIRECT = False  # True em produção
+SECURE_SSL_REDIRECT = False
 
-# 🔥 CONFIGURAÇÕES DE EMAIL (para produção)
 EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
 EMAIL_PORT = env('EMAIL_PORT', default=587)
@@ -151,7 +168,6 @@ EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='noreply@yitro.com')
 
-# 🔥 CONFIGURAÇÕES DE LOGGING (opcional)
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

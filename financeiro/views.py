@@ -560,3 +560,124 @@ def lista_faturas(request):
     view.args = []
     view.kwargs = {}
     return view.get(request)
+
+# financeiro/views.py - Adicionar função de upload
+
+# ============================================================
+# 🔥 UPLOAD DE IMAGEM - ADICIONAR NO views.py
+# ============================================================
+
+import base64
+import imghdr
+from django.core.files.base import ContentFile
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+
+@csrf_exempt
+def upload_produto_imagem(request, produto_id):
+    """Upload de imagem para produto - compatível com todos os dispositivos"""
+    try:
+        if request.method != 'POST':
+            return JsonResponse({'error': 'Método não permitido'}, status=405)
+        
+        # 🔥 VERIFICAR AUTENTICAÇÃO
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'Não autenticado'}, status=401)
+        
+        # 🔥 VERIFICAR PERMISSÃO
+        if not request.user.is_superuser and not request.user.is_staff:
+            return JsonResponse({'error': 'Sem permissão'}, status=403)
+        
+        produto = get_object_or_404(Produto, id=produto_id)
+        
+        # 🔥 VERIFICAR EMPRESA
+        if not request.user.is_superuser:
+            empresa = get_empresa_do_usuario(request.user)
+            if produto.empresa and produto.empresa != empresa:
+                return JsonResponse({'error': 'Sem permissão'}, status=403)
+        
+        # 🔥 REMOVER IMAGEM
+        if request.POST.get('remover') == 'true':
+            if produto.imagem:
+                produto.imagem.delete()
+                produto.save()
+            return JsonResponse({
+                'success': True,
+                'message': 'Imagem removida com sucesso!',
+                'url': None
+            })
+        
+        # 🔥 UPLOAD VIA FORM (COMPUTADOR)
+        if request.FILES.get('imagem'):
+            imagem = request.FILES['imagem']
+            
+            # Validar tamanho (5MB)
+            if imagem.size > 5 * 1024 * 1024:
+                return JsonResponse({'error': 'Imagem muito grande (máx 5MB)'}, status=400)
+            
+            # Validar tipo
+            try:
+                img_type = imghdr.what(imagem)
+                if img_type not in ['jpeg', 'png', 'gif', 'webp']:
+                    return JsonResponse({'error': 'Formato não suportado'}, status=400)
+            except:
+                pass
+            
+            produto.imagem = imagem
+            produto.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Imagem atualizada com sucesso!',
+                'url': produto.imagem.url if produto.imagem else None
+            })
+        
+        # 🔥 UPLOAD VIA BASE64 (CELULAR)
+        elif request.POST.get('imagem_base64'):
+            imagem_base64 = request.POST.get('imagem_base64')
+            
+            # Extrair dados da imagem
+            if ';base64,' in imagem_base64:
+                formato, img_str = imagem_base64.split(';base64,')
+                extensao = formato.split('/')[-1]
+                # Mapear extensões
+                if extensao == 'jpeg' or extensao == 'jpg':
+                    extensao = 'jpg'
+                elif extensao == 'png':
+                    extensao = 'png'
+                elif extensao == 'gif':
+                    extensao = 'gif'
+                elif extensao == 'webp':
+                    extensao = 'webp'
+                else:
+                    extensao = 'png'
+            else:
+                img_str = imagem_base64
+                extensao = 'png'
+            
+            # Decodificar
+            image_data = base64.b64decode(img_str)
+            
+            # Validar tamanho (5MB)
+            if len(image_data) > 5 * 1024 * 1024:
+                return JsonResponse({'error': 'Imagem muito grande (máx 5MB)'}, status=400)
+            
+            # Criar nome único
+            from datetime import datetime
+            filename = f"produtos/{produto.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.{extensao}"
+            
+            # Salvar
+            produto.imagem.save(filename, ContentFile(image_data), save=True)
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Imagem atualizada com sucesso!',
+                'url': produto.imagem.url if produto.imagem else None
+            })
+        
+        return JsonResponse({'error': 'Nenhuma imagem fornecida'}, status=400)
+        
+    except Exception as e:
+        logger.error(f"❌ Erro no upload de imagem: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=500)
