@@ -564,21 +564,24 @@ def lista_faturas(request):
 # financeiro/views.py - Adicionar função de upload
 
 # ============================================================
-# 🔥 UPLOAD DE IMAGEM - CORRIGIDO (SEM imghdr)
+# 🔥 UPLOAD DE IMAGEM - CORRIGIDO (com logs)
 # ============================================================
 
 import base64
+import json
+import logging
 from django.core.files.base import ContentFile
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from datetime import datetime
 
+logger = logging.getLogger(__name__)
+
 
 def detectar_tipo_imagem(arquivo):
     """Detecta o tipo de imagem pelos primeiros bytes (sem imghdr)"""
     try:
-        # Ler os primeiros bytes do arquivo
         if hasattr(arquivo, 'read'):
             posicao = arquivo.tell()
             cabecalho = arquivo.read(12)
@@ -586,7 +589,6 @@ def detectar_tipo_imagem(arquivo):
         else:
             cabecalho = arquivo[:12]
         
-        # Verificar cabeçalhos de arquivo
         if cabecalho.startswith(b'\xFF\xD8\xFF'):
             return 'jpeg'
         elif cabecalho.startswith(b'\x89PNG\x0D\x0A\x1A\x0A'):
@@ -599,39 +601,50 @@ def detectar_tipo_imagem(arquivo):
             return 'bmp'
         elif cabecalho.startswith(b'II') or cabecalho.startswith(b'MM'):
             return 'tiff'
-        elif cabecalho.startswith(b'%PDF'):
-            return 'pdf'
         return None
-    except:
+    except Exception as e:
+        logger.error(f"Erro ao detectar tipo: {e}")
         return None
 
 
 @csrf_exempt
 def upload_produto_imagem(request, produto_id):
     """Upload de imagem para produto - compatível com todos os dispositivos"""
+    
+    # 🔥 LOG PARA DEBUG
+    logger.info(f"📸 Upload de imagem - Produto ID: {produto_id}")
+    logger.info(f"📸 Método: {request.method}")
+    logger.info(f"📸 FILES: {request.FILES.keys()}")
+    logger.info(f"📸 POST: {request.POST.keys()}")
+    
     try:
         if request.method != 'POST':
             return JsonResponse({'error': 'Método não permitido'}, status=405)
         
         # 🔥 VERIFICAR AUTENTICAÇÃO
         if not request.user.is_authenticated:
+            logger.warning("❌ Usuário não autenticado")
             return JsonResponse({'error': 'Não autenticado'}, status=401)
         
         # 🔥 VERIFICAR PERMISSÃO
         if not request.user.is_superuser and not request.user.is_staff:
+            logger.warning(f"❌ Usuário sem permissão: {request.user.username}")
             return JsonResponse({'error': 'Sem permissão'}, status=403)
         
         from .models import Produto
         produto = get_object_or_404(Produto, id=produto_id)
+        logger.info(f"✅ Produto encontrado: {produto.nome}")
         
         # 🔥 VERIFICAR EMPRESA
         if not request.user.is_superuser:
             empresa = get_empresa_do_usuario(request.user)
             if hasattr(produto, 'empresa') and produto.empresa and produto.empresa != empresa:
+                logger.warning(f"❌ Empresa não coincide: {produto.empresa} vs {empresa}")
                 return JsonResponse({'error': 'Sem permissão'}, status=403)
         
         # 🔥 REMOVER IMAGEM
         if request.POST.get('remover') == 'true':
+            logger.info("🗑️ Removendo imagem")
             if produto.imagem:
                 produto.imagem.delete()
                 produto.save()
@@ -644,18 +657,22 @@ def upload_produto_imagem(request, produto_id):
         # 🔥 UPLOAD VIA FORM (COMPUTADOR)
         if request.FILES.get('imagem'):
             imagem = request.FILES['imagem']
+            logger.info(f"📷 Upload via FORM - Tamanho: {imagem.size} bytes, Tipo: {imagem.content_type}")
             
             # Validar tamanho (5MB)
             if imagem.size > 5 * 1024 * 1024:
                 return JsonResponse({'error': 'Imagem muito grande (máx 5MB)'}, status=400)
             
-            # 🔥 DETECTAR TIPO SEM imghdr
+            # Validar tipo
             img_type = detectar_tipo_imagem(imagem)
+            logger.info(f"📷 Tipo detectado: {img_type}")
+            
             if img_type not in ['jpeg', 'png', 'gif', 'webp']:
-                return JsonResponse({'error': 'Formato não suportado'}, status=400)
+                return JsonResponse({'error': f'Formato não suportado: {img_type}'}, status=400)
             
             produto.imagem = imagem
             produto.save()
+            logger.info(f"✅ Imagem salva com sucesso: {produto.imagem.url}")
             
             return JsonResponse({
                 'success': True,
@@ -666,28 +683,35 @@ def upload_produto_imagem(request, produto_id):
         # 🔥 UPLOAD VIA BASE64 (CELULAR)
         elif request.POST.get('imagem_base64'):
             imagem_base64 = request.POST.get('imagem_base64')
+            logger.info(f"📱 Upload via Base64 - Tamanho: {len(imagem_base64)} caracteres")
+            
+            # 🔥 VALIDAR SE É UM BASE64 VÁLIDO
+            if not imagem_base64 or len(imagem_base64) < 100:
+                logger.error("❌ Base64 inválido ou muito curto")
+                return JsonResponse({'error': 'Dados da imagem inválidos'}, status=400)
             
             # Extrair dados da imagem
             if ';base64,' in imagem_base64:
-                formato, img_str = imagem_base64.split(';base64,')
-                extensao = formato.split('/')[-1]
-                # Mapear extensões
+                formato, img_str = imagem_base64.split(';base64,', 1)
+                extensao = formato.split('/')[-1] if '/' in formato else 'png'
+                logger.info(f"📱 Formato detectado: {extensao}")
+                
                 if extensao in ['jpeg', 'jpg']:
                     extensao = 'jpg'
-                elif extensao == 'png':
-                    extensao = 'png'
-                elif extensao == 'gif':
-                    extensao = 'gif'
-                elif extensao == 'webp':
-                    extensao = 'webp'
-                else:
+                elif extensao not in ['png', 'gif', 'webp']:
                     extensao = 'png'
             else:
                 img_str = imagem_base64
                 extensao = 'png'
+                logger.warning("⚠️ Base64 sem cabeçalho, usando PNG como fallback")
             
-            # Decodificar
-            image_data = base64.b64decode(img_str)
+            # 🔥 DECODIFICAR COM TRATAMENTO DE ERRO
+            try:
+                image_data = base64.b64decode(img_str)
+                logger.info(f"📱 Dados decodificados: {len(image_data)} bytes")
+            except Exception as e:
+                logger.error(f"❌ Erro ao decodificar Base64: {e}")
+                return JsonResponse({'error': 'Erro ao decodificar imagem'}, status=400)
             
             # Validar tamanho (5MB)
             if len(image_data) > 5 * 1024 * 1024:
@@ -695,9 +719,15 @@ def upload_produto_imagem(request, produto_id):
             
             # Criar nome único
             filename = f"produtos/{produto.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.{extensao}"
+            logger.info(f"📁 Salvando como: {filename}")
             
             # Salvar
-            produto.imagem.save(filename, ContentFile(image_data), save=True)
+            try:
+                produto.imagem.save(filename, ContentFile(image_data), save=True)
+                logger.info(f"✅ Imagem salva com sucesso: {produto.imagem.url}")
+            except Exception as e:
+                logger.error(f"❌ Erro ao salvar imagem: {e}")
+                return JsonResponse({'error': f'Erro ao salvar: {str(e)}'}, status=500)
             
             return JsonResponse({
                 'success': True,
@@ -705,8 +735,9 @@ def upload_produto_imagem(request, produto_id):
                 'url': produto.imagem.url if produto.imagem else None
             })
         
+        logger.warning("⚠️ Nenhuma imagem fornecida")
         return JsonResponse({'error': 'Nenhuma imagem fornecida'}, status=400)
         
     except Exception as e:
-        logger.error(f"❌ Erro no upload de imagem: {str(e)}")
+        logger.error(f"❌ Erro no upload de imagem: {str(e)}", exc_info=True)
         return JsonResponse({'error': str(e)}, status=500)

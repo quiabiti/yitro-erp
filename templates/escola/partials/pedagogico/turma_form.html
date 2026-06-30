@@ -17,46 +17,59 @@
     </div>
     
     <div class="row">
-        <div class="col-md-6 mb-3">
+        <div class="col-md-4 mb-3">
             <label class="metal-form-label">Classe <span class="text-danger">*</span></label>
             <select name="classe" class="metal-form-select" required>
                 <option value="">Selecione...</option>
-                {% for classe in form.fields.classe.queryset %}
+                {% for classe in classes %}
                 <option value="{{ classe.id }}" {% if form.classe.value == classe.id %}selected{% endif %}>
                     {{ classe.nome }}
                 </option>
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-6 mb-3">
+        <div class="col-md-4 mb-3">
             <label class="metal-form-label">Ano Lectivo <span class="text-danger">*</span></label>
             <select name="ano_lectivo" class="metal-form-select" required>
                 <option value="">Selecione...</option>
-                {% for ano in form.fields.ano_lectivo.queryset %}
+                {% for ano in ano_lectivos %}
                 <option value="{{ ano.id }}" {% if form.ano_lectivo.value == ano.id %}selected{% endif %}>
                     {{ ano.ano }}
                 </option>
                 {% endfor %}
             </select>
         </div>
+        <div class="col-md-4 mb-3">
+            <label class="metal-form-label">Sala</label>
+            <input type="text" name="sala" class="metal-form-control" placeholder="Ex: Sala 101" 
+                   value="{{ sala_nome|default:'' }}">
+            <small class="text-muted" style="color: rgba(255,255,255,0.5) !important; font-size: 0.65rem;">
+                Digite o nome da sala
+            </small>
+        </div>
     </div>
     
-    <div class="mb-3">
-        <label class="metal-form-label">Capacidade</label>
-        <input type="number" name="capacidade" class="metal-form-control" min="1" 
-               value="{{ form.capacidade.value|default:30 }}">
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Capacidade</label>
+            <input type="number" name="capacidade" class="metal-form-control" min="1" max="999" 
+                   value="{{ form.capacidade.value|default:'30' }}" 
+                   placeholder="Ex: 30" inputmode="numeric" pattern="[0-9]*">
+            <small class="text-muted" style="color: rgba(255,255,255,0.5) !important; font-size: 0.65rem;">
+                Número máximo de alunos
+            </small>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Ativo</label>
+            <select name="ativo" class="metal-form-select">
+                <option value="1" {% if form.ativo.value %}selected{% endif %}>Sim</option>
+                <option value="0" {% if not form.ativo.value and form.ativo.value is not None %}selected{% endif %}>Não</option>
+            </select>
+        </div>
     </div>
     
     <div class="mb-3">
         <label class="metal-form-label">Descrição</label>
         <textarea name="descricao" class="metal-form-control" rows="3">{{ form.descricao.value|default:'' }}</textarea>
-    </div>
-    
-    <div class="mb-3">
-        <label class="metal-form-label">Ativo</label>
-        <select name="ativo" class="metal-form-select">
-            <option value="1" {% if form.ativo.value %}selected{% endif %}>Sim</option>
-            <option value="0" {% if not form.ativo.value and form.ativo.value is not None %}selected{% endif %}>Não</option>
-        </select>
     </div>
 </form>

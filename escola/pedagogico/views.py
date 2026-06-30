@@ -1,4 +1,4 @@
-# escola/pedagogico/views.py - VERSÃO CORRIGIDA COM SUPORTE A ManyToMany
+# escola/pedagogico/views.py - VERSÃO CORRIGIDA COM SUPORTE A SALA COMO TEXTO
 
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
-from .models import AnoLectivo, Trimestre, NivelEnsino, Classe, Disciplina, Turma
+from .models import AnoLectivo, Trimestre, NivelEnsino, Classe, Disciplina, Turma, Sala
 from .forms import (
     AnoLectivoForm, TrimestreForm, NivelEnsinoForm,
     ClasseForm, DisciplinaForm, TurmaForm
@@ -65,6 +65,7 @@ def get_categoria_model(categoria):
         'classe': Classe,
         'disciplina': Disciplina,
         'turma': Turma,
+        'sala': Sala,
     }
     return models_map.get(categoria)
 
@@ -133,6 +134,7 @@ def api_stats(request):
                 'classe': Classe.objects.filter(tenant_id=tenant_id, ativo=True).count(),
                 'disciplina': Disciplina.objects.filter(tenant_id=tenant_id, ativo=True).count(),
                 'turma': Turma.objects.filter(tenant_id=tenant_id, ativo=True).count(),
+                'sala': Sala.objects.filter(tenant_id=tenant_id, ativo=True).count(),
             }
         else:
             data = {
@@ -142,6 +144,7 @@ def api_stats(request):
                 'classe': Classe.objects.filter(ativo=True).count(),
                 'disciplina': Disciplina.objects.filter(ativo=True).count(),
                 'turma': Turma.objects.filter(ativo=True).count(),
+                'sala': Sala.objects.filter(ativo=True).count(),
             }
         
         logger.info(f"📊 Dados retornados: {data}")
@@ -168,7 +171,6 @@ def api_listar(request, categoria):
         
         logger.info(f"📋 api_listar - Categoria: {categoria}, Tenant ID: {tenant_id}")
         
-        # 🔥 Filtrar por tenant_id
         if tenant_id:
             items = Model.objects.filter(tenant_id=tenant_id, ativo=True).order_by('-id')
             logger.info(f"📋 {categoria} - Encontrados (com tenant): {items.count()}")
@@ -176,7 +178,6 @@ def api_listar(request, categoria):
             items = Model.objects.filter(ativo=True).order_by('-id')
             logger.info(f"📋 {categoria} - Encontrados (todos): {items.count()}")
         
-        # Formatar dados para o frontend
         data = []
         for item in items:
             item_data = {
@@ -185,7 +186,6 @@ def api_listar(request, categoria):
                 'ativo': item.ativo,
             }
             
-            # Adicionar campos específicos
             if hasattr(item, 'ano'):
                 item_data['ano'] = item.ano
             if hasattr(item, 'numero'):
@@ -203,14 +203,20 @@ def api_listar(request, categoria):
             if hasattr(item, 'tenant_id'):
                 item_data['tenant_id'] = item.tenant_id
             
-            # 🔥 PARA DISCIPLINA - ADICIONAR CLASSES ASSOCIADAS
+            # 🔥 PARA TURMA - SALAS ASSOCIADAS
+            if categoria == 'turma' and hasattr(item, 'salas'):
+                salas = item.salas.all()
+                item_data['salas_ids'] = list(salas.values_list('id', flat=True))
+                item_data['salas_nomes'] = list(salas.values_list('nome', flat=True))
+                item_data['salas_display'] = ", ".join(salas.values_list('nome', flat=True))
+            
+            # 🔥 PARA DISCIPLINA - CLASSES ASSOCIADAS
             if categoria == 'disciplina' and hasattr(item, 'classes'):
                 classes = item.classes.all()
                 item_data['classes_ids'] = list(classes.values_list('id', flat=True))
                 item_data['classes_nomes'] = list(classes.values_list('nome', flat=True))
                 item_data['classes_display'] = ", ".join(classes.values_list('nome', flat=True))
             
-            # Relações
             if hasattr(item, 'ano_lectivo') and item.ano_lectivo:
                 try:
                     item_data['ano_lectivo_id'] = item.ano_lectivo.id
@@ -267,7 +273,13 @@ def api_form_criar(request, categoria):
             'tenant_id': tenant_id,
         }
         
-        # 🔥 PARA DISCIPLINA - PASSAR CLASSES DISPONÍVEIS
+        # 🔥 PARA TURMA - CONTEXTO COM SALA COMO TEXTO
+        if categoria == 'turma':
+            context['sala_nome'] = ''
+            context['classes'] = Classe.objects.filter(tenant_id=tenant_id, ativo=True) if tenant_id else Classe.objects.filter(ativo=True)
+            context['ano_lectivos'] = AnoLectivo.objects.filter(tenant_id=tenant_id, ativo=True) if tenant_id else AnoLectivo.objects.filter(ativo=True)
+        
+        # 🔥 PARA DISCIPLINA - CLASSES DISPONÍVEIS
         if categoria == 'disciplina':
             if tenant_id:
                 context['classes_disponiveis'] = Classe.objects.filter(
@@ -279,7 +291,7 @@ def api_form_criar(request, categoria):
                 ).select_related('nivel_ensino').order_by('nivel_ensino__ordem', 'nome')
             context['classes_selecionadas'] = []
         
-        # Adicionar querysets para selects (filtrados por tenant)
+        # Adicionar querysets para selects
         if categoria in ['trimestre', 'classe', 'turma']:
             if tenant_id:
                 context['ano_lectivos'] = AnoLectivo.objects.filter(tenant_id=tenant_id, ativo=True)
@@ -321,7 +333,6 @@ def api_form_editar(request, categoria, item_id):
         
         item = get_object_or_404(Model, id=item_id)
         
-        # 🔥 Verificar se o item pertence à escola
         if tenant_id and hasattr(item, 'tenant_id') and item.tenant_id != tenant_id:
             return JsonResponse({'success': False, 'error': 'Este item não pertence à sua escola'})
         
@@ -334,7 +345,14 @@ def api_form_editar(request, categoria, item_id):
             'tenant_id': tenant_id,
         }
         
-        # 🔥 PARA DISCIPLINA - PASSAR CLASSES DISPONÍVEIS E SELECIONADAS
+        # 🔥 PARA TURMA - SALA COMO TEXTO
+        if categoria == 'turma':
+            sala = item.salas.first()
+            context['sala_nome'] = sala.nome if sala else ''
+            context['classes'] = Classe.objects.filter(tenant_id=tenant_id, ativo=True) if tenant_id else Classe.objects.filter(ativo=True)
+            context['ano_lectivos'] = AnoLectivo.objects.filter(tenant_id=tenant_id, ativo=True) if tenant_id else AnoLectivo.objects.filter(ativo=True)
+        
+        # 🔥 PARA DISCIPLINA - CLASSES DISPONÍVEIS E SELECIONADAS
         if categoria == 'disciplina':
             if tenant_id:
                 context['classes_disponiveis'] = Classe.objects.filter(
@@ -373,7 +391,7 @@ def api_form_editar(request, categoria, item_id):
 
 
 # ============================================
-# VIEWS PARA SALVAR (CRIAR/ATUALIZAR)
+# VIEWS PARA SALVAR (CRIAR/ATUALIZAR) - CORRIGIDO
 # ============================================
 
 @login_required
@@ -391,9 +409,11 @@ def api_salvar(request, categoria, item_id=None):
         tenant = get_tenant_escola(request)
         tenant_id = tenant.id if tenant else None
         
+        # 🔥 EXTRAIR SALA_NOME DO POST (para turma)
+        sala_nome = request.POST.get('sala', '').strip()
+        
         if item_id:
             instance = get_object_or_404(Model, id=item_id)
-            # 🔥 Verificar se o item pertence à escola
             if tenant_id and hasattr(instance, 'tenant_id') and instance.tenant_id != tenant_id:
                 return JsonResponse({'success': False, 'error': 'Este item não pertence à sua escola'})
             form = Form(request.POST, instance=instance)
@@ -403,20 +423,36 @@ def api_salvar(request, categoria, item_id=None):
         if form.is_valid():
             item = form.save(commit=False)
             
-            # 🔥 ADICIONAR TENANT_ID
             if tenant_id and not item_id and hasattr(item, 'tenant_id'):
                 item.tenant_id = tenant_id
             
             item.save()
             
-            # 🔥 SALVAR RELACIONAMENTOS MANYTOMANY (classes)
+            # 🔥 SALVAR RELACIONAMENTOS MANYTOMANY
             if hasattr(form, 'save_m2m'):
                 form.save_m2m()
             
-            # 🔥 PARA DISCIPLINA - LOG DAS CLASSES ASSOCIADAS
+            # 🔥 PARA TURMA - CRIAR/ASSOCIAR SALA (como texto)
+            if categoria == 'turma' and sala_nome:
+                # Buscar ou criar a sala
+                sala, created = Sala.objects.get_or_create(
+                    nome=sala_nome,
+                    tenant_id=tenant_id,
+                    defaults={
+                        'capacidade': 30,
+                        'ativo': True
+                    }
+                )
+                # 🔥 ASSOCIAR SALA À TURMA (ManyToMany)
+                item.salas.set([sala])
+                logger.info(f"📋 Turma {item.id} - Sala associada: {sala_nome} (criada: {created})")
+            
+            # 🔥 PARA DISCIPLINA - SALVAR CLASSES (ManyToMany)
             if categoria == 'disciplina' and hasattr(item, 'classes'):
                 classes_ids = request.POST.getlist('classes')
-                logger.info(f"📋 Disciplina {item.id} - Classes associadas: {classes_ids}")
+                if classes_ids:
+                    item.classes.set(classes_ids)
+                    logger.info(f"📋 Disciplina {item.id} - Classes associadas: {classes_ids}")
             
             return JsonResponse({
                 'success': True,
@@ -455,7 +491,6 @@ def api_deletar(request, categoria, item_id):
         
         item = get_object_or_404(Model, id=item_id)
         
-        # 🔥 Verificar se o item pertence à escola
         if tenant_id and hasattr(item, 'tenant_id') and item.tenant_id != tenant_id:
             return JsonResponse({'success': False, 'error': 'Este item não pertence à sua escola'})
         

@@ -1,3 +1,5 @@
+# core/settings.py
+
 import os
 from pathlib import Path
 import environ
@@ -19,6 +21,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    
+    # 🔥 CLOUDINARY - ADICIONAR ESTAS LINHAS
+    'cloudinary_storage',
+    'cloudinary',
+    
     'autenticacao',
     'financeiro',
     'servicos',
@@ -47,9 +54,54 @@ MIDDLEWARE = [
     'core.middleware.ContadorTentativasLoginMiddleware',
 ]
 
-# 🔥 CONFIGURAÇÕES CSRF - CORRIGIDAS PARA MÓVEL
-CSRF_COOKIE_SECURE = False  # True em produção com HTTPS
-CSRF_COOKIE_HTTPONLY = False  # 🔥 PRECISA SER False para JS ler o token
+# ============================================
+# 🔥 CLOUDINARY CONFIGURATION
+# ============================================
+
+# Cloudinary credentials from environment variables
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),
+    'API_KEY': env('CLOUDINARY_API_KEY', default=''),
+    'API_SECRET': env('CLOUDINARY_API_SECRET', default=''),
+}
+
+# Check if Cloudinary is configured
+CLOUDINARY_CONFIGURED = all([
+    CLOUDINARY_STORAGE['CLOUD_NAME'],
+    CLOUDINARY_STORAGE['API_KEY'],
+    CLOUDINARY_STORAGE['API_SECRET']
+])
+
+if CLOUDINARY_CONFIGURED:
+    # Use Cloudinary for media files
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    # Cloudinary media URL
+    MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_STORAGE['CLOUD_NAME']}/"
+    print(f"✅ Cloudinary configurado: {CLOUDINARY_STORAGE['CLOUD_NAME']}")
+else:
+    # Fallback to local storage
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    MEDIA_URL = '/media/'
+    print("⚠️ Cloudinary não configurado. Usando armazenamento local.")
+
+# Cloudinary upload options (opcional)
+CLOUDINARY_OPTIONS = {
+    'allowed_formats': ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff', 'svg', 'ico'],
+    'max_bytes': 5242880,  # 5MB
+    'folder': 'yitro',
+    'use_filename': True,
+    'unique_filename': True,
+}
+
+# ============================================
+# FIM DA CONFIGURAÇÃO CLOUDINARY
+# ============================================
+
+# ... resto do seu código permanece igual ...
+
+# 🔥 CONFIGURAÇÕES CSRF
+CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000', 
@@ -59,28 +111,24 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 CSRF_FAILURE_VIEW = 'autenticacao.views.csrf_failure'
 
-# 🔥 CONFIGURAÇÕES DE UPLOAD - CORRIGIDAS
-# Aumentar limite de upload para imagens
-DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB
-FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800   # 50MB
-MAX_UPLOAD_SIZE = 52428800               # 50MB
+# 🔥 CONFIGURAÇÕES DE UPLOAD
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800
+FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800
+MAX_UPLOAD_SIZE = 52428800
 
-# 🔥 ACEITAR MAIS FORMATOS DE IMAGEM
 ALLOWED_UPLOAD_IMAGE_TYPES = [
     'image/jpeg', 'image/png', 'image/gif', 
     'image/webp', 'image/bmp', 'image/tiff',
     'image/svg+xml', 'image/x-icon', 'image/vnd.microsoft.icon',
-    'image/heic', 'image/heif'  # 🔥 FORMATOS DE iPhone
+    'image/heic', 'image/heif'
 ]
 
-# 🔥 CONFIGURAÇÃO PARA UPLOAD DE ARQUIVOS
 FILE_UPLOAD_HANDLERS = [
     'django.core.files.uploadhandler.MemoryFileUploadHandler',
     'django.core.files.uploadhandler.TemporaryFileUploadHandler',
 ]
 
-# 🔥 CONFIGURAÇÃO PARA PROCESSAMENTO DE FORMULÁRIOS
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000  # Aumentar número de campos permitidos
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
 ROOT_URLCONF = 'core.urls'
 
@@ -141,8 +189,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_URL já definido acima (Cloudinary ou local)
+# MEDIA_ROOT - só usado se for local
+if not CLOUDINARY_CONFIGURED:
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

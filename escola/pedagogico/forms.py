@@ -1,7 +1,7 @@
-# forms.py - VERSÃO COMPLETAMENTE CORRIGIDA
+# forms.py - VERSÃO COMPLETAMENTE CORRIGIDA COM SUPORTE A SALA
 
 from django import forms
-from .models import AnoLectivo, Trimestre, NivelEnsino, Classe, Disciplina, Turma
+from .models import AnoLectivo, Trimestre, NivelEnsino, Classe, Disciplina, Turma, Sala
 
 
 class AnoLectivoForm(forms.ModelForm):
@@ -96,13 +96,15 @@ class ClasseForm(forms.ModelForm):
         }
 
 
+# ============================================
 # 🔥 FORMULÁRIO DE DISCIPLINA CORRIGIDO
+# ============================================
+
 class DisciplinaForm(forms.ModelForm):
     """Formulário para Disciplina - Suporte a Múltiplas Classes (ManyToMany)"""
     
     class Meta:
         model = Disciplina
-        # 🔥 USAR 'classes' (ManyToMany) em vez de 'classe' (ForeignKey)
         fields = ['nome', 'codigo', 'carga_horaria', 'classes', 'tipo', 'is_chave', 'descricao', 'ativo']
         widgets = {
             'nome': forms.TextInput(attrs={
@@ -119,7 +121,6 @@ class DisciplinaForm(forms.ModelForm):
                 'min': 1,
                 'max': 240
             }),
-            # 🔥 SelectMultiple para múltiplas classes
             'classes': forms.SelectMultiple(attrs={
                 'class': 'metal-form-control',
                 'style': 'height: auto; min-height: 150px;'
@@ -165,7 +166,6 @@ class DisciplinaForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # 🔥 Filtrar apenas classes ativas, ordenadas por nível e nome
         self.fields['classes'].queryset = Classe.objects.filter(
             ativo=True
         ).select_related('nivel_ensino').order_by(
@@ -173,10 +173,8 @@ class DisciplinaForm(forms.ModelForm):
             'nivel_ensino__nome',
             'nome'
         )
-        # 🔥 Tornar o campo obrigatório
         self.fields['classes'].required = True
         
-        # 🔥 Opções para o campo tipo com ícones
         TIPO_CHOICES = [
             ('curricular', '📚 Curricular'),
             ('extra_curricular', '🎯 Extra-Curricular'),
@@ -185,10 +183,16 @@ class DisciplinaForm(forms.ModelForm):
         self.fields['tipo'].choices = TIPO_CHOICES
 
 
+# ============================================
+# 🔥 FORMULÁRIO DE TURMA CORRIGIDO COM SALA (ManyToMany)
+# ============================================
+
 class TurmaForm(forms.ModelForm):
+    """Formulário para Turma - Suporte a Múltiplas Salas (ManyToMany)"""
+    
     class Meta:
         model = Turma
-        fields = ['nome', 'codigo', 'classe', 'ano_lectivo', 'capacidade', 'descricao', 'ativo']
+        fields = ['nome', 'codigo', 'classe', 'ano_lectivo', 'salas', 'capacidade', 'descricao', 'ativo']
         widgets = {
             'nome': forms.TextInput(attrs={
                 'class': 'metal-form-control',
@@ -203,6 +207,10 @@ class TurmaForm(forms.ModelForm):
             }),
             'ano_lectivo': forms.Select(attrs={
                 'class': 'metal-form-select'
+            }),
+            'salas': forms.SelectMultiple(attrs={
+                'class': 'metal-form-control',
+                'style': 'height: auto; min-height: 120px;'
             }),
             'capacidade': forms.NumberInput(attrs={
                 'class': 'metal-form-control',
@@ -223,7 +231,87 @@ class TurmaForm(forms.ModelForm):
             'codigo': 'Código',
             'classe': 'Classe',
             'ano_lectivo': 'Ano Lectivo',
+            'salas': 'Salas Associadas',
             'capacidade': 'Capacidade',
             'descricao': 'Descrição',
             'ativo': 'Ativo'
+        }
+        help_texts = {
+            'codigo': 'Código único para identificar a turma',
+            'salas': 'Selecione uma ou mais salas onde esta turma terá aulas',
+            'capacidade': 'Número máximo de alunos por turma'
+        }
+        error_messages = {
+            'salas': {
+                'required': 'Selecione pelo menos uma sala para associar à turma',
+            }
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # 🔥 Filtrar apenas salas ativas, ordenadas por nome
+        self.fields['salas'].queryset = Sala.objects.filter(
+            ativo=True
+        ).order_by('nome')
+        # 🔥 Tornar o campo obrigatório (opcional - remova se quiser)
+        # self.fields['salas'].required = True
+        
+        # 🔥 Filtrar classes ativas
+        self.fields['classe'].queryset = Classe.objects.filter(
+            ativo=True
+        ).select_related('nivel_ensino').order_by(
+            'nivel_ensino__ordem',
+            'nivel_ensino__nome',
+            'nome'
+        )
+        
+        # 🔥 Filtrar anos lectivos ativos
+        self.fields['ano_lectivo'].queryset = AnoLectivo.objects.filter(
+            ativo=True
+        ).order_by('-ano')
+
+
+# ============================================
+# 🔥 FORMULÁRIO DE SALA (CRUD SEPARADO)
+# ============================================
+
+class SalaForm(forms.ModelForm):
+    """Formulário para Sala - CRUD separado"""
+    
+    class Meta:
+        model = Sala
+        fields = ['nome', 'codigo', 'capacidade', 'descricao', 'ativo']
+        widgets = {
+            'nome': forms.TextInput(attrs={
+                'class': 'metal-form-control',
+                'placeholder': 'Ex: Sala 101, Laboratório de Informática...'
+            }),
+            'codigo': forms.TextInput(attrs={
+                'class': 'metal-form-control',
+                'placeholder': 'Ex: SALA-101, LAB-INF...'
+            }),
+            'capacidade': forms.NumberInput(attrs={
+                'class': 'metal-form-control',
+                'placeholder': '30',
+                'min': 1
+            }),
+            'descricao': forms.Textarea(attrs={
+                'class': 'metal-form-control',
+                'rows': 3,
+                'placeholder': 'Descrição da sala (localização, equipamentos, etc.)'
+            }),
+            'ativo': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            })
+        }
+        labels = {
+            'nome': 'Nome da Sala',
+            'codigo': 'Código',
+            'capacidade': 'Capacidade',
+            'descricao': 'Descrição',
+            'ativo': 'Ativo'
+        }
+        help_texts = {
+            'codigo': 'Código único para identificar a sala',
+            'capacidade': 'Número máximo de alunos por sala'
         }

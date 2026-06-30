@@ -23,6 +23,7 @@
             --glass-border: rgba(0, 212, 255, 0.3);
             --neon-glow: 0 0 20px rgba(0, 212, 255, 0.3);
             --sidebar-width: 260px;
+            --header-height: 65px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -45,21 +46,7 @@
             height: 100%;
             z-index: 0;
             overflow: hidden;
-        }
-
-        .hero-background video {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
-            transform: translateX(-50%) translateY(-50%);
-            object-fit: cover;
-            opacity: 0.6;
-            z-index: 1;
-            background: #0a0e1a;
+            background: linear-gradient(135deg, #0a0e1a 0%, #0d1b2a 30%, #0a0e1a 70%, #0d1b2a 100%);
         }
 
         .hero-overlay {
@@ -71,8 +58,7 @@
             z-index: 2;
             background: 
                 radial-gradient(ellipse at 20% 50%, rgba(0, 212, 255, 0.05) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 50%, rgba(123, 47, 252, 0.03) 0%, transparent 60%),
-                linear-gradient(180deg, rgba(10, 14, 26, 0.4) 0%, rgba(10, 14, 26, 0.6) 100%);
+                radial-gradient(ellipse at 80% 50%, rgba(123, 47, 252, 0.03) 0%, transparent 60%);
             pointer-events: none;
         }
 
@@ -423,59 +409,69 @@
             z-index: 10;
         }
 
+        /* ============================================
+           🔥 SIDEBAR - BRANCA COM LETRAS PRETAS
+           ============================================ */
         .sidebar {
             position: fixed;
-            top: 0;
+            top: var(--header-height);
             left: 0;
-            height: 100%;
+            height: calc(100% - var(--header-height));
             width: var(--sidebar-width);
-            background: rgba(10, 14, 26, 0.95);
+            background: #ffffff !important;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-right: 1px solid var(--glass-border);
+            border-right: 1px solid rgba(0, 0, 0, 0.08);
             transform: translateX(-100%);
-            transition: transform 0.3s ease;
-            z-index: 1050;
-            padding: 20px 0;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1040;
+            padding: 10px 0 20px;
             overflow-y: auto;
-            box-shadow: 4px 0 40px rgba(0, 0, 0, 0.5);
+            box-shadow: 4px 0 40px rgba(0, 0, 0, 0.1);
         }
         .sidebar.open { transform: translateX(0); }
 
         .sidebar::-webkit-scrollbar { width: 4px; }
         .sidebar::-webkit-scrollbar-track { background: transparent; }
-        .sidebar::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.3); border-radius: 2px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.15); border-radius: 2px; }
 
-        .sidebar-nav { padding: 0 12px; margin-top: 20px; }
-        .sidebar-nav .nav-label {
-            font-size: 0.6rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: rgba(255, 255, 255, 0.2);
-            padding: 10px 12px 6px;
-            font-weight: 600;
-        }
-
+        .sidebar-nav { padding: 0 12px; }
         .sidebar-nav .nav-link-tech {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             padding: 10px 14px;
             border-radius: 10px;
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(0, 0, 0, 0.7) !important;
             text-decoration: none;
             font-size: 0.85rem;
             font-weight: 500;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             position: relative;
+            background: transparent;
+            margin-bottom: 2px;
         }
-        .sidebar-nav .nav-link-tech i { font-size: 1.2rem; width: 24px; text-align: center; flex-shrink: 0; }
-        .sidebar-nav .nav-link-tech:hover { background: rgba(0, 212, 255, 0.08); color: #fff; }
+        .sidebar-nav .nav-link-tech i { 
+            font-size: 1.3rem; 
+            width: 28px; 
+            text-align: center; 
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        .sidebar-nav .nav-link-tech:hover { 
+            background: rgba(0, 0, 0, 0.04) !important; 
+            color: #000 !important;
+            transform: translateX(4px);
+        }
+        .sidebar-nav .nav-link-tech:hover i {
+            transform: scale(1.15);
+        }
         .sidebar-nav .nav-link-tech.active {
-            background: rgba(0, 212, 255, 0.12);
-            color: var(--primary);
+            background: rgba(0, 212, 255, 0.1) !important;
+            color: #000 !important;
             border: 1px solid rgba(0, 212, 255, 0.15);
+            box-shadow: 0 2px 12px rgba(0, 212, 255, 0.06);
         }
         .sidebar-nav .nav-link-tech.active::before {
             content: '';
@@ -484,94 +480,131 @@
             top: 50%;
             transform: translateY(-50%);
             width: 3px;
-            height: 20px;
-            background: var(--primary);
+            height: 24px;
+            background: #00d4ff;
             border-radius: 0 3px 3px 0;
-            box-shadow: 0 0 15px var(--primary);
-        }
-        .sidebar-nav .nav-link-tech .badge-count {
-            margin-left: auto;
-            font-size: 0.55rem;
-            padding: 2px 8px;
-            border-radius: 10px;
-            background: rgba(0, 212, 255, 0.08);
-            color: rgba(255, 255, 255, 0.3);
-        }
-        .sidebar-nav .nav-link-tech.active .badge-count {
-            background: rgba(0, 212, 255, 0.15);
-            color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
         }
 
         .sidebar-nav .submenu {
             display: none;
             padding-left: 20px;
-            margin-top: 4px;
-            margin-bottom: 4px;
+            margin-left: 14px;
+            border-left: 1px solid rgba(0, 0, 0, 0.06);
+            margin-top: 2px;
+            margin-bottom: 2px;
         }
         .sidebar-nav .submenu.open {
             display: block;
+            animation: slideDown 0.25s ease;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .sidebar-nav .submenu .nav-link-tech {
             font-size: 0.78rem;
-            padding: 6px 14px 6px 30px;
-            color: rgba(255, 255, 255, 0.4);
-        }
-        .sidebar-nav .submenu .nav-link-tech:hover {
-            color: rgba(255, 255, 255, 0.8);
-            background: rgba(0, 212, 255, 0.05);
+            padding: 6px 14px 6px 10px;
+            color: rgba(0, 0, 0, 0.5) !important;
+            gap: 10px;
         }
         .sidebar-nav .submenu .nav-link-tech i {
-            font-size: 0.9rem;
+            font-size: 1rem;
             width: 20px;
+        }
+        .sidebar-nav .submenu .nav-link-tech:hover {
+            color: #000 !important;
+            background: rgba(0, 0, 0, 0.03) !important;
+            transform: translateX(4px);
         }
         .sidebar-nav .nav-link-tech .chevron {
             margin-left: auto;
             transition: transform 0.3s ease;
             font-size: 0.7rem;
+            color: rgba(0, 0, 0, 0.25) !important;
         }
         .sidebar-nav .nav-link-tech .chevron.rotated {
             transform: rotate(90deg);
         }
 
+        /* ============================================
+           🔥 CORES DOS ÍCONES POR ÁREA
+           ============================================ */
+        .nav-link-tech[data-page="dashboard"] i { color: #00d4ff !important; }
+        .nav-link-tech[data-page="dashboard"].active i { color: #00d4ff !important; }
+        
+        .nav-link-tech[data-page="escolas"] i { color: #7b2ffc !important; }
+        .nav-link-tech[data-page="escolas"].active i { color: #7b2ffc !important; }
+        
+        .nav-link-tech[data-page="usuarios"] i { color: #2ed573 !important; }
+        .nav-link-tech[data-page="usuarios"].active i { color: #2ed573 !important; }
+        
+        .nav-link-tech[data-page="configuracoes"] i { color: #6c757d !important; }
+        .nav-link-tech[data-page="configuracoes"].active i { color: #6c757d !important; }
+        
+        .nav-link-tech[href*="logout"] i { color: #ff4757 !important; }
+        .nav-link-tech[href*="logout"]:hover { color: #ff4757 !important; background: rgba(255, 71, 87, 0.08) !important; }
+        
+        .nav-link-tech .bi-file-earmark-text { color: #ffa502 !important; }
+        .nav-link-tech .bi-book { color: #7b2ffc !important; }
+        .nav-link-tech .bi-person-badge { color: #00d4ff !important; }
+        .nav-link-tech .bi-building { color: #ff4757 !important; }
+        .nav-link-tech .bi-coin { color: #2ed573 !important; }
+        
+        .submenu .nav-link-tech i { opacity: 0.7; }
+        .submenu .nav-link-tech:hover i { opacity: 1; }
+
+        /* ============================================
+           🔥 SIDEBAR USER
+           ============================================ */
         .sidebar-user {
-            padding: 16px 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            margin-top: 20px;
+            padding: 14px 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            margin-top: 10px;
             display: flex;
             align-items: center;
             gap: 12px;
+            position: sticky;
+            bottom: 0;
+            background: #ffffff;
         }
         .sidebar-user .user-avatar-sm {
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            border: 2px solid var(--primary);
+            border: 2px solid #00d4ff;
             padding: 2px;
             flex-shrink: 0;
         }
         .sidebar-user .user-avatar-sm img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-        .sidebar-user .user-name-sm { font-size: 0.85rem; font-weight: 600; color: #fff; line-height: 1.2; }
-        .sidebar-user .user-role-sm { font-size: 0.6rem; color: rgba(255, 255, 255, 0.3); text-transform: uppercase; letter-spacing: 1px; }
+        .sidebar-user .user-name-sm { font-size: 0.8rem; font-weight: 600; color: #000 !important; line-height: 1.2; }
+        .sidebar-user .user-role-sm { font-size: 0.55rem; color: rgba(0, 0, 0, 0.4) !important; text-transform: uppercase; letter-spacing: 1px; }
         .sidebar-user .logout-btn {
             margin-left: auto;
-            color: rgba(255, 255, 255, 0.3);
+            color: rgba(0, 0, 0, 0.25) !important;
             transition: 0.3s;
             font-size: 1.1rem;
             padding: 4px 8px;
             border-radius: 8px;
             text-decoration: none;
         }
-        .sidebar-user .logout-btn:hover { color: #ff4757; background: rgba(255, 71, 87, 0.1); }
+        .sidebar-user .logout-btn:hover { 
+            color: #ff4757 !important; 
+            background: rgba(255, 71, 87, 0.08);
+            transform: scale(1.1);
+        }
 
         .sidebar-overlay {
             position: fixed;
-            top: 0;
+            top: var(--header-height);
             left: 0;
             width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 1040;
+            height: calc(100% - var(--header-height));
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1030;
             display: none;
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
         }
         .sidebar-overlay.active { display: block; }
 
@@ -590,15 +623,21 @@
         }
         .sidebar-toggle:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
 
+        /* ============================================
+           🔥 TOP HEADER - INTACTO
+           ============================================ */
         .top-header {
-            position: sticky;
+            position: fixed;
             top: 0;
-            z-index: 100;
+            left: 0;
+            right: 0;
+            z-index: 1050;
+            height: var(--header-height);
             background: rgba(10, 14, 26, 0.7);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 10px 1.5rem;
+            padding: 0 1.5rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -608,7 +647,7 @@
         }
         .top-header .header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .top-header .page-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             color: #fff;
             display: flex;
@@ -649,6 +688,7 @@
             display: flex;
             flex-direction: column;
             margin-left: 0;
+            padding-top: var(--header-height);
             transition: margin-left 0.3s ease;
         }
 
@@ -674,22 +714,24 @@
         }
 
         @media (max-width: 992px) {
-            .top-header { padding: 10px 1rem; }
-            .top-header .page-title { font-size: 0.95rem; }
+            :root { --header-height: 60px; }
+            .top-header { padding: 0 1rem; }
+            .top-header .page-title { font-size: 0.9rem; }
             .content-container { padding: 1rem 1rem 3rem; }
-            .logo-yitro .logo-text { font-size: 1.1rem; }
-            .logo-yitro .logo-icon { width: 32px; height: 32px; }
+            .logo-yitro .logo-text { font-size: 1rem; }
+            .logo-yitro .logo-icon { width: 30px; height: 30px; }
         }
 
         @media (max-width: 576px) {
-            .top-header .page-title { font-size: 0.85rem; }
+            :root { --header-height: 56px; }
+            .top-header .page-title { font-size: 0.8rem; }
             .top-header .page-title span { display: none; }
-            .top-header .header-actions { gap: 10px; }
+            .top-header .header-actions { gap: 8px; }
             .content-container { padding: 0.8rem 0.8rem 2rem; }
             .sidebar { width: 280px; }
-            .logo-yitro .logo-text { font-size: 0.9rem; }
-            .logo-yitro .logo-icon { width: 28px; height: 28px; }
-            .sidebar-toggle { font-size: 1.2rem; }
+            .logo-yitro .logo-text { font-size: 0.85rem; }
+            .logo-yitro .logo-icon { width: 26px; height: 26px; }
+            .sidebar-toggle { font-size: 1.1rem; }
             .loading-spinner-dinamico { width: 80px; height: 80px; }
             .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(1) { width: 80px; height: 80px; }
             .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(2) { width: 60px; height: 60px; }
@@ -703,73 +745,12 @@
         ::-webkit-scrollbar-track { background: var(--dark); }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--secondary); }
-
-        .escola-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 20px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .escola-card:hover {
-            border-color: rgba(0, 212, 255, 0.2);
-            transform: translateY(-4px);
-            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
-        }
-        .escola-card .escola-logo {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid rgba(0, 212, 255, 0.2);
-        }
-        .escola-card .escola-nome { color: #fff; font-weight: 600; font-size: 1rem; }
-        .escola-card .escola-info { color: rgba(255, 255, 255, 0.4); font-size: 0.75rem; }
-        .escola-card .escola-status { font-size: 0.65rem; padding: 2px 12px; border-radius: 20px; }
-
-        .btn-nova-escola {
-            background: linear-gradient(135deg, #00d4ff, #7b2ffc);
-            border: none;
-            color: white;
-            padding: 10px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-nova-escola:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
-            color: white;
-        }
-
-        .search-box {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 10px 16px;
-            color: #fff;
-            width: 100%;
-            max-width: 300px;
-        }
-        .search-box::placeholder { color: rgba(255, 255, 255, 0.3); }
-        .search-box:focus {
-            outline: none;
-            border-color: rgba(0, 212, 255, 0.3);
-            box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.05);
-        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- ===== FUNDO COM VÍDEO ===== -->
+    <!-- ===== FUNDO COM PARTÍCULAS ===== -->
     <div class="hero-background">
-        <video autoplay muted loop playsinline id="bgVideo">
-            <source src="/static/videos/fundo-tecnologia.mp4" type="video/mp4">
-            <source src="https://assets.mixkit.co/videos/preview/mixkit-abstract-technology-connection-lines-network-loop-28564-large.mp4" type="video/mp4">
-            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Crect width='100%25' height='100%25' fill='%230a0e1a'/%3E%3Ctext x='50%25' y='50%25' font-family='Orbitron' font-size='24' fill='%2300d4ff' text-anchor='middle' dy='.3em'%3EYITRO%3C/text%3E%3C/svg%3E" alt="Yitro">
-        </video>
         <div class="hero-overlay"></div>
         <div class="grid-lines"></div>
         <div class="glow-circle glow-circle-1"></div>
@@ -791,11 +772,10 @@
     <!-- ===== OVERLAY SIDEBAR ===== -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <!-- ===== SIDEBAR ===== -->
+    <!-- ===== SIDEBAR BRANCA ===== -->
     <aside class="sidebar" id="sidebar">
         <nav class="sidebar-nav">
-            <div class="nav-label">Menu Principal</div>
-            
+            <!-- Dashboard -->
             <a class="nav-link-tech active" data-page="dashboard" onclick="loadPage('dashboard')" id="navDashboard">
                 <i class="bi bi-grid-1x2-fill"></i> 
                 {% if esta_na_escola %}
@@ -808,19 +788,20 @@
             </a>
 
             {% if is_super_admin and not esta_na_escola %}
-                <div class="nav-label" style="margin-top: 15px;">Administração</div>
+                <!-- Escolas -->
                 <a class="nav-link-tech" data-page="escolas" onclick="loadPage('escolas')">
                     <i class="bi bi-building"></i> Escolas
                 </a>
+                <!-- Usuários -->
                 <a class="nav-link-tech" data-page="usuarios" onclick="loadPage('usuarios')">
                     <i class="bi bi-people"></i> Usuários
                 </a>
             {% endif %}
 
             {% if perms.escola.secretaria or user.is_superuser %}
-            <div class="nav-label" style="margin-top: 15px;">Secretaria Geral</div>
+            <!-- Secretaria Geral -->
             <a class="nav-link-tech" onclick="toggleSubmenu(this)">
-                <i class="bi bi-folder"></i> Secretaria Geral
+                <i class="bi bi-file-earmark-text"></i> Secretaria Geral
                 <span class="chevron"><i class="bi bi-chevron-right"></i></span>
             </a>
             <div class="submenu">
@@ -840,9 +821,9 @@
             {% endif %}
 
             {% if perms.escola.pedagogico or user.is_superuser %}
-            <div class="nav-label" style="margin-top: 15px;">Área Pedagógica</div>
+            <!-- Área Pedagógica -->
             <a class="nav-link-tech" onclick="toggleSubmenu(this)">
-                <i class="bi bi-folder"></i> Área Pedagógica
+                <i class="bi bi-book"></i> Área Pedagógica
                 <span class="chevron"><i class="bi bi-chevron-right"></i></span>
             </a>
             <div class="submenu">
@@ -874,9 +855,9 @@
             {% endif %}
 
             {% if perms.escola.professor or user.is_superuser %}
-            <div class="nav-label" style="margin-top: 15px;">Professor</div>
+            <!-- Professor -->
             <a class="nav-link-tech" onclick="toggleSubmenu(this)">
-                <i class="bi bi-folder"></i> Professor
+                <i class="bi bi-person-badge"></i> Professor
                 <span class="chevron"><i class="bi bi-chevron-right"></i></span>
             </a>
             <div class="submenu">
@@ -899,9 +880,9 @@
             {% endif %}
 
             {% if perms.escola.administrativo or user.is_superuser %}
-            <div class="nav-label" style="margin-top: 15px;">Área Administrativa</div>
+            <!-- Área Administrativa -->
             <a class="nav-link-tech" onclick="toggleSubmenu(this)">
-                <i class="bi bi-folder"></i> Área Administrativa
+                <i class="bi bi-building"></i> Área Administrativa
                 <span class="chevron"><i class="bi bi-chevron-right"></i></span>
             </a>
             <div class="submenu">
@@ -927,9 +908,9 @@
             {% endif %}
 
             {% if perms.escola.financeiro or user.is_superuser %}
-            <div class="nav-label" style="margin-top: 15px;">Área Financeira</div>
+            <!-- Área Financeira -->
             <a class="nav-link-tech" onclick="toggleSubmenu(this)">
-                <i class="bi bi-folder"></i> Área Financeira
+                <i class="bi bi-coin"></i> Área Financeira
                 <span class="chevron"><i class="bi bi-chevron-right"></i></span>
             </a>
             <div class="submenu">
@@ -942,11 +923,13 @@
             </div>
             {% endif %}
 
-            <div class="nav-label" style="margin-top: 15px;">Sistema</div>
+            <!-- Configurações -->
             <a class="nav-link-tech" data-page="configuracoes" onclick="loadPage('configuracoes')" id="navConfiguracoes">
                 <i class="bi bi-gear"></i> Configurações
             </a>
-            <a href="{% url 'autenticacao:logout' %}" class="nav-link-tech" style="margin-top: 10px; color: #ff4757;">
+
+            <!-- Sair -->
+            <a href="{% url 'autenticacao:logout' %}" class="nav-link-tech" style="margin-top: 4px;">
                 <i class="bi bi-box-arrow-right"></i> Sair
             </a>
         </nav>
@@ -957,7 +940,7 @@
                     <img src="{{ user.foto_perfil.url }}" alt="{{ user.get_full_name|default:user.username }}">
                 {% else %}
                     <img src="{% static 'img/user-avatar.png' %}" alt="Usuário" 
-                         onerror="this.src='https://ui-avatars.com/api/?name={% if user.is_authenticated %}{{ user.get_full_name|default:user.username|urlencode }}{% else %}Yitro{% endif %}&background=00d4ff&color=fff&size=38'">
+                         onerror="this.src='https://ui-avatars.com/api/?name={% if user.is_authenticated %}{{ user.get_full_name|default:user.username|urlencode }}{% else %}Yitro{% endif %}&background=00d4ff&color=fff&size=36'">
                 {% endif %}
             </div>
             <div>
@@ -1230,7 +1213,6 @@
             const activeLink = document.querySelector(`.sidebar-nav .nav-link-tech[data-page="${page}"]`);
             if (activeLink) activeLink.classList.add('active');
             
-            // 🔥 CORREÇÃO: URLs da secretaria NÃO têm /api/
             let url;
             if (page.startsWith('secretaria/')) {
                 url = `/escola/${page}/`;
@@ -1272,7 +1254,6 @@
                 
                 container.innerHTML = html;
                 
-                // Re-executar scripts
                 const scripts = container.querySelectorAll('script');
                 scripts.forEach(script => {
                     const newScript = document.createElement('script');
@@ -1285,7 +1266,6 @@
                     document.body.appendChild(newScript);
                 });
                 
-                // Atualizar título
                 const titles = {
                     'pedagogico': 'Gestão Pedagógica',
                     'pedagogico/ano_lectivo': 'Gestão do Ano Lectivo',
@@ -1332,7 +1312,6 @@
                     closeSidebar();
                 }
                 
-                // Remover loading
                 setTimeout(function() {
                     if (typeof hideLoading === 'function') hideLoading();
                     const overlay = document.getElementById('globalLoadingOverlay');
@@ -1430,42 +1409,7 @@
             } else {
                 loadPage('dashboard');
             }
-            
-            // 🔥 VÍDEO
-            const video = document.getElementById('bgVideo');
-            if (video) {
-                video.style.display = 'block';
-                video.style.opacity = '0.6';
-                video.style.visibility = 'visible';
-                video.load();
-                video.play().catch(function(e) {
-                    console.log('⚠️ Autoplay bloqueado:', e);
-                    document.addEventListener('click', function() {
-                        video.play();
-                    }, { once: true });
-                });
-            }
         });
-
-        document.addEventListener('visibilitychange', function() {
-            const video = document.getElementById('bgVideo');
-            if (video) {
-                if (document.hidden) {
-                    video.pause();
-                } else {
-                    video.play();
-                }
-            }
-        });
-
-        if ('getBattery' in navigator) {
-            navigator.getBattery().then(function(battery) {
-                if (battery.level < 0.15) {
-                    const video = document.getElementById('bgVideo');
-                    if (video) video.pause();
-                }
-            });
-        }
     </script>
     {% block extra_js %}{% endblock %}
 </body>

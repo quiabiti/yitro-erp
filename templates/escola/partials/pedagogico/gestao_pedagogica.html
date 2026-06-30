@@ -8,61 +8,61 @@
 <div class="metal-header mb-3 fade-in-up">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
         <div>
-            <h1 class="metal-title" style="font-size: 1.2rem;">
+            <h1 class="metal-title" style="font-size: clamp(1rem, 4vw, 1.2rem);">
                 <i class="bi bi-book me-2"></i> Gestão Pedagógica
             </h1>
-            <p class="metal-subtitle" style="font-size: 0.75rem;">Gerencie anos lectivos, trimestres, níveis, classes, disciplinas e turmas</p>
+            <p class="metal-subtitle" style="font-size: clamp(0.6rem, 2vw, 0.75rem);">Gerencie anos lectivos, trimestres, níveis, classes, disciplinas e turmas</p>
         </div>
         <div>
-            <span class="badge bg-success" style="font-size: 0.7rem; padding: 4px 12px;">
+            <span class="badge bg-success" style="font-size: clamp(0.55rem, 1.5vw, 0.7rem); padding: 4px 10px; white-space: nowrap;">
                 <i class="bi bi-check-circle me-1"></i> Online
             </span>
         </div>
     </div>
 </div>
 
-<!-- CARDS RESUMO -->
-<div class="row g-2 mb-3 fade-in-up delay-1">
+<!-- CARDS RESUMO - COM TEXTOS PRETOS -->
+<div class="row g-1 g-sm-2 mb-3 fade-in-up delay-1">
     <div class="col-4 col-md-2">
-        <div class="glass-card text-center p-2" onclick="document.getElementById('section-ano_lectivo').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.6rem !important;">
-            <div class="display-6 text-primary" style="font-size: 1.2rem;"><i class="bi bi-calendar"></i></div>
-            <h3 class="h6" style="font-size: 0.9rem; color: #ffffff !important;" id="totalAnosLectivos">0</h3>
-            <p class="text-muted small" style="font-size: 0.5rem; color: rgba(255,255,255,0.5) !important;">Anos</p>
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="document.getElementById('section-ano_lectivo').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #00d4ff !important;"><i class="bi bi-calendar"></i></div>
+            <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalAnosLectivos">0</h3>
+            <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Anos</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
-        <div class="glass-card text-center p-2" onclick="document.getElementById('section-trimestre').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.6rem !important;">
-            <div class="display-6 text-success" style="font-size: 1.2rem;"><i class="bi bi-calendar3"></i></div>
-            <h3 class="h6" style="font-size: 0.9rem; color: #ffffff !important;" id="totalTrimestres">0</h3>
-            <p class="text-muted small" style="font-size: 0.5rem; color: rgba(255,255,255,0.5) !important;">Trimestres</p>
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="document.getElementById('section-trimestre').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #2ed573 !important;"><i class="bi bi-calendar3"></i></div>
+            <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalTrimestres">0</h3>
+            <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Trimestres</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
-        <div class="glass-card text-center p-2" onclick="document.getElementById('section-nivel_ensino').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.6rem !important;">
-            <div class="display-6 text-purple" style="font-size: 1.2rem; color: #a855f7 !important;"><i class="bi bi-layers"></i></div>
-            <h3 class="h6" style="font-size: 0.9rem; color: #ffffff !important;" id="totalNiveisEnsino">0</h3>
-            <p class="text-muted small" style="font-size: 0.5rem; color: rgba(255,255,255,0.5) !important;">Níveis</p>
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="document.getElementById('section-nivel_ensino').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #a855f7 !important;"><i class="bi bi-layers"></i></div>
+            <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalNiveisEnsino">0</h3>
+            <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Níveis</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
-        <div class="glass-card text-center p-2" onclick="document.getElementById('section-classe').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.6rem !important;">
-            <div class="display-6 text-warning" style="font-size: 1.2rem;"><i class="bi bi-diagram-3"></i></div>
-            <h3 class="h6" style="font-size: 0.9rem; color: #ffffff !important;" id="totalClasses">0</h3>
-            <p class="text-muted small" style="font-size: 0.5rem; color: rgba(255,255,255,0.5) !important;">Classes</p>
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="document.getElementById('section-classe').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #ffa502 !important;"><i class="bi bi-diagram-3"></i></div>
+            <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalClasses">0</h3>
+            <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Classes</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
-        <div class="glass-card text-center p-2" onclick="document.getElementById('section-disciplina').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.6rem !important;">
-            <div class="display-6 text-info" style="font-size: 1.2rem;"><i class="bi bi-book"></i></div>
-            <h3 class="h6" style="font-size: 0.9rem; color: #ffffff !important;" id="totalDisciplinas">0</h3>
-            <p class="text-muted small" style="font-size: 0.5rem; color: rgba(255,255,255,0.5) !important;">Disciplinas</p>
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="document.getElementById('section-disciplina').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #7b2ffc !important;"><i class="bi bi-book"></i></div>
+            <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalDisciplinas">0</h3>
+            <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Disciplinas</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
-        <div class="glass-card text-center p-2" onclick="document.getElementById('section-turma').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.6rem !important;">
-            <div class="display-6 text-danger" style="font-size: 1.2rem;"><i class="bi bi-people-fill"></i></div>
-            <h3 class="h6" style="font-size: 0.9rem; color: #ffffff !important;" id="totalTurmas">0</h3>
-            <p class="text-muted small" style="font-size: 0.5rem; color: rgba(255,255,255,0.5) !important;">Turmas</p>
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="document.getElementById('section-turma').scrollIntoView({behavior:'smooth'})" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #ff4757 !important;"><i class="bi bi-people-fill"></i></div>
+            <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalTurmas">0</h3>
+            <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Turmas</p>
         </div>
     </div>
 </div>
@@ -71,108 +71,108 @@
 <!-- SEÇÃO 1: ANO LECTIVO -->
 <!-- ============================================ -->
 <section id="section-ano_lectivo" class="mb-3 fade-in-up delay-1">
-    <div class="glass-card" style="padding: 0.8rem 1rem;">
+    <div class="glass-card" style="padding: 0.6rem 0.8rem; background: #ffffff !important; border: 1px solid #ddd !important;">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="text-white mb-0" style="font-size: 0.85rem;">
-                <i class="bi bi-calendar me-2 text-primary"></i> Anos Lectivos
-                <span class="badge bg-primary ms-1" id="count-ano_lectivo" style="font-size: 0.6rem; color: #ffffff !important;">0</span>
+            <h6 style="font-size: clamp(0.75rem, 2.5vw, 0.85rem); color: #000 !important; font-weight: 700; margin: 0;">
+                <i class="bi bi-calendar me-2" style="color: #00d4ff;"></i> Anos Lectivos
+                <span class="badge bg-primary ms-1" id="count-ano_lectivo" style="font-size: clamp(0.5rem, 1.2vw, 0.6rem); color: #fff !important;">0</span>
             </h6>
-            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('ano_lectivo')" style="font-size: 0.65rem; padding: 2px 10px;">
+            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('ano_lectivo')" style="font-size: clamp(0.55rem, 1.5vw, 0.65rem); padding: 2px 8px; min-height: 28px; background: #2ed573; color: #fff; border: none; border-radius: 6px;">
                 <i class="bi bi-plus-circle me-1"></i> Adicionar
             </button>
         </div>
         <div id="lista-ano_lectivo" class="lista-items">
-            <div class="text-center py-2 text-muted" style="font-size: 0.7rem; color: rgba(255,255,255,0.5) !important;">Carregando...</div>
+            <div class="text-center py-2 text-muted" style="font-size: 0.65rem; color: #999 !important;">Carregando...</div>
         </div>
     </div>
 </section>
 
 <!-- SEÇÃO 2: TRIMESTRE -->
 <section id="section-trimestre" class="mb-3 fade-in-up delay-2">
-    <div class="glass-card" style="padding: 0.8rem 1rem;">
+    <div class="glass-card" style="padding: 0.6rem 0.8rem; background: #ffffff !important; border: 1px solid #ddd !important;">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="text-white mb-0" style="font-size: 0.85rem;">
-                <i class="bi bi-calendar3 me-2 text-success"></i> Trimestres
-                <span class="badge bg-success ms-1" id="count-trimestre" style="font-size: 0.6rem; color: #ffffff !important;">0</span>
+            <h6 style="font-size: clamp(0.75rem, 2.5vw, 0.85rem); color: #000 !important; font-weight: 700; margin: 0;">
+                <i class="bi bi-calendar3 me-2" style="color: #2ed573;"></i> Trimestres
+                <span class="badge bg-success ms-1" id="count-trimestre" style="font-size: clamp(0.5rem, 1.2vw, 0.6rem); color: #fff !important;">0</span>
             </h6>
-            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('trimestre')" style="font-size: 0.65rem; padding: 2px 10px;">
+            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('trimestre')" style="font-size: clamp(0.55rem, 1.5vw, 0.65rem); padding: 2px 8px; min-height: 28px; background: #2ed573; color: #fff; border: none; border-radius: 6px;">
                 <i class="bi bi-plus-circle me-1"></i> Adicionar
             </button>
         </div>
         <div id="lista-trimestre" class="lista-items">
-            <div class="text-center py-2 text-muted" style="font-size: 0.7rem; color: rgba(255,255,255,0.5) !important;">Carregando...</div>
+            <div class="text-center py-2 text-muted" style="font-size: 0.65rem; color: #999 !important;">Carregando...</div>
         </div>
     </div>
 </section>
 
 <!-- SEÇÃO 3: NÍVEL DE ENSINO -->
 <section id="section-nivel_ensino" class="mb-3 fade-in-up delay-3">
-    <div class="glass-card" style="padding: 0.8rem 1rem;">
+    <div class="glass-card" style="padding: 0.6rem 0.8rem; background: #ffffff !important; border: 1px solid #ddd !important;">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="text-white mb-0" style="font-size: 0.85rem;">
-                <i class="bi bi-layers me-2 text-purple" style="color: #a855f7;"></i> Níveis de Ensino
-                <span class="badge ms-1" id="count-nivel_ensino" style="font-size: 0.6rem; background: #a855f7; color: #ffffff !important;">0</span>
+            <h6 style="font-size: clamp(0.75rem, 2.5vw, 0.85rem); color: #000 !important; font-weight: 700; margin: 0;">
+                <i class="bi bi-layers me-2" style="color: #a855f7;"></i> Níveis de Ensino
+                <span class="badge ms-1" id="count-nivel_ensino" style="font-size: clamp(0.5rem, 1.2vw, 0.6rem); background: #a855f7; color: #fff !important;">0</span>
             </h6>
-            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('nivel_ensino')" style="font-size: 0.65rem; padding: 2px 10px;">
+            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('nivel_ensino')" style="font-size: clamp(0.55rem, 1.5vw, 0.65rem); padding: 2px 8px; min-height: 28px; background: #2ed573; color: #fff; border: none; border-radius: 6px;">
                 <i class="bi bi-plus-circle me-1"></i> Adicionar
             </button>
         </div>
         <div id="lista-nivel_ensino" class="lista-items">
-            <div class="text-center py-2 text-muted" style="font-size: 0.7rem; color: rgba(255,255,255,0.5) !important;">Carregando...</div>
+            <div class="text-center py-2 text-muted" style="font-size: 0.65rem; color: #999 !important;">Carregando...</div>
         </div>
     </div>
 </section>
 
 <!-- SEÇÃO 4: CLASSE -->
 <section id="section-classe" class="mb-3 fade-in-up delay-4">
-    <div class="glass-card" style="padding: 0.8rem 1rem;">
+    <div class="glass-card" style="padding: 0.6rem 0.8rem; background: #ffffff !important; border: 1px solid #ddd !important;">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="text-white mb-0" style="font-size: 0.85rem;">
-                <i class="bi bi-diagram-3 me-2 text-warning"></i> Classes
-                <span class="badge bg-warning ms-1" id="count-classe" style="font-size: 0.6rem; color: #ffffff !important;">0</span>
+            <h6 style="font-size: clamp(0.75rem, 2.5vw, 0.85rem); color: #000 !important; font-weight: 700; margin: 0;">
+                <i class="bi bi-diagram-3 me-2" style="color: #ffa502;"></i> Classes
+                <span class="badge bg-warning ms-1" id="count-classe" style="font-size: clamp(0.5rem, 1.2vw, 0.6rem); color: #fff !important;">0</span>
             </h6>
-            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('classe')" style="font-size: 0.65rem; padding: 2px 10px;">
+            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('classe')" style="font-size: clamp(0.55rem, 1.5vw, 0.65rem); padding: 2px 8px; min-height: 28px; background: #2ed573; color: #fff; border: none; border-radius: 6px;">
                 <i class="bi bi-plus-circle me-1"></i> Adicionar
             </button>
         </div>
         <div id="lista-classe" class="lista-items">
-            <div class="text-center py-2 text-muted" style="font-size: 0.7rem; color: rgba(255,255,255,0.5) !important;">Carregando...</div>
+            <div class="text-center py-2 text-muted" style="font-size: 0.65rem; color: #999 !important;">Carregando...</div>
         </div>
     </div>
 </section>
 
 <!-- SEÇÃO 5: DISCIPLINA -->
 <section id="section-disciplina" class="mb-3 fade-in-up delay-5">
-    <div class="glass-card" style="padding: 0.8rem 1rem;">
+    <div class="glass-card" style="padding: 0.6rem 0.8rem; background: #ffffff !important; border: 1px solid #ddd !important;">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="text-white mb-0" style="font-size: 0.85rem;">
-                <i class="bi bi-book me-2 text-info"></i> Disciplinas
-                <span class="badge bg-info ms-1" id="count-disciplina" style="font-size: 0.6rem; color: #ffffff !important;">0</span>
+            <h6 style="font-size: clamp(0.75rem, 2.5vw, 0.85rem); color: #000 !important; font-weight: 700; margin: 0;">
+                <i class="bi bi-book me-2" style="color: #7b2ffc;"></i> Disciplinas
+                <span class="badge bg-info ms-1" id="count-disciplina" style="font-size: clamp(0.5rem, 1.2vw, 0.6rem); color: #fff !important;">0</span>
             </h6>
-            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('disciplina')" style="font-size: 0.65rem; padding: 2px 10px;">
+            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('disciplina')" style="font-size: clamp(0.55rem, 1.5vw, 0.65rem); padding: 2px 8px; min-height: 28px; background: #2ed573; color: #fff; border: none; border-radius: 6px;">
                 <i class="bi bi-plus-circle me-1"></i> Adicionar
             </button>
         </div>
         <div id="lista-disciplina" class="lista-items">
-            <div class="text-center py-2 text-muted" style="font-size: 0.7rem; color: rgba(255,255,255,0.5) !important;">Carregando...</div>
+            <div class="text-center py-2 text-muted" style="font-size: 0.65rem; color: #999 !important;">Carregando...</div>
         </div>
     </div>
 </section>
 
 <!-- SEÇÃO 6: TURMA -->
 <section id="section-turma" class="mb-3 fade-in-up delay-6">
-    <div class="glass-card" style="padding: 0.8rem 1rem;">
+    <div class="glass-card" style="padding: 0.6rem 0.8rem; background: #ffffff !important; border: 1px solid #ddd !important;">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="text-white mb-0" style="font-size: 0.85rem;">
-                <i class="bi bi-people-fill me-2 text-danger"></i> Turmas
-                <span class="badge bg-danger ms-1" id="count-turma" style="font-size: 0.6rem; color: #ffffff !important;">0</span>
+            <h6 style="font-size: clamp(0.75rem, 2.5vw, 0.85rem); color: #000 !important; font-weight: 700; margin: 0;">
+                <i class="bi bi-people-fill me-2" style="color: #ff4757;"></i> Turmas
+                <span class="badge bg-danger ms-1" id="count-turma" style="font-size: clamp(0.5rem, 1.2vw, 0.6rem); color: #fff !important;">0</span>
             </h6>
-            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('turma')" style="font-size: 0.65rem; padding: 2px 10px;">
+            <button type="button" class="metal-btn-primary" onclick="window.abrirModal('turma')" style="font-size: clamp(0.55rem, 1.5vw, 0.65rem); padding: 2px 8px; min-height: 28px; background: #2ed573; color: #fff; border: none; border-radius: 6px;">
                 <i class="bi bi-plus-circle me-1"></i> Adicionar
             </button>
         </div>
         <div id="lista-turma" class="lista-items">
-            <div class="text-center py-2 text-muted" style="font-size: 0.7rem; color: rgba(255,255,255,0.5) !important;">Carregando...</div>
+            <div class="text-center py-2 text-muted" style="font-size: 0.65rem; color: #999 !important;">Carregando...</div>
         </div>
     </div>
 </section>
@@ -184,22 +184,22 @@
 <!-- MODAL: GESTÃO -->
 <div class="modal fade" id="modalGestao" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
-        <div class="modal-content metal-modal-content">
-            <div class="modal-header metal-modal-header" style="padding: 10px 15px;">
-                <h6 class="modal-title" id="modalGestaoTitle" style="font-size: 0.95rem;">
+        <div class="modal-content metal-modal-content" style="border-radius: 12px; margin: 10px;">
+            <div class="modal-header metal-modal-header" style="padding: 8px 12px;">
+                <h6 class="modal-title" id="modalGestaoTitle" style="font-size: clamp(0.85rem, 2.5vw, 0.95rem);">
                     <i class="bi bi-plus-circle me-2"></i>Novo Item
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="font-size: 0.8rem;"></button>
             </div>
-            <div class="modal-body" id="modalGestaoBody" style="padding: 15px;">
+            <div class="modal-body" id="modalGestaoBody" style="padding: 10px 12px;">
                 <div class="text-center py-3">
                     <div class="spinner-border text-primary" role="status" style="width: 1.5rem; height: 1.5rem;"></div>
-                    <p class="mt-2 text-muted" style="font-size: 0.8rem;">Carregando formulário...</p>
+                    <p class="mt-2 text-muted" style="font-size: 0.8rem;">Carregando...</p>
                 </div>
             </div>
-            <div class="modal-footer metal-modal-footer" style="padding: 8px 15px;">
-                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal" style="font-size: 0.75rem; padding: 4px 12px;">Cancelar</button>
-                <button type="button" class="metal-btn-primary" id="modalGestaoSaveBtn" onclick="window.salvarItem()" style="font-size: 0.75rem; padding: 4px 12px;">
+            <div class="modal-footer metal-modal-footer" style="padding: 6px 12px;">
+                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal" style="font-size: clamp(0.65rem, 1.8vw, 0.75rem); padding: 4px 12px; min-height: 32px;">Cancelar</button>
+                <button type="button" class="metal-btn-primary" id="modalGestaoSaveBtn" onclick="window.salvarItem()" style="font-size: clamp(0.65rem, 1.8vw, 0.75rem); padding: 4px 12px; min-height: 32px;">
                     <i class="bi bi-check-circle me-1"></i>Salvar
                 </button>
             </div>
@@ -210,69 +210,207 @@
 <!-- MODAL: EXCLUIR -->
 <div class="modal fade" id="modalDelete" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content metal-modal-content">
-            <div class="modal-header metal-modal-header-danger" style="padding: 10px 15px;">
-                <h6 class="modal-title" style="font-size: 0.95rem;"><i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão</h6>
+        <div class="modal-content metal-modal-content" style="border-radius: 12px; margin: 10px;">
+            <div class="modal-header metal-modal-header-danger" style="padding: 8px 12px;">
+                <h6 class="modal-title" style="font-size: clamp(0.85rem, 2.5vw, 0.95rem);"><i class="bi bi-exclamation-triangle me-2"></i>Excluir</h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="font-size: 0.8rem;"></button>
             </div>
-            <div class="modal-body" style="padding: 15px;">
-                <p style="font-size: 0.85rem;">Tem certeza que deseja excluir <strong id="deleteNome"></strong>?</p>
-                <div class="metal-alert-warning" style="padding: 8px 12px; font-size: 0.8rem;">
+            <div class="modal-body" style="padding: 12px;">
+                <p style="font-size: clamp(0.75rem, 2vw, 0.85rem);">Tem certeza que deseja excluir <strong id="deleteNome"></strong>?</p>
+                <div class="metal-alert-warning" style="padding: 6px 10px; font-size: clamp(0.65rem, 1.8vw, 0.75rem); border-radius: 6px;">
                     <i class="bi bi-exclamation-circle me-2"></i>
                     <strong>Esta ação não pode ser desfeita!</strong>
                 </div>
                 <div class="mb-2">
-                    <label class="metal-form-label" style="font-size: 0.8rem;">Digite <strong>"DELETAR"</strong> para confirmar:</label>
-                    <input type="text" id="deleteConfirm" class="metal-form-control" placeholder="DELETAR" style="font-size: 0.8rem; padding: 6px 10px;">
+                    <label class="metal-form-label" style="font-size: clamp(0.65rem, 1.8vw, 0.75rem);">Digite <strong>"DELETAR"</strong>:</label>
+                    <input type="text" id="deleteConfirm" class="metal-form-control" placeholder="DELETAR" style="font-size: clamp(0.7rem, 2vw, 0.8rem); padding: 4px 8px; min-height: 32px;">
                 </div>
             </div>
-            <div class="modal-footer metal-modal-footer" style="padding: 8px 15px;">
-                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal" style="font-size: 0.75rem; padding: 4px 12px;">Cancelar</button>
-                <button type="button" class="metal-btn-danger" id="deleteBtn" onclick="window.confirmarDelete()" disabled style="font-size: 0.75rem; padding: 4px 12px;">Excluir</button>
+            <div class="modal-footer metal-modal-footer" style="padding: 6px 12px;">
+                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal" style="font-size: clamp(0.65rem, 1.8vw, 0.75rem); padding: 4px 12px; min-height: 32px;">Cancelar</button>
+                <button type="button" class="metal-btn-danger" id="deleteBtn" onclick="window.confirmarDelete()" disabled style="font-size: clamp(0.65rem, 1.8vw, 0.75rem); padding: 4px 12px; min-height: 32px;">Excluir</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- TOAST -->
-<div id="toastContainer" style="position: fixed; top: 70px; right: 10px; z-index: 99999; max-width: 300px;"></div>
+<div id="toastContainer" style="position: fixed; top: 60px; right: 10px; z-index: 99999; max-width: 280px;"></div>
 
-<!-- ESTILOS -->
+<!-- ============================================ -->
+<!-- ESTILOS - CORRIGIDOS PARA TEMA CLARO -->
+<!-- ============================================ -->
 <style>
-    .metal-header { background: linear-gradient(135deg, #00d4ff, #7b2ffc); border-radius: 12px; padding: 1rem 1.2rem; border: 1px solid rgba(255,255,255,0.1); }
+    /* Reset e base */
+    * { 
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+    }
+    
+    .metal-header { 
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc); 
+        border-radius: 12px; 
+        padding: clamp(0.5rem, 2vw, 1rem) clamp(0.8rem, 3vw, 1.2rem); 
+        border: 1px solid rgba(255,255,255,0.1); 
+    }
     .metal-title { color: white; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
     .metal-subtitle { color: rgba(255,255,255,0.9) !important; }
-    .metal-btn-primary { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; font-weight: 500; transition: all 0.3s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; font-size: 0.65rem; padding: 2px 10px; }
+    
+    .metal-btn-primary { 
+        background: rgba(255,255,255,0.15); 
+        border: 1px solid rgba(255,255,255,0.3); 
+        color: white; 
+        border-radius: 8px; 
+        font-weight: 500; 
+        transition: all 0.2s ease; 
+        cursor: pointer; 
+        display: inline-flex; 
+        align-items: center; 
+        justify-content: center;
+        gap: 4px; 
+        white-space: nowrap; 
+        touch-action: manipulation;
+        min-height: 32px;
+        padding: 4px 12px;
+    }
+    .metal-btn-primary:active { transform: scale(0.96); }
     .metal-btn-primary:hover { background: rgba(255,255,255,0.25); color: white; }
-    .metal-btn-secondary { background: rgba(108,117,125,0.2); border: 1px solid rgba(108,117,125,0.3); color: #6c757d; border-radius: 8px; font-weight: 500; transition: all 0.3s ease; cursor: pointer; }
+    
+    .metal-btn-secondary { 
+        background: rgba(108,117,125,0.2); 
+        border: 1px solid rgba(108,117,125,0.3); 
+        color: #6c757d; 
+        border-radius: 8px; 
+        font-weight: 500; 
+        transition: all 0.2s ease; 
+        cursor: pointer;
+        touch-action: manipulation;
+        min-height: 32px;
+        padding: 4px 12px;
+    }
+    .metal-btn-secondary:active { transform: scale(0.96); }
     .metal-btn-secondary:hover { background: rgba(108,117,125,0.3); color: #5a6268; }
-    .metal-btn-danger { background: linear-gradient(135deg, #dc3545, #c82333); border: none; color: white; border-radius: 8px; font-weight: 500; cursor: pointer; }
+    
+    .metal-btn-danger { 
+        background: linear-gradient(135deg, #dc3545, #c82333); 
+        border: none; 
+        color: white; 
+        border-radius: 8px; 
+        font-weight: 500; 
+        cursor: pointer;
+        touch-action: manipulation;
+        min-height: 32px;
+        padding: 4px 12px;
+    }
+    .metal-btn-danger:active { transform: scale(0.96); }
     .metal-btn-danger:hover { opacity: 0.9; }
-    .metal-form-control { background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 8px; padding: 8px 10px; color: #ffffff !important; font-size: 0.85rem; width: 100%; }
-    .metal-form-control:focus { border-color: #00d4ff !important; box-shadow: 0 0 0 2px rgba(0,212,255,0.15) !important; outline: none; background: rgba(255,255,255,0.08) !important; color: #ffffff !important; }
-    .metal-form-label { color: rgba(255,255,255,0.9) !important; font-weight: 500; font-size: 0.8rem; margin-bottom: 0.15rem; display: block; }
-    .metal-modal-content { background: #0a0e1a; border: 1px solid rgba(0,212,255,0.2); border-radius: 12px; }
-    .metal-modal-header { background: linear-gradient(135deg, #00d4ff, #7b2ffc); color: white; border-radius: 12px 12px 0 0; }
-    .metal-modal-header-danger { background: linear-gradient(135deg, #dc3545, #c82333); color: white; border-radius: 12px 12px 0 0; }
-    .metal-modal-footer { background: rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.05); border-radius: 0 0 12px 12px; }
-    .metal-alert-warning { background: rgba(255,193,7,0.1); border-left: 3px solid #ffc107; padding: 8px 12px; border-radius: 6px; margin: 10px 0; color: #ffffff !important; }
-    .glass-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; transition: all 0.3s ease; color: #ffffff !important; }
-    .glass-card:hover { border-color: rgba(0,212,255,0.12); box-shadow: 0 4px 20px rgba(0,212,255,0.02); }
-    .glass-card .display-6 { color: #00d4ff !important; }
-    .glass-card .display-6.text-success { color: #2ed573 !important; }
-    .glass-card .display-6.text-warning { color: #ffa502 !important; }
-    .glass-card .display-6.text-danger { color: #ff4757 !important; }
-    .glass-card .display-6.text-info { color: #7b2ffc !important; }
-    .glass-card .display-6.text-purple { color: #a855f7 !important; }
-    .glass-card .h5, .glass-card .h6 { color: #ffffff !important; }
-    .badge { padding: 2px 8px; border-radius: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #ffffff !important; }
+    
+    .metal-form-control { 
+        background: rgba(255,255,255,0.05) !important; 
+        border: 1px solid rgba(255,255,255,0.1) !important; 
+        border-radius: 8px; 
+        padding: 6px 10px; 
+        color: #ffffff !important; 
+        font-size: clamp(0.7rem, 2vw, 0.85rem); 
+        width: 100%; 
+        min-height: 32px;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    .metal-form-control:focus { 
+        border-color: #00d4ff !important; 
+        box-shadow: 0 0 0 2px rgba(0,212,255,0.15) !important; 
+        outline: none; 
+        background: rgba(255,255,255,0.08) !important; 
+        color: #ffffff !important; 
+    }
+    .metal-form-control::placeholder { color: rgba(255,255,255,0.3) !important; }
+    
+    .metal-form-label { 
+        color: rgba(255,255,255,0.9) !important; 
+        font-weight: 500; 
+        font-size: clamp(0.65rem, 1.8vw, 0.8rem); 
+        margin-bottom: 0.15rem; 
+        display: block; 
+    }
+    
+    .metal-modal-content { 
+        background: #0a0e1a; 
+        border: 1px solid rgba(0,212,255,0.2); 
+        border-radius: 12px; 
+    }
+    .metal-modal-header { 
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc); 
+        color: white; 
+        border-radius: 12px 12px 0 0; 
+    }
+    .metal-modal-header-danger { 
+        background: linear-gradient(135deg, #dc3545, #c82333); 
+        color: white; 
+        border-radius: 12px 12px 0 0; 
+    }
+    .metal-modal-footer { 
+        background: rgba(0,0,0,0.2); 
+        border-top: 1px solid rgba(255,255,255,0.05); 
+        border-radius: 0 0 12px 12px; 
+    }
+    
+    .metal-alert-warning { 
+        background: rgba(255,193,7,0.1); 
+        border-left: 3px solid #ffc107; 
+        padding: 6px 10px; 
+        border-radius: 6px; 
+        margin: 8px 0; 
+        color: #ffffff !important; 
+    }
+    .metal-alert-success { 
+        background: rgba(46,213,115,0.1); 
+        border-left: 3px solid #2ed573; 
+        padding: 6px 10px; 
+        border-radius: 6px; 
+        margin: 8px 0; 
+        color: #ffffff !important; 
+    }
+    
+    .glass-card { 
+        background: #ffffff !important; 
+        backdrop-filter: none;
+        border: 1px solid #ddd !important; 
+        border-radius: 12px; 
+        transition: all 0.2s ease; 
+        color: #000 !important; 
+    }
+    .glass-card:active { transform: scale(0.99); }
+    
+    .card-resumo {
+        transition: all 0.2s ease;
+        background: #ffffff !important;
+        border: 1px solid #ddd !important;
+    }
+    .card-resumo:hover {
+        border-color: #00d4ff !important;
+        box-shadow: 0 2px 12px rgba(0,212,255,0.1);
+    }
+    .card-resumo:active {
+        transform: scale(0.96);
+    }
+    
+    .badge { 
+        padding: 2px 8px; 
+        border-radius: 12px; 
+        font-weight: 600; 
+        text-transform: uppercase; 
+        letter-spacing: 0.3px; 
+        color: #ffffff !important; 
+    }
     .bg-success { background-color: #2ed573 !important; }
     .bg-warning { background-color: #ffa502 !important; color: #212529 !important; }
     .bg-danger { background-color: #ff4757 !important; }
     .bg-primary { background-color: #00d4ff !important; }
     .bg-info { background-color: #7b2ffc !important; }
-    .bg-purple { background-color: #a855f7 !important; }
-    .text-purple { color: #a855f7 !important; }
+    .bg-secondary { background-color: #6c757d !important; }
+    .bg-dark { background-color: #343a40 !important; }
+    
     .fade-in-up { animation: fadeInUp 0.4s ease forwards; opacity: 0; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     .delay-1 { animation-delay: 0.05s; }
@@ -281,40 +419,95 @@
     .delay-4 { animation-delay: 0.2s; }
     .delay-5 { animation-delay: 0.25s; }
     .delay-6 { animation-delay: 0.3s; }
+    
     .modal-body { color: #ffffff !important; }
-    select option { background-color: #1a1a2e !important; color: #ffffff !important; }
-    .text-muted { color: rgba(255,255,255,0.5) !important; }
+    .modal-body select option { background-color: #1a1a2e !important; color: #ffffff !important; }
+    .text-muted { color: rgba(0,0,0,0.5) !important; }
+    
+    .toast-custom { 
+        background: rgba(10,14,26,0.95); 
+        backdrop-filter: blur(10px); 
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(0,212,255,0.2); 
+        border-radius: 10px; 
+        padding: 8px 12px; 
+        margin-bottom: 6px; 
+        color: #fff; 
+        animation: slideInRight 0.3s ease; 
+        display: flex; 
+        align-items: center; 
+        gap: 8px; 
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4); 
+        font-size: clamp(0.7rem, 2vw, 0.8rem); 
+    }
+    .toast-custom.success { border-left: 3px solid #2ed573; }
+    .toast-custom.error { border-left: 3px solid #ff4757; }
+    .toast-custom.warning { border-left: 3px solid #ffa502; }
+    .toast-custom .toast-icon { font-size: clamp(0.8rem, 2.2vw, 1rem); }
+    .toast-custom.success .toast-icon { color: #2ed573; }
+    .toast-custom.error .toast-icon { color: #ff4757; }
+    .toast-custom.warning .toast-icon { color: #ffa502; }
+    
+    @keyframes slideInRight { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(30px); opacity: 0; } }
+    
+    /* LISTA ITEMS - CORRIGIDO PARA TEMA CLARO */
     .lista-items { max-height: 140px; overflow-y: auto; }
     .lista-items::-webkit-scrollbar { width: 3px; }
-    .lista-items::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 3px; }
-    .lista-items::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 3px; }
-    .item-mini { display: flex; justify-content: space-between; align-items: center; padding: 4px 6px; border-bottom: 1px solid rgba(255,255,255,0.03); border-radius: 4px; gap: 4px; flex-wrap: wrap; }
-    .item-mini:hover { background: rgba(255,255,255,0.02); }
+    .lista-items::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px; }
+    .lista-items::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.3); border-radius: 3px; }
+    .item-mini { display: flex; justify-content: space-between; align-items: center; padding: 4px 6px; border-bottom: 1px solid #eee; border-radius: 4px; gap: 4px; flex-wrap: wrap; }
+    .item-mini:hover { background: #f8f9fa; }
     .item-mini .item-info { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; flex-wrap: wrap; }
-    .item-mini .item-info .item-nome { font-weight: 500; color: #ffffff; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
-    .item-mini .item-info .item-detalhe { font-size: 0.6rem; color: rgba(255,255,255,0.35); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
+    .item-mini .item-info .item-nome { font-weight: 500; color: #000 !important; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
     .item-mini .item-actions { display: flex; gap: 3px; flex-shrink: 0; }
     .item-mini .item-actions .btn-sm { padding: 1px 5px; font-size: 0.55rem; border-radius: 3px; line-height: 1.2; }
     .item-mini .status-badge { font-size: 0.45rem; padding: 1px 6px; border-radius: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2px; flex-shrink: 0; }
     .status-badge.ativo { background: #2ed573; color: #ffffff; }
     .status-badge.inativo { background: #6c757d; color: #ffffff; }
-    .toast-custom { background: rgba(10,14,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(0,212,255,0.2); border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; color: #fff; animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); font-size: 0.8rem; }
-    .toast-custom.success { border-left: 3px solid #2ed573; }
-    .toast-custom.error { border-left: 3px solid #ff4757; }
-    .toast-custom.warning { border-left: 3px solid #ffa502; }
-    .toast-custom .toast-icon { font-size: 1rem; }
-    .toast-custom.success .toast-icon { color: #2ed573; }
-    .toast-custom.error .toast-icon { color: #ff4757; }
-    .toast-custom.warning .toast-icon { color: #ffa502; }
-    @keyframes slideInRight { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(30px); opacity: 0; } }
-    @media (max-width:360px){ .item-mini .item-info .item-nome { max-width:80px; font-size:0.7rem; } .item-mini .item-info .item-detalhe { max-width:60px; font-size:0.55rem; } .item-mini .item-actions .btn-sm { padding:0px 4px; font-size:0.5rem; } .metal-title { font-size:1rem; } .glass-card .display-6 { font-size:1rem !important; } .glass-card .h6 { font-size:0.8rem !important; } }
-    @media (max-width:576px){ .metal-header { padding:0.6rem 0.8rem; } .metal-title { font-size:1.1rem; } .metal-subtitle { font-size:0.65rem; } .metal-btn-primary { font-size:0.6rem; padding:2px 8px; } .glass-card { padding:0.6rem 0.8rem !important; } .modal-dialog { margin:0.3rem; } .lista-items { max-height:120px; } .modal-body { padding:10px !important; } }
-    @media (min-width:768px){ .item-mini .item-info .item-nome { max-width:300px; } .item-mini .item-info .item-detalhe { max-width:200px; } .lista-items { max-height:180px; } }
+    
+    /* Responsividade */
+    @media (max-width: 480px) {
+        .metal-title { font-size: 1rem; }
+        .metal-header { padding: 0.5rem 0.6rem; }
+        .modal-dialog { margin: 0.2rem; }
+        .modal-body { padding: 8px !important; }
+        .col-4 .card-resumo { padding: 0.3rem 0.1rem !important; }
+        .item-mini .item-info .item-nome { max-width: 70px; font-size: 0.7rem; }
+    }
+    
+    @media (max-width: 576px) {
+        .metal-header { padding: 0.4rem 0.6rem; }
+        .metal-title { font-size: 0.95rem; }
+        .metal-subtitle { font-size: 0.6rem; }
+        .metal-btn-primary { font-size: 0.6rem; padding: 2px 8px; min-height: 28px; }
+        .glass-card { padding: 0.4rem 0.6rem !important; }
+        .modal-dialog { margin: 0.3rem; }
+        .modal-body { padding: 8px 10px !important; }
+        .toast-custom { max-width: 90%; right: 5%; top: 60px; }
+        #toastContainer { max-width: 90%; right: 5%; }
+        .lista-items { max-height: 120px; }
+    }
+    
+    @media (min-width: 768px) {
+        .item-mini .item-info .item-nome { max-width: 300px; }
+        .lista-items { max-height: 180px; }
+    }
+    
+    /* Previne zoom em inputs no iOS */
+    @supports (-webkit-touch-callout: none) {
+        input, select, textarea { font-size: 16px !important; }
+    }
+    
+    /* Melhorias para touch */
+    button, .btn, .card-resumo[onclick] { 
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
 </style>
 
 <!-- ============================================ -->
-<!-- 🔥 SCRIPTS - COM DIAGNÓSTICO E FORÇADO      -->
+<!-- SCRIPTS - MANTIDOS ORIGINAIS COM URLs CORRETAS -->
 <!-- ============================================ -->
 <script>
 // ============================================

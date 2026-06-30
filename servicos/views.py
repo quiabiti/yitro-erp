@@ -7,9 +7,13 @@ from django.db.models import Q, Sum, Count
 from django.db import models
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.cache import never_cache  # 🔥 ADICIONE ESTA LINHA
+from django.views.decorators.cache import never_cache
 from django.contrib.auth import get_user_model
 from decimal import Decimal
+import json
+import os
+import io
+from datetime import datetime, timedelta
 
 from .models import (
     Item, Stock, MovimentoStock, Local, Licenca,
@@ -21,49 +25,120 @@ from .forms import (
     ItemForm, ContratoServicoForm, OrdemServicoForm, LancamentoHorasForm
 )
 
-import json
-import os
-import io
-from datetime import datetime
-
-# 🔥 IMPORTS PARA PDF
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import cm
-from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
-
 User = get_user_model()
 
 
 # ============================================
-# DASHBOARDS
+# LISTA DE ITENS (CORRIGIDO COM JSON)
 # ============================================
 
-# servicos/views.py
-
 @login_required
-def central_yitro(request):
-    """🏢 CENTRAL YITRO - Dashboard com departamentos da empresa"""
+def lista_itens(request):
+    """Lista todos os itens (produtos, serviços, software, consultoria)"""
+    from django.core.serializers.json import DjangoJSONEncoder
     
-    from django.contrib.auth import get_user_model
-    from financeiro.models import Fatura
-    User = get_user_model()
+    query = request.GET.get('q', '')
+    tipo = request.GET.get('tipo', '')
+    status = request.GET.get('status', '')
+    
+    itens = Item.objects.all()
+    
+    if query:
+        itens = itens.filter(
+            Q(nome__icontains=query) |
+            Q(codigo__icontains=query) |
+            Q(descricao__icontains=query)
+        )
+    
+    if tipo:
+        itens = itens.filter(tipo=tipo)
+    
+    if status:
+        itens = itens.filter(status=status)
+    
+    # 🔥 PREPARAR DADOS PARA JSON (ITENS)
+    itens_json = []
+    for item in itens:
+        # Calcular stock para produtos
+        stock_atual = 0
+        if item.tipo == 'produto':
+            stock_total = Stock.objects.filter(item=item).aggregate(total=Sum('quantidade_atual'))['total']
+            stock_atual = stock_total or 0
+        
+        itens_json.append({
+            'id': item.id,
+            'codigo': item.codigo,
+            'nome': item.nome,
+            'tipo': item.tipo,
+            'tipo_display': item.get_tipo_display(),
+            'status': item.status,
+            'status_display': item.get_status_display(),
+            'preco_venda': float(item.preco_venda) if item.preco_venda else 0,
+            'is_recorrente': item.is_recorrente(),
+            'recorrencia_display': item.get_recorrencia_display() if item.is_recorrente() else None,
+            'stock_atual': stock_atual,
+            'imagem_url': item.imagem.url if item.imagem else '',
+            'descricao': item.descricao,
+        })
+    
+    # 🔥 ESTATÍSTICAS POR TIPO (USANDO O FILTRO ATUAL)
+    total_itens = itens.count()
+    total_produtos = itens.filter(tipo='produto').count() if tipo == '' or tipo == 'produto' else 0
+    total_servicos = itens.filter(tipo='servico').count() if tipo == '' or tipo == 'servico' else 0
+    total_software = itens.filter(tipo='software').count() if tipo == '' or tipo == 'software' else 0
+    total_consultoria = itens.filter(tipo='consultoria').count() if tipo == '' or tipo == 'consultoria' else 0
+    
+    # 🔥 ESTATÍSTICAS GERAIS (TODOS OS ITENS)
+    total_itens_geral = Item.objects.count()
+    total_produtos_geral = Item.objects.filter(tipo='produto').count()
+    total_servicos_geral = Item.objects.filter(tipo='servico').count()
+    total_software_geral = Item.objects.filter(tipo='software').count()
+    total_consultoria_geral = Item.objects.filter(tipo='consultoria').count()
+    itens_ativos = Item.objects.filter(status='ativo').count()
+    itens_inativos = Item.objects.filter(status='inativo').count()
+    
+    # Alertas de stock
+    alertas_stock = []
+    produtos = Item.objects.filter(tipo='produto', status='ativo')
+    for produto in produtos:
+        stocks = Stock.objects.filter(item=produto)
+        for stock in stocks:
+            if stock.quantidade_atual <= stock.stock_minimo:
+                alertas_stock.append({
+                    'item': produto.nome,
+                    'local': stock.local.nome,
+                    'atual': stock.quantidade_atual,
+                    'minimo': stock.stock_minimo
+                })
     
     context = {
-        'titulo': 'Central Yitro',
-        'total_usuarios': User.objects.count(),
-        'total_produtos': Item.objects.filter(tipo='produto', status='ativo').count(),
-        'total_servicos': Item.objects.filter(tipo='servico', status='ativo').count(),
-        'total_faturas': Fatura.objects.count(),
+        'itens': itens,
+        'itens_json': json.dumps(itens_json, cls=DjangoJSONEncoder),  # 🔥 JSON PARA JS
+        'total_itens': total_itens_geral,
+        'itens_ativos': itens_ativos,
+        'itens_inativos': itens_inativos,
+        'total_produtos': total_produtos_geral,
+        'total_servicos': total_servicos_geral,
+        'total_softwares': total_software_geral,
+        'total_consultorias': total_consultoria_geral,
+        'alertas_stock': alertas_stock,
+        'query': query,
+        'tipo': tipo,
+        'status': status,
+        'tipos': Item.TIPO_CHOICES,
+        'status_options': Item.STATUS_CHOICES,
     }
-    return render(request, 'central.html', context)
+    return render(request, 'servicos/lista_itens.html', context)
 
-# servicos/views.py
+
+# ============================================
+# DASHBOARD (CORRIGIDO)
+# ============================================
+
 @login_required
 def dashboard_servicos(request):
     """Dashboard principal - Vitrine de Produtos e Serviços"""
+    from django.core.serializers.json import DjangoJSONEncoder
     
     # ============================================
     # ITENS (Produtos e Serviços)
@@ -75,30 +150,46 @@ def dashboard_servicos(request):
     servicos = itens.filter(tipo__in=['servico', 'consultoria'])
     softwares = itens.filter(tipo='software')
     
-    # Produtos com stock disponível
-    produtos_com_stock = []
-    for produto in produtos:
-        stock_total = Stock.objects.filter(item=produto).aggregate(total=Sum('quantidade_atual'))['total'] or 0
-        if stock_total > 0:
-            produtos_com_stock.append({
-                'item': produto,
-                'stock': stock_total
-            })
+    # 🔥 PREPARAR ITENS JSON PARA O TEMPLATE
+    itens_json = []
+    for item in itens:
+        stock_atual = 0
+        if item.tipo == 'produto':
+            stock_total = Stock.objects.filter(item=item).aggregate(total=Sum('quantidade_atual'))['total']
+            stock_atual = stock_total or 0
+        
+        itens_json.append({
+            'id': item.id,
+            'codigo': item.codigo,
+            'nome': item.nome,
+            'tipo': item.tipo,
+            'tipo_display': item.get_tipo_display(),
+            'status': item.status,
+            'status_display': item.get_status_display(),
+            'preco_venda': float(item.preco_venda) if item.preco_venda else 0,
+            'is_recorrente': item.is_recorrente(),
+            'recorrencia_display': item.get_recorrencia_display() if item.is_recorrente() else None,
+            'stock_atual': stock_atual,
+            'imagem_url': item.imagem.url if item.imagem else '',
+        })
     
     # ============================================
     # ESTATÍSTICAS
     # ============================================
-    total_itens = itens.count()
-    total_produtos = produtos.count()
-    total_servicos = servicos.count()
-    total_software = softwares.count()
-    valor_total_itens = itens.aggregate(total=Sum('preco_venda'))['total'] or 0
+    total_itens = Item.objects.count()
+    total_produtos = Item.objects.filter(tipo='produto').count()
+    total_servicos = Item.objects.filter(tipo='servico').count()
+    total_software = Item.objects.filter(tipo='software').count()
+    total_consultoria = Item.objects.filter(tipo='consultoria').count()
+    itens_ativos = Item.objects.filter(status='ativo').count()
+    itens_inativos = Item.objects.filter(status='inativo').count()
+    valor_total_itens = Item.objects.aggregate(total=Sum('preco_venda'))['total'] or 0
     
     # ============================================
     # ALERTAS DE STOCK
     # ============================================
     alertas_stock = []
-    for produto in produtos:
+    for produto in Item.objects.filter(tipo='produto', status='ativo'):
         stocks = Stock.objects.filter(item=produto)
         for stock in stocks:
             if stock.quantidade_atual <= stock.stock_minimo:
@@ -117,7 +208,7 @@ def dashboard_servicos(request):
     destaque = itens.order_by('-criado_em')[:6]
     
     # ============================================
-    # CONTRATOS E ORDENS (para manter compatibilidade)
+    # CONTRATOS E ORDENS
     # ============================================
     total_contratos = ContratoServico.objects.filter(status='ativo').count()
     total_ordens = OrdemServico.objects.exclude(status='concluida').count()
@@ -150,15 +241,19 @@ def dashboard_servicos(request):
     # ============================================
     context = {
         'itens': itens,
+        'itens_json': json.dumps(itens_json, cls=DjangoJSONEncoder),  # 🔥 JSON PARA JS
         'produtos': produtos,
         'servicos': servicos,
         'softwares': softwares,
-        'produtos_com_stock': produtos_com_stock,
+        'produtos_com_stock': [],  # Será preenchido se necessário
         'destaque': destaque,
         'total_itens': total_itens,
         'total_produtos': total_produtos,
         'total_servicos': total_servicos,
-        'total_software': total_software,
+        'total_softwares': total_software,
+        'total_consultorias': total_consultoria,
+        'itens_ativos': itens_ativos,
+        'itens_inativos': itens_inativos,
         'valor_total_itens': valor_total_itens,
         'alertas_stock': alertas_stock,
         'total_alertas': len(alertas_stock),
@@ -173,16 +268,8 @@ def dashboard_servicos(request):
         'total_carrinho_itens': len(carrinho_itens),
     }
     
-    # 🔥 USA O TEMPLATE loja_yitro.html
     return render(request, 'loja_yitro.html', context)
 
-@login_required
-def relatorios(request):
-    """Página de relatórios"""
-    context = {
-        'titulo': 'Relatórios',
-    }
-    return render(request, 'servicos/relatorios.html', context)
 
 # ============================================
 # CARRINHO DE COMPRAS
@@ -217,11 +304,6 @@ def carrinho(request):
 import logging
 import json
 import traceback
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from django.db.models import Sum
 
 # Configurar logger específico para esta função
 logger = logging.getLogger(__name__)
@@ -414,53 +496,6 @@ def carrinho_adicionar(request):
         }, status=500)
 
 
-# ============================================
-# CHECKOUT
-# ============================================
-
-@login_required
-def checkout(request):
-    """Página de checkout/finalização da compra"""
-    carrinho = request.session.get('carrinho', [])
-    total = request.session.get('carrinho_total', 0)
-    
-    if not carrinho:
-        messages.warning(request, 'Seu carrinho está vazio!')
-        return redirect('servicos:dashboard')
-    
-    itens_carrinho = []
-    for item_data in carrinho:
-        try:
-            item = Item.objects.get(id=item_data['id'])
-            itens_carrinho.append({
-                'item': item,
-                'quantidade': item_data['quantidade'],
-                'subtotal': item.preco_venda * item_data['quantidade']
-            })
-        except Item.DoesNotExist:
-            continue
-    
-    # Verificar se os itens ainda estão disponíveis
-    for item_data in itens_carrinho:
-        if item_data['item'].tipo == 'produto':
-            stock = Stock.objects.filter(item=item_data['item']).aggregate(
-                total=Sum('quantidade_atual')
-            )['total'] or 0
-            if stock < item_data['quantidade']:
-                messages.error(
-                    request, 
-                    f'Stock insuficiente para "{item_data["item"].nome}". Disponível: {stock}'
-                )
-                return redirect('servicos:carrinho')
-    
-    context = {
-        'itens_carrinho': itens_carrinho,
-        'total': total,
-        'total_itens': len(itens_carrinho),
-        'user': request.user,
-    }
-    return render(request, 'servicos/checkout.html', context)
-
 @csrf_exempt
 @login_required
 def carrinho_remover(request):
@@ -517,76 +552,56 @@ def carrinho_limpar(request):
 
 
 # ============================================
-# ITENS (UNIFICADO)
+# CHECKOUT
 # ============================================
 
 @login_required
-def lista_itens(request):
-    """Lista todos os itens (produtos, serviços, software, consultoria)"""
-    query = request.GET.get('q', '')
-    tipo = request.GET.get('tipo', '')
-    status = request.GET.get('status', '')
+def checkout(request):
+    """Página de checkout/finalização da compra"""
+    carrinho = request.session.get('carrinho', [])
+    total = request.session.get('carrinho_total', 0)
     
-    itens = Item.objects.all()
+    if not carrinho:
+        messages.warning(request, 'Seu carrinho está vazio!')
+        return redirect('servicos:dashboard')
     
-    if query:
-        itens = itens.filter(
-            Q(nome__icontains=query) |
-            Q(codigo__icontains=query) |
-            Q(descricao__icontains=query)
-        )
+    itens_carrinho = []
+    for item_data in carrinho:
+        try:
+            item = Item.objects.get(id=item_data['id'])
+            itens_carrinho.append({
+                'item': item,
+                'quantidade': item_data['quantidade'],
+                'subtotal': item.preco_venda * item_data['quantidade']
+            })
+        except Item.DoesNotExist:
+            continue
     
-    if tipo:
-        itens = itens.filter(tipo=tipo)
-    
-    if status:
-        itens = itens.filter(status=status)
-    
-    # Estatísticas
-    total_itens = Item.objects.count()
-    itens_ativos = Item.objects.filter(status='ativo').count()
-    itens_inativos = Item.objects.filter(status='inativo').count()
-    total_preco = Item.objects.aggregate(total=Sum('preco_venda'))['total'] or 0
-    
-    # Alertas de stock
-    alertas_stock = []
-    produtos = Item.objects.filter(tipo='produto', status='ativo')
-    for produto in produtos:
-        stocks = Stock.objects.filter(item=produto)
-        for stock in stocks:
-            if stock.quantidade_atual <= stock.stock_minimo:
-                alertas_stock.append({
-                    'item': produto.nome,
-                    'local': stock.local.nome,
-                    'atual': stock.quantidade_atual,
-                    'minimo': stock.stock_minimo
-                })
-    
-    # Totais por tipo
-    total_produtos = Item.objects.filter(tipo='produto').count()
-    total_servicos = Item.objects.filter(tipo='servico').count()
-    total_software = Item.objects.filter(tipo='software').count()
-    total_consultoria = Item.objects.filter(tipo='consultoria').count()
+    # Verificar se os itens ainda estão disponíveis
+    for item_data in itens_carrinho:
+        if item_data['item'].tipo == 'produto':
+            stock = Stock.objects.filter(item=item_data['item']).aggregate(
+                total=Sum('quantidade_atual')
+            )['total'] or 0
+            if stock < item_data['quantidade']:
+                messages.error(
+                    request, 
+                    f'Stock insuficiente para "{item_data["item"].nome}". Disponível: {stock}'
+                )
+                return redirect('servicos:carrinho')
     
     context = {
-        'itens': itens,
-        'total_itens': total_itens,
-        'itens_ativos': itens_ativos,
-        'itens_inativos': itens_inativos,
-        'total_preco': total_preco,
-        'alertas_stock': alertas_stock,
-        'total_produtos': total_produtos,
-        'total_servicos': total_servicos,
-        'total_software': total_software,
-        'total_consultoria': total_consultoria,
-        'query': query,
-        'tipo': tipo,
-        'status': status,
-        'tipos': Item.TIPO_CHOICES,
-        'status_options': Item.STATUS_CHOICES,
+        'itens_carrinho': itens_carrinho,
+        'total': total,
+        'total_itens': len(itens_carrinho),
+        'user': request.user,
     }
-    return render(request, 'servicos/lista_itens.html', context)
+    return render(request, 'servicos/checkout.html', context)
 
+
+# ============================================
+# ITENS (UNIFICADO) - CRUD
+# ============================================
 
 @login_required
 def detalhe_item(request, item_id):
@@ -834,40 +849,25 @@ def api_editar_item(request, item_id):
     try:
         item = get_object_or_404(Item, id=item_id)
         
-        # 🔥 CORREÇÃO: Processar dados para PUT com FormData
+        # Processar dados para PUT com FormData
         if request.method == 'PUT':
-            # Para PUT, o Django não preenche request.POST automaticamente
-            # Precisamos ler o body manualmente
-            if request.content_type and 'multipart/form-data' in request.content_type:
-                # 🔥 Para PUT com FormData, precisamos parsear manualmente
-                # Usamos uma abordagem simples: ler o body e parsear como QueryDict
-                from django.http import QueryDict
-                import urllib.parse
-                
-                body = request.body.decode('utf-8')
-                if body:
-                    # Parsear o body como se fosse um formulário
-                    data = {}
-                    for part in body.split('&'):
-                        if '=' in part:
-                            key, value = part.split('=', 1)
-                            data[key] = urllib.parse.unquote(value)
-                    imagem = request.FILES.get('imagem')
-                else:
-                    data = {}
-                    imagem = None
-                
-                logger.info(f"📦 PUT FORM DATA - Dados: {data}")
+            from django.http import QueryDict
+            import urllib.parse
+            
+            body = request.body.decode('utf-8')
+            if body:
+                data = {}
+                for part in body.split('&'):
+                    if '=' in part:
+                        key, value = part.split('=', 1)
+                        data[key] = urllib.parse.unquote(value)
+                imagem = request.FILES.get('imagem')
             else:
-                # JSON
-                try:
-                    data = json.loads(request.body) if request.body else {}
-                    imagem = None
-                    logger.info(f"📦 PUT JSON - Dados: {data}")
-                except json.JSONDecodeError as e:
-                    return JsonResponse({'success': False, 'error': f'JSON inválido: {str(e)}'}, status=400)
+                data = {}
+                imagem = None
+            
+            logger.info(f"📦 PUT FORM DATA - Dados: {data}")
         else:
-            # POST - normal
             if request.content_type and 'application/json' in request.content_type:
                 try:
                     data = json.loads(request.body) if request.body else {}
@@ -894,7 +894,6 @@ def api_editar_item(request, item_id):
         if data.get('recorrencia'):
             item.recorrencia = data.get('recorrencia')
         
-        # 🔥 NÚMEROS - GARANTIR CONVERSÃO CORRETA
         try:
             preco_venda = data.get('preco_venda', 0)
             item.preco_venda = float(preco_venda) if preco_venda and preco_venda != '' else 0
@@ -965,13 +964,12 @@ def api_editar_item(request, item_id):
         item.save()
         logger.info(f"✅ Item {item.id} atualizado: {item.nome}")
         
-        # 🔥 ATUALIZAR STOCK - CORRIGIDO
+        # ATUALIZAR STOCK
         if item.is_produto():
             try:
                 stock_inicial_str = data.get('stock_inicial', '0')
                 stock_minimo_str = data.get('stock_minimo', '5')
                 
-                # Converter para int
                 try:
                     stock_inicial = int(stock_inicial_str) if stock_inicial_str and str(stock_inicial_str).strip() != '' else 0
                 except (ValueError, TypeError):
@@ -1016,6 +1014,8 @@ def api_editar_item(request, item_id):
     except Exception as e:
         logger.error(f"❌ Erro ao editar item: {str(e)}", exc_info=True)
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
 @login_required
 def api_excluir_item(request, item_id):
     """API para excluir um item"""
@@ -1478,6 +1478,7 @@ def is_admin(user):
     """Verifica se o usuário é administrador"""
     return user.is_staff or user.is_superuser
 
+
 @login_required
 @user_passes_test(is_admin)
 def painel_admin(request):
@@ -1550,8 +1551,6 @@ def painel_admin(request):
 # RELATÓRIOS
 # ============================================
 
-# servicos/views.py - VERSÃO ALTERNATIVA
-
 @login_required
 @never_cache
 def configuracoes(request):
@@ -1566,20 +1565,27 @@ def configuracoes(request):
     
     context = {
         'titulo': 'Configurações',
-        'config_sistema': config,  # 🔥 MUDAR PARA config_sistema
+        'config_sistema': config,
     }
     return render(request, 'servicos/configuracoes.html', context)
+
 
 @login_required
 def gerar_pdf_pedido(request):
     """Gera um PDF com os dados do pedido"""
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import cm
+    from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
+    
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Método não permitido'}, status=405)
     
     try:
         data = json.loads(request.body)
         
-        # Extrair dados do pedido
         nome = data.get('nome', '')
         email = data.get('email', '')
         telefone = data.get('telefone', '')
@@ -1590,10 +1596,7 @@ def gerar_pdf_pedido(request):
         itens = data.get('itens', [])
         total = data.get('total', 0)
         
-        # Criar buffer para o PDF
         buffer = io.BytesIO()
-        
-        # Criar o documento PDF
         doc = SimpleDocTemplate(
             buffer,
             pagesize=A4,
@@ -1603,13 +1606,11 @@ def gerar_pdf_pedido(request):
             bottomMargin=2*cm,
         )
         
-        # Estilos
         styles = getSampleStyleSheet()
         style_normal = styles['Normal']
         style_heading = styles['Heading1']
         style_heading2 = styles['Heading2']
         
-        # Estilo personalizado para título
         style_title = ParagraphStyle(
             'TitleStyle',
             parent=styles['Heading1'],
@@ -1619,7 +1620,6 @@ def gerar_pdf_pedido(request):
             spaceAfter=20
         )
         
-        # Estilo para cabeçalho
         style_header = ParagraphStyle(
             'HeaderStyle',
             parent=styles['Normal'],
@@ -1628,17 +1628,14 @@ def gerar_pdf_pedido(request):
             spaceAfter=12
         )
         
-        # Elementos do PDF
         elements = []
         
-        # Cabeçalho
         elements.append(Paragraph("YITRO ERP", style_title))
         elements.append(Paragraph("Pedido de Compra", style_heading2))
         elements.append(Spacer(1, 0.5*cm))
         elements.append(Paragraph(f"Data: {timezone.now().strftime('%d/%m/%Y %H:%M')}", style_normal))
         elements.append(Spacer(1, 1*cm))
         
-        # Dados do Cliente
         elements.append(Paragraph("DADOS DO CLIENTE", style_header))
         elements.append(Spacer(1, 0.3*cm))
         
@@ -1664,7 +1661,6 @@ def gerar_pdf_pedido(request):
         elements.append(table_cliente)
         elements.append(Spacer(1, 0.5*cm))
         
-        # Endereço de Entrega
         elements.append(Paragraph("ENDEREÇO DE ENTREGA", style_header))
         elements.append(Spacer(1, 0.3*cm))
         elements.append(Paragraph(endereco, style_normal))
@@ -1672,11 +1668,9 @@ def gerar_pdf_pedido(request):
             elements.append(Paragraph(f"Complemento: {complemento}", style_normal))
         elements.append(Spacer(1, 0.5*cm))
         
-        # Itens do Pedido
         elements.append(Paragraph("ITENS DO PEDIDO", style_header))
         elements.append(Spacer(1, 0.3*cm))
         
-        # Tabela de itens
         tabela_dados = [['Item', 'Quantidade', 'Preço Unit.', 'Subtotal']]
         for item in itens:
             tabela_dados.append([
@@ -1686,44 +1680,36 @@ def gerar_pdf_pedido(request):
                 f"Kz {item.get('subtotal', 0):,.2f}"
             ])
         
-        # Adicionar linha de total
         tabela_dados.append(['', '', 'TOTAL:', f"Kz {total:,.2f}"])
         
         table_itens = Table(tabela_dados, colWidths=[6*cm, 2.5*cm, 3*cm, 3.5*cm])
         table_itens.setStyle(TableStyle([
-            # Cabeçalho
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#00d4ff')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, 0), 11),
-            # Dados
             ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
             ('FONTSIZE', (0, 1), (-1, -2), 9),
             ('TEXTCOLOR', (0, 1), (-1, -2), colors.white),
             ('BACKGROUND', (0, 1), (-1, -2), colors.HexColor('#1a1a2e')),
-            # Total
             ('BACKGROUND', (2, -1), (3, -1), colors.HexColor('#ffa502')),
             ('TEXTCOLOR', (2, -1), (3, -1), colors.white),
             ('FONTNAME', (2, -1), (3, -1), 'Helvetica-Bold'),
             ('FONTSIZE', (2, -1), (3, -1), 12),
-            # Bordas
             ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#333333')),
             ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#00d4ff')),
-            # Alinhamento do total
             ('ALIGN', (2, -1), (2, -1), 'RIGHT'),
         ]))
         elements.append(table_itens)
         elements.append(Spacer(1, 0.5*cm))
         
-        # Observações
         if observacoes:
             elements.append(Paragraph("OBSERVAÇÕES", style_header))
             elements.append(Spacer(1, 0.3*cm))
             elements.append(Paragraph(observacoes, style_normal))
             elements.append(Spacer(1, 0.5*cm))
         
-        # Rodapé
         elements.append(Spacer(1, 1*cm))
         elements.append(Paragraph("🔒 Compra segura • Suporte 24h", ParagraphStyle(
             'FooterStyle',
@@ -1740,7 +1726,6 @@ def gerar_pdf_pedido(request):
             alignment=TA_CENTER
         )))
         
-        # Gerar PDF
         doc.build(elements)
         buffer.seek(0)
         
@@ -1753,17 +1738,9 @@ def gerar_pdf_pedido(request):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-
 # ============================================
 # SALVAR CONFIGURAÇÕES (API)
 # ============================================
-
-# servicos/views.py
-import json
-import logging
-from decimal import Decimal
-
-logger = logging.getLogger(__name__)
 
 @csrf_exempt
 @login_required
@@ -1865,7 +1842,6 @@ def salvar_configuracoes(request):
         }, status=400)
 
 
-
 # ============================================
 # API CONFIGURAÇÕES
 # ============================================
@@ -1889,11 +1865,44 @@ def api_configuracoes(request):
         'notificacoes_push': config.notificacoes_push,
         'alertas_stock': config.alertas_stock,
         'serie_padrao': config.serie_padrao,
-        'iva_padrao': float(config.iva_padrao),
+        'iva_padrao': float(config.iva_padrao) if config.iva_padrao else 14.0,
         'validacao_automatica': config.validacao_automatica,
         'backup_automatico': config.backup_automatico,
         'logs_sistema': config.logs_sistema,
         'modo_manutencao': config.modo_manutencao,
+        'whatsapp': config.whatsapp,
+        'email': config.email,
+        'telefone': config.telefone,
+        'endereco': config.endereco,
+        'horario': config.horario,
     }
     
     return JsonResponse({'status': 'success', 'config': data})
+
+
+# ============================================
+# CENTRAL YITRO
+# ============================================
+
+@login_required
+def central_yitro(request):
+    """Central Yitro - Dashboard principal"""
+    from financeiro.models import Fatura
+    
+    context = {
+        'titulo': 'Central Yitro',
+        'total_usuarios': User.objects.count(),
+        'total_produtos': Item.objects.filter(tipo='produto', status='ativo').count(),
+        'total_servicos': Item.objects.filter(tipo='servico', status='ativo').count(),
+        'total_faturas': Fatura.objects.count(),
+    }
+    return render(request, 'central.html', context)
+
+
+@login_required
+def relatorios(request):
+    """Página de relatórios"""
+    context = {
+        'titulo': 'Relatórios',
+    }
+    return render(request, 'servicos/relatorios.html', context)
