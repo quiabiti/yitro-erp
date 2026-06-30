@@ -1,5 +1,3 @@
-# escola/urls.py
-
 from django.urls import path, include
 from .pedagogico import views as pedagogico_views
 from . import views as escola_views
@@ -29,7 +27,7 @@ urlpatterns = [
     path('api/dashboard/', escola_views.api_dashboard, name='api_dashboard'),
     
     # ============================================
-    # 🔥 API PEDAGÓGICO (NOVA URL - ADICIONADA)
+    # 🔥 API PEDAGÓGICO
     # ============================================
     path('api/pedagogico/', pedagogico_views.api_pedagogico_dashboard, name='api_pedagogico'),
     
@@ -47,9 +45,7 @@ urlpatterns = [
     # ============================================
     path('api/pedagogico/stats/', pedagogico_views.api_stats, name='api_stats'),
     
-    # ============================================
     # ANO LECTIVO
-    # ============================================
     path('api/pedagogico/ano_lectivo/listar/', pedagogico_views.api_listar, {'categoria': 'ano_lectivo'}, name='ano_lectivo_listar'),
     path('api/pedagogico/ano_lectivo/criar/', pedagogico_views.api_form_criar, {'categoria': 'ano_lectivo'}, name='ano_lectivo_criar'),
     path('api/pedagogico/ano_lectivo/editar/<int:item_id>/', pedagogico_views.api_form_editar, {'categoria': 'ano_lectivo'}, name='ano_lectivo_editar'),
@@ -57,9 +53,7 @@ urlpatterns = [
     path('api/pedagogico/ano_lectivo/salvar/<int:item_id>/', pedagogico_views.api_salvar, {'categoria': 'ano_lectivo'}, name='ano_lectivo_atualizar'),
     path('api/pedagogico/ano_lectivo/deletar/<int:item_id>/', pedagogico_views.api_deletar, {'categoria': 'ano_lectivo'}, name='ano_lectivo_deletar'),
     
-    # ============================================
     # TRIMESTRE
-    # ============================================
     path('api/pedagogico/trimestre/listar/', pedagogico_views.api_listar, {'categoria': 'trimestre'}, name='trimestre_listar'),
     path('api/pedagogico/trimestre/criar/', pedagogico_views.api_form_criar, {'categoria': 'trimestre'}, name='trimestre_criar'),
     path('api/pedagogico/trimestre/editar/<int:item_id>/', pedagogico_views.api_form_editar, {'categoria': 'trimestre'}, name='trimestre_editar'),
@@ -67,9 +61,7 @@ urlpatterns = [
     path('api/pedagogico/trimestre/salvar/<int:item_id>/', pedagogico_views.api_salvar, {'categoria': 'trimestre'}, name='trimestre_atualizar'),
     path('api/pedagogico/trimestre/deletar/<int:item_id>/', pedagogico_views.api_deletar, {'categoria': 'trimestre'}, name='trimestre_deletar'),
     
-    # ============================================
     # NÍVEL DE ENSINO
-    # ============================================
     path('api/pedagogico/nivel_ensino/listar/', pedagogico_views.api_listar, {'categoria': 'nivel_ensino'}, name='nivel_ensino_listar'),
     path('api/pedagogico/nivel_ensino/criar/', pedagogico_views.api_form_criar, {'categoria': 'nivel_ensino'}, name='nivel_ensino_criar'),
     path('api/pedagogico/nivel_ensino/editar/<int:item_id>/', pedagogico_views.api_form_editar, {'categoria': 'nivel_ensino'}, name='nivel_ensino_editar'),
@@ -77,9 +69,7 @@ urlpatterns = [
     path('api/pedagogico/nivel_ensino/salvar/<int:item_id>/', pedagogico_views.api_salvar, {'categoria': 'nivel_ensino'}, name='nivel_ensino_atualizar'),
     path('api/pedagogico/nivel_ensino/deletar/<int:item_id>/', pedagogico_views.api_deletar, {'categoria': 'nivel_ensino'}, name='nivel_ensino_deletar'),
     
-    # ============================================
     # CLASSE
-    # ============================================
     path('api/pedagogico/classe/listar/', pedagogico_views.api_listar, {'categoria': 'classe'}, name='classe_listar'),
     path('api/pedagogico/classe/criar/', pedagogico_views.api_form_criar, {'categoria': 'classe'}, name='classe_criar'),
     path('api/pedagogico/classe/editar/<int:item_id>/', pedagogico_views.api_form_editar, {'categoria': 'classe'}, name='classe_editar'),
@@ -87,9 +77,7 @@ urlpatterns = [
     path('api/pedagogico/classe/salvar/<int:item_id>/', pedagogico_views.api_salvar, {'categoria': 'classe'}, name='classe_atualizar'),
     path('api/pedagogico/classe/deletar/<int:item_id>/', pedagogico_views.api_deletar, {'categoria': 'classe'}, name='classe_deletar'),
     
-    # ============================================
     # DISCIPLINA
-    # ============================================
     path('api/pedagogico/disciplina/listar/', pedagogico_views.api_listar, {'categoria': 'disciplina'}, name='disciplina_listar'),
     path('api/pedagogico/disciplina/criar/', pedagogico_views.api_form_criar, {'categoria': 'disciplina'}, name='disciplina_criar'),
     path('api/pedagogico/disciplina/editar/<int:item_id>/', pedagogico_views.api_form_editar, {'categoria': 'disciplina'}, name='disciplina_editar'),
@@ -97,9 +85,7 @@ urlpatterns = [
     path('api/pedagogico/disciplina/salvar/<int:item_id>/', pedagogico_views.api_salvar, {'categoria': 'disciplina'}, name='disciplina_atualizar'),
     path('api/pedagogico/disciplina/deletar/<int:item_id>/', pedagogico_views.api_deletar, {'categoria': 'disciplina'}, name='disciplina_deletar'),
     
-    # ============================================
     # TURMA
-    # ============================================
     path('api/pedagogico/turma/listar/', pedagogico_views.api_listar, {'categoria': 'turma'}, name='turma_listar'),
     path('api/pedagogico/turma/criar/', pedagogico_views.api_form_criar, {'categoria': 'turma'}, name='turma_criar'),
     path('api/pedagogico/turma/editar/<int:item_id>/', pedagogico_views.api_form_editar, {'categoria': 'turma'}, name='turma_editar'),
@@ -108,25 +94,38 @@ urlpatterns = [
     path('api/pedagogico/turma/deletar/<int:item_id>/', pedagogico_views.api_deletar, {'categoria': 'turma'}, name='turma_deletar'),
     
     # ============================================
-    # 🔥 SECRETARIA GERAL - URLs da API
+    # 🔥 SECRETARIA GERAL - PÁGINAS (HTML)
     # ============================================
-    path('api/secretaria/matriculas/', secretaria_views.secretaria_matriculas, name='api_secretaria_matriculas'),
-    path('api/secretaria/pagamentos/', secretaria_views.secretaria_pagamentos, name='api_secretaria_pagamentos'),
-    path('api/secretaria/alunos/', secretaria_views.secretaria_alunos, name='api_secretaria_alunos'),
-    path('api/secretaria/documentos/', secretaria_views.secretaria_documentos, name='api_secretaria_documentos'),
+    path('secretaria/matriculas/', secretaria_views.secretaria_matriculas, name='secretaria_matriculas'),
+    path('secretaria/pagamentos/', secretaria_views.secretaria_pagamentos, name='secretaria_pagamentos'),
+    path('secretaria/alunos/', secretaria_views.secretaria_alunos, name='secretaria_alunos'),  # 🔥 ADICIONAR ESTA!
+    path('secretaria/documentos/', secretaria_views.secretaria_documentos, name='secretaria_documentos'),
     
-    # 🔥 NOVAS URLs DA SECRETARIA
+    # ============================================
+    # 🔥 SECRETARIA GERAL - URLs da API (JSON)
+    # ============================================
+    # MATRÍCULAS
+    path('api/secretaria/matriculas/', secretaria_views.api_matriculas_listar, name='api_matriculas_listar'),
     path('api/secretaria/matriculas/stats/', secretaria_views.api_matriculas_stats, name='api_matriculas_stats'),
-    path('api/secretaria/matriculas/listar/', secretaria_views.api_matriculas_listar, name='api_matriculas_listar'),
     path('api/secretaria/matricula/form/', secretaria_views.api_matricula_form, name='api_matricula_form'),
-    path('api/secretaria/matricula/editar/<int:matricula_id>/', secretaria_views.api_matricula_form, name='api_matricula_editar'),
+    path('api/secretaria/matricula/form/<int:matricula_id>/', secretaria_views.api_matricula_form, name='api_matricula_form_edit'),
     path('api/secretaria/matricula/salvar/', secretaria_views.api_matricula_salvar, name='api_matricula_salvar'),
-    path('api/secretaria/matricula/salvar/<int:matricula_id>/', secretaria_views.api_matricula_salvar, name='api_matricula_atualizar'),
+    path('api/secretaria/matricula/salvar/<int:matricula_id>/', secretaria_views.api_matricula_salvar, name='api_matricula_salvar_edit'),
     path('api/secretaria/matricula/confirmar/<int:matricula_id>/', secretaria_views.api_matricula_confirmar, name='api_matricula_confirmar'),
+    path('api/secretaria/matricula/cancelar/<int:matricula_id>/', secretaria_views.api_matricula_cancelar, name='api_matricula_cancelar'),
+    path('api/secretaria/matricula/trancar/<int:matricula_id>/', secretaria_views.api_matricula_trancar, name='api_matricula_trancar'),
     path('api/secretaria/matricula/deletar/<int:matricula_id>/', secretaria_views.api_matricula_deletar, name='api_matricula_deletar'),
-    path('api/secretaria/alunos/buscar/', secretaria_views.api_alunos_buscar, name='api_alunos_buscar'),
     
-    # 🔥 IMPRESSÃO
+    # ALUNOS
+    path('api/secretaria/alunos/', secretaria_views.api_alunos_listar, name='api_alunos_listar'),
+    path('api/secretaria/alunos/buscar/', secretaria_views.api_alunos_buscar, name='api_alunos_buscar'),
+    path('api/secretaria/alunos/stats/', secretaria_views.api_alunos_stats, name='api_alunos_stats'),
+    path('api/secretaria/alunos/historico/<int:aluno_id>/', secretaria_views.api_historico_aluno, name='api_historico_aluno'),
+    
+    # TURMAS
+    path('api/secretaria/turmas/listar/', secretaria_views.api_turmas_listar, name='api_turmas_listar'),
+    
+    # IMPRESSÃO
     path('impressao/matricula/<int:matricula_id>/', secretaria_views.impressao_matricula, name='impressao_matricula'),
     
     # ============================================

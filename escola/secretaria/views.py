@@ -134,12 +134,90 @@ def secretaria_pagamentos(request):
 @login_required
 def secretaria_alunos(request):
     """Lista de Alunos por Turma - Secretaria Geral"""
+    tenant_id = get_tenant_id(request)
+    import json
+    
+    # 🔥 Buscar escola (tenant)
+    escola = None
+    if tenant_id:
+        escola = Instituicao.objects.filter(id=tenant_id, ativo=True).first()
+    
+    # 🔥 Buscar turmas com contagem de alunos
+    if tenant_id:
+        turmas = Turma.objects.filter(tenant_id=tenant_id, ativo=True).select_related('classe', 'ano_lectivo').order_by('classe__nome', 'nome')
+        total_alunos = Aluno.objects.filter(tenant_id=tenant_id, ativo=True).count()
+        alunos = Aluno.objects.filter(tenant_id=tenant_id, ativo=True).prefetch_related('matriculas')
+    else:
+        turmas = Turma.objects.filter(ativo=True).select_related('classe', 'ano_lectivo').order_by('classe__nome', 'nome')
+        total_alunos = Aluno.objects.filter(ativo=True).count()
+        alunos = Aluno.objects.filter(ativo=True).prefetch_related('matriculas')
+    
+    # 🔥 Preparar dados das turmas com lista de alunos (COMPLETO)
+    turmas_data = []
+    for turma in turmas:
+        alunos_turma = []
+        for aluno in alunos:
+            # Verificar se o aluno tem matrícula nesta turma
+            matricula = aluno.matriculas.filter(turma=turma).first()
+            
+            if matricula:
+                alunos_turma.append({
+                    'id': aluno.id,
+                    'nome_completo': aluno.nome_completo,
+                    'bi': aluno.bi,
+                    'genero': aluno.genero,
+                    'idade': aluno.get_idade(),
+                    'classe': turma.classe.nome if turma.classe else None,
+                    'turma': turma.nome,
+                    'sala': turma.sala if hasattr(turma, 'sala') and turma.sala else None,
+                    'ano_lectivo': str(turma.ano_lectivo) if turma.ano_lectivo else None,
+                    'status_matricula': matricula.status if matricula else None,
+                    'status_matricula_display': matricula.get_status_display() if matricula else 'Sem Matrícula',
+                })
+        
+        turmas_data.append({
+            'id': turma.id,
+            'nome': turma.nome,
+            'classe_nome': turma.classe.nome if turma.classe else None,
+            'sala': turma.sala if hasattr(turma, 'sala') and turma.sala else None,
+            'ano_lectivo': str(turma.ano_lectivo) if turma.ano_lectivo else None,
+            'total_alunos': len(alunos_turma),
+            'alunos': alunos_turma,
+        })
+    
+    # 🔥 Preparar dados da escola
+    escola_data = {
+        'nome': escola.nome if escola else 'Yitro - Gestão Escolar',
+        'logo_url': escola.logo.url if escola and escola.logo else None,
+        'endereco': escola.endereco if escola and hasattr(escola, 'endereco') else '',
+        'telefone': escola.telefone if escola and hasattr(escola, 'telefone') else '',
+        'email': escola.email if escola and hasattr(escola, 'email') else '',
+        'provincia': escola.provincia if escola and hasattr(escola, 'provincia') else '',
+        'municipio': escola.municipio if escola and hasattr(escola, 'municipio') else '',
+    }
+    
+    # 🔥 CONVERTER PARA JSON - USANDO default=str PARA DATAS
+    turmas_json = json.dumps(turmas_data, ensure_ascii=False, default=str)
+    escola_json = json.dumps(escola_data, ensure_ascii=False, default=str)
+    
+    # 🔥 LOG PARA DEBUG
+    print(f"📦 Turmas encontradas: {len(turmas_data)}")
+    print(f"📦 Total de alunos: {total_alunos}")
+    if turmas_data:
+        print(f"📦 Primeira turma: {turmas_data[0]['nome']} - {turmas_data[0]['total_alunos']} alunos")
+    
     context = {
         'titulo': 'Lista de Alunos por Turma',
         'icone': 'bi-people',
         'modulo': 'Secretaria Geral',
+        'turmas': turmas_data,
+        'total_alunos': total_alunos,
+        'escola': escola_data,
+        'turmas_json': turmas_json,
+        'escola_json': escola_json,
     }
-    return render(request, 'escola/partials/secretaria/alunos.html', context)
+    
+    return render(request, 'escola/partials/secretaria/alunos.html', context)  
 
 
 @login_required
@@ -256,14 +334,19 @@ def api_alunos_listar(request):
                 Q(telefone__icontains=busca)
             )
         
-        if classe_id:
-            alunos = alunos.filter(matriculas__classe_id=classe_id, matriculas__ativo=True)
-        
+        # 🔥 CORREÇÃO: Buscar por turma considerando TODAS as matrículas
         if turma_id:
-            alunos = alunos.filter(matriculas__turma_id=turma_id, matriculas__ativo=True)
+            alunos = alunos.filter(
+                Q(matriculas__turma_id=turma_id)  # 🔥 REMOVER O filtro ativo=True
+            ).distinct()
+        
+        if classe_id:
+            alunos = alunos.filter(
+                Q(matriculas__classe_id=classe_id)  # 🔥 REMOVER O filtro ativo=True
+            ).distinct()
         
         if status:
-            alunos = alunos.filter(matriculas__status=status, matriculas__ativo=True)
+            alunos = alunos.filter(matriculas__status=status).distinct()
         
         alunos = alunos.order_by('nome_completo').select_related('usuario')
         data = [aluno.to_dict() for aluno in alunos]
@@ -272,7 +355,6 @@ def api_alunos_listar(request):
     except Exception as e:
         logger.error(f"❌ Erro em api_alunos_listar: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)})
-
 
 @login_required
 def api_alunos_buscar(request):
@@ -352,6 +434,53 @@ def api_alunos_stats(request):
     except Exception as e:
         logger.error(f"❌ Erro em api_alunos_stats: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)})
+
+
+# ============================================
+# 🔥 API - TURMAS
+# ============================================
+
+@login_required
+def api_turmas_listar(request):
+    """Lista todas as turmas com contagem de alunos"""
+    try:
+        tenant_id = get_tenant_id(request)
+        
+        if tenant_id:
+            turmas = Turma.objects.filter(tenant_id=tenant_id, ativo=True)
+        else:
+            turmas = Turma.objects.filter(ativo=True)
+        
+        # Ordenar por classe e nome da turma
+        turmas = turmas.select_related('classe', 'ano_lectivo').order_by('classe__nome', 'nome')
+        
+        data = []
+        for turma in turmas:
+            # Contar alunos ativos na turma
+            total_alunos = Matricula.objects.filter(
+                turma=turma,
+                ativo=True,
+                status__in=['pendente', 'confirmada']
+            ).count()
+            
+            data.append({
+                'id': turma.id,
+                'nome': turma.nome,
+                'classe_nome': turma.classe.nome if turma.classe else None,
+                'classe_id': turma.classe.id if turma.classe else None,
+                'ano_lectivo': str(turma.ano_lectivo) if turma.ano_lectivo else None,
+                'ano_lectivo_id': turma.ano_lectivo.id if turma.ano_lectivo else None,
+                'total_alunos': total_alunos,
+                'capacidade': turma.capacidade if hasattr(turma, 'capacidade') else None,
+                'ativo': turma.ativo,
+            })
+        
+        return JsonResponse({'success': True, 'data': data})
+    except Exception as e:
+        logger.error(f"❌ Erro em api_turmas_listar: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
 
 
 # ============================================

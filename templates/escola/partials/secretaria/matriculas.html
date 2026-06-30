@@ -24,75 +24,75 @@
     </div>
 </div>
 
-<!-- CARDS RESUMO - OTIMIZADOS PARA MOBILE -->
+<!-- CARDS RESUMO - COM TEXTOS PRETOS -->
 <div class="row g-1 g-sm-2 mb-3 fade-in-up delay-1">
     <div class="col-4 col-md-2">
-        <div class="glass-card text-center p-1 p-sm-2" onclick="filtrarPorStatus('')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px;">
-            <div class="display-6 text-primary" style="font-size: clamp(1rem, 3.5vw, 1.2rem);"><i class="bi bi-people"></i></div>
-            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalAlunos">{{ total_alunos|default:0 }}</h3>
-            <p class="text-muted small" style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: rgba(255,255,255,0.5) !important; margin: 0;">Total</p>
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #00d4ff !important;"><i class="bi bi-people"></i></div>
+            <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalAlunos">{{ total_alunos|default:0 }}</h3>
+            <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Total</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
-        <div class="glass-card text-center p-1 p-sm-2" onclick="filtrarPorStatus('pendente')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px;">
-            <div class="display-6 text-warning" style="font-size: clamp(1rem, 3.5vw, 1.2rem);"><i class="bi bi-clock"></i></div>
-            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalPendentes">{{ total_pendentes|default:0 }}</h3>
-            <p class="text-muted small" style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: rgba(255,255,255,0.5) !important; margin: 0;">Pend.</p>
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('pendente')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #ffa502 !important;"><i class="bi bi-clock"></i></div>
+            <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalPendentes">{{ total_pendentes|default:0 }}</h3>
+            <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Pendentes</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
-        <div class="glass-card text-center p-1 p-sm-2" onclick="filtrarPorStatus('confirmada')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px;">
-            <div class="display-6 text-success" style="font-size: clamp(1rem, 3.5vw, 1.2rem);"><i class="bi bi-check-circle"></i></div>
-            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalConfirmadas">{{ total_confirmadas|default:0 }}</h3>
-            <p class="text-muted small" style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: rgba(255,255,255,0.5) !important; margin: 0;">Conf.</p>
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('confirmada')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #2ed573 !important;"><i class="bi bi-check-circle"></i></div>
+            <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalConfirmadas">{{ total_confirmadas|default:0 }}</h3>
+            <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Confirmadas</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
-        <div class="glass-card text-center p-1 p-sm-2" onclick="filtrarPorStatus('concluida')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px;">
-            <div class="display-6 text-info" style="font-size: clamp(1rem, 3.5vw, 1.2rem);"><i class="bi bi-mortarboard"></i></div>
-            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalConcluidas">{{ total_concluidas|default:0 }}</h3>
-            <p class="text-muted small" style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: rgba(255,255,255,0.5) !important; margin: 0;">Conc.</p>
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('concluida')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #7b2ffc !important;"><i class="bi bi-mortarboard"></i></div>
+            <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalConcluidas">{{ total_concluidas|default:0 }}</h3>
+            <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Concluídas</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
-        <div class="glass-card text-center p-1 p-sm-2" onclick="filtrarPorStatus('trancada')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px;">
-            <div class="display-6 text-secondary" style="font-size: clamp(1rem, 3.5vw, 1.2rem);"><i class="bi bi-pause-circle"></i></div>
-            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalTrancadas">{{ total_trancadas|default:0 }}</h3>
-            <p class="text-muted small" style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: rgba(255,255,255,0.5) !important; margin: 0;">Tran.</p>
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('trancada')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #6c757d !important;"><i class="bi bi-pause-circle"></i></div>
+            <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalTrancadas">{{ total_trancadas|default:0 }}</h3>
+            <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Trancadas</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
-        <div class="glass-card text-center p-1 p-sm-2" onclick="filtrarPorStatus('cancelada')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px;">
-            <div class="display-6 text-danger" style="font-size: clamp(1rem, 3.5vw, 1.2rem);"><i class="bi bi-x-circle"></i></div>
-            <h3 class="h6" style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #ffffff !important; margin: 2px 0;" id="totalCanceladas">{{ total_canceladas|default:0 }}</h3>
-            <p class="text-muted small" style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: rgba(255,255,255,0.5) !important; margin: 0;">Canc.</p>
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('cancelada')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #ff4757 !important;"><i class="bi bi-x-circle"></i></div>
+            <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalCanceladas">{{ total_canceladas|default:0 }}</h3>
+            <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Canceladas</p>
         </div>
     </div>
 </div>
 
-<!-- FILTROS E BUSCA - OTIMIZADO -->
-<div class="glass-card p-2 p-sm-3 mb-3 fade-in-up delay-2">
+<!-- FILTROS E BUSCA -->
+<div class="glass-card p-2 p-sm-3 mb-3 fade-in-up delay-2" style="background: #ffffff !important; border: 1px solid #ddd !important;">
     <div class="row g-1 g-sm-2 align-items-center">
         <div class="col-12 col-sm-6 col-md-4">
             <div class="d-flex gap-1 gap-sm-2">
-                <input type="text" id="buscarMatricula" class="metal-form-control" placeholder="Buscar aluno..." style="font-size: clamp(0.7rem, 2vw, 0.8rem); padding: 6px 8px; min-height: 32px;">
-                <button class="metal-btn-primary" onclick="carregarMatriculas()" style="font-size: clamp(0.6rem, 1.5vw, 0.7rem); padding: 4px 10px; min-height: 32px;">
+                <input type="text" id="buscarMatricula" class="metal-form-control" placeholder="Buscar aluno..." style="font-size: clamp(0.7rem, 2vw, 0.8rem); padding: 6px 8px; min-height: 32px; color: #000; background: #fff; border: 1px solid #ddd; border-radius: 6px;">
+                <button class="metal-btn-primary" onclick="carregarMatriculas()" style="font-size: clamp(0.6rem, 1.5vw, 0.7rem); padding: 4px 10px; min-height: 32px; background: #00d4ff; color: #fff; border: none; border-radius: 6px;">
                     <i class="bi bi-search"></i>
                 </button>
             </div>
         </div>
         <div class="col-6 col-sm-3 col-md-3">
-            <select id="filtroStatus" class="metal-form-control" style="font-size: clamp(0.65rem, 1.8vw, 0.8rem); padding: 4px 8px; min-height: 32px;" onchange="carregarMatriculas()">
+            <select id="filtroStatus" class="metal-form-control" style="font-size: clamp(0.65rem, 1.8vw, 0.8rem); padding: 4px 8px; min-height: 32px; color: #000; background: #fff; border: 1px solid #ddd; border-radius: 6px;" onchange="carregarMatriculas()">
                 <option value="">Status</option>
-                <option value="pendente">⏳ Pendente</option>
-                <option value="confirmada">✅ Confirmada</option>
-                <option value="concluida">🎓 Concluída</option>
-                <option value="trancada">⏸️ Trancada</option>
-                <option value="cancelada">❌ Cancelada</option>
+                <option value="pendente">Pendente</option>
+                <option value="confirmada">Confirmada</option>
+                <option value="concluida">Concluída</option>
+                <option value="trancada">Trancada</option>
+                <option value="cancelada">Cancelada</option>
             </select>
         </div>
         <div class="col-6 col-sm-3 col-md-3">
-            <select id="filtroClasse" class="metal-form-control" style="font-size: clamp(0.65rem, 1.8vw, 0.8rem); padding: 4px 8px; min-height: 32px;" onchange="carregarMatriculas()">
+            <select id="filtroClasse" class="metal-form-control" style="font-size: clamp(0.65rem, 1.8vw, 0.8rem); padding: 4px 8px; min-height: 32px; color: #000; background: #fff; border: 1px solid #ddd; border-radius: 6px;" onchange="carregarMatriculas()">
                 <option value="">Classe</option>
                 {% for classe in classes %}
                     <option value="{{ classe.id }}">{{ classe.nome }}</option>
@@ -100,71 +100,88 @@
             </select>
         </div>
         <div class="col-12 col-sm-12 col-md-2 text-end">
-            <button class="metal-btn-secondary" onclick="limparFiltros()" style="font-size: clamp(0.6rem, 1.5vw, 0.7rem); padding: 4px 10px; min-height: 32px; width: 100%;">
+            <button class="metal-btn-secondary" onclick="limparFiltros()" style="font-size: clamp(0.6rem, 1.5vw, 0.7rem); padding: 4px 10px; min-height: 32px; width: 100%; background: #6c757d; color: #fff; border: none; border-radius: 6px;">
                 <i class="bi bi-arrow-counterclockwise me-1"></i> Limpar
             </button>
         </div>
     </div>
 </div>
 
-<!-- LISTA DE MATRÍCULAS - SEMPRE VISÍVEL -->
+<!-- LISTA DE MATRÍCULAS - TABELA ORGANIZADA -->
 <section class="fade-in-up delay-3">
-    <div class="glass-card" style="padding: 0.6rem 0.8rem;">
+    <div class="glass-card" style="padding: 0.6rem 0.8rem; background: #ffffff !important; border: 1px solid #ddd !important;">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="text-white mb-0" style="font-size: clamp(0.75rem, 2.5vw, 0.85rem);">
-                <i class="bi bi-list-ul me-2 text-primary"></i> Matrículas
-                <span class="badge bg-primary ms-1" id="count-matriculas" style="font-size: clamp(0.5rem, 1.2vw, 0.6rem); color: #ffffff !important;">{{ total_matriculas|default:0 }}</span>
+            <h6 style="font-size: clamp(0.75rem, 2.5vw, 0.85rem); color: #000 !important; font-weight: 700; margin: 0;">
+                <i class="bi bi-list-ul me-2" style="color: #00d4ff;"></i> Matrículas
+                <span class="badge bg-primary ms-1" id="count-matriculas" style="font-size: clamp(0.5rem, 1.2vw, 0.6rem); color: #fff !important;">{{ total_matriculas|default:0 }}</span>
             </h6>
-            <button type="button" class="metal-btn-primary" onclick="window.abrirModalMatricula()" style="font-size: clamp(0.55rem, 1.5vw, 0.65rem); padding: 2px 8px; min-height: 28px;">
+            <button type="button" class="metal-btn-primary" onclick="window.abrirModalMatricula()" style="font-size: clamp(0.55rem, 1.5vw, 0.65rem); padding: 2px 8px; min-height: 28px; background: #2ed573; color: #fff; border: none; border-radius: 6px;">
                 <i class="bi bi-plus-circle me-1"></i> Nova
             </button>
         </div>
-        <div id="lista-matriculas" class="lista-items" style="max-height: 400px; -webkit-overflow-scrolling: touch;">
-            <!-- CONTEÚDO RENDERIZADO PELO SERVIDOR -->
-            {% if matriculas %}
-                {% for matricula in matriculas %}
-                    <div class="item-matricula" data-id="{{ matricula.id }}">
-                        <div class="matricula-info">
-                            <span class="aluno-nome">{{ matricula.aluno.nome_completo|default:'N/A' }}</span>
-                            <span class="aluno-bi">{{ matricula.aluno.bi|default:'' }}</span>
-                            <div class="matricula-detalhes">
-                                <span class="badge bg-secondary">{{ matricula.ano_lectivo.ano|default:'' }}</span>
-                                <span class="badge bg-primary">{{ matricula.classe.nome|default:'' }}</span>
-                                {% if matricula.turma %}
-                                    <span class="badge bg-info">{{ matricula.turma.nome }}</span>
-                                {% endif %}
-                                <span class="badge bg-dark">{{ matricula.get_tipo_display|default:matricula.tipo }}</span>
-                                <span class="status-badge {{ matricula.status|default:'pendente' }}">
-                                    {{ matricula.get_status_display|default:matricula.status|default:'Pendente' }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="matricula-actions">
-                            {% if matricula.status == 'pendente' %}
-                                <button class="btn btn-sm btn-outline-success" onclick="window.abrirConfirmarModal({{ matricula.id }}, '{{ matricula.aluno.nome_completo|escapejs }}')" title="Confirmar">
-                                    <i class="bi bi-check-circle"></i>
-                                </button>
-                            {% endif %}
-                            <button class="btn btn-sm btn-outline-primary" onclick="window.abrirModalMatricula({{ matricula.id }})" title="Editar">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="window.abrirDeleteMatriculaModal({{ matricula.id }}, '{{ matricula.aluno.nome_completo|escapejs }}')" title="Excluir">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <div class="text-center py-3 text-muted" style="font-size: clamp(0.6rem, 1.8vw, 0.7rem); color: rgba(255,255,255,0.5) !important;">
-                    <i class="bi bi-inbox me-1"></i> Nenhuma matrícula cadastrada
-                </div>
-            {% endif %}
+        
+        <!-- TABELA DE MATRÍCULAS -->
+        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+            <table class="tabela-matriculas" style="width: 100%; border-collapse: collapse; font-size: clamp(0.65rem, 1.8vw, 0.8rem); color: #000 !important;">
+                <thead>
+                    <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                        <th style="text-align: left; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Aluno</th>
+                        <th style="text-align: left; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">BI</th>
+                        <th style="text-align: center; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Ano Lectivo</th>
+                        <th style="text-align: center; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Classe</th>
+                        <th style="text-align: center; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Turma</th>
+                        <th style="text-align: center; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Tipo</th>
+                        <th style="text-align: center; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Status</th>
+                        <th style="text-align: center; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-matriculas">
+                    {% if matriculas %}
+                        {% for matricula in matriculas %}
+                            <tr style="border-bottom: 1px solid #eee;">
+                                <td style="padding: 6px 8px; color: #000 !important; font-weight: 500;">{{ matricula.aluno.nome_completo|default:'N/A' }}</td>
+                                <td style="padding: 6px 8px; color: #000 !important;">{{ matricula.aluno.bi|default:'' }}</td>
+                                <td style="text-align: center; padding: 6px 8px; color: #000 !important;">{{ matricula.ano_lectivo.ano|default:'' }}</td>
+                                <td style="text-align: center; padding: 6px 8px; color: #000 !important;">{{ matricula.classe.nome|default:'' }}</td>
+                                <td style="text-align: center; padding: 6px 8px; color: #000 !important;">{% if matricula.turma %}{{ matricula.turma.nome }}{% else %}-{% endif %}</td>
+                                <td style="text-align: center; padding: 6px 8px; color: #000 !important;">{{ matricula.get_tipo_display|default:matricula.tipo }}</td>
+                                <td style="text-align: center; padding: 6px 8px;">
+                                    <span class="status-badge {{ matricula.status|default:'pendente' }}" style="padding: 2px 10px; border-radius: 12px; font-size: clamp(0.45rem, 1.2vw, 0.6rem); font-weight: 600; color: #fff !important; display: inline-block; white-space: nowrap;">
+                                        {{ matricula.get_status_display|default:matricula.status|default:'Pendente' }}
+                                    </span>
+                                </td>
+                                <td style="text-align: center; padding: 6px 8px; white-space: nowrap;">
+                                    <div style="display: flex; gap: 3px; justify-content: center;">
+                                        {% if matricula.status == 'pendente' %}
+                                            <button class="btn-confirmar" onclick="window.abrirConfirmarModal({{ matricula.id }}, '{{ matricula.aluno.nome_completo|escapejs }}')" title="Confirmar" style="background: #2ed573; color: #fff; border: none; border-radius: 4px; padding: 2px 6px; font-size: clamp(0.45rem, 1.2vw, 0.55rem); cursor: pointer;">
+                                                <i class="bi bi-check-circle"></i>
+                                            </button>
+                                        {% endif %}
+                                        <button class="btn-editar" onclick="window.abrirModalMatricula({{ matricula.id }})" title="Editar" style="background: #00d4ff; color: #fff; border: none; border-radius: 4px; padding: 2px 6px; font-size: clamp(0.45rem, 1.2vw, 0.55rem); cursor: pointer;">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn-excluir" onclick="window.abrirDeleteMatriculaModal({{ matricula.id }}, '{{ matricula.aluno.nome_completo|escapejs }}')" title="Excluir" style="background: #ff4757; color: #fff; border: none; border-radius: 4px; padding: 2px 6px; font-size: clamp(0.45rem, 1.2vw, 0.55rem); cursor: pointer;">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 30px 10px; color: #999 !important; font-size: clamp(0.7rem, 1.8vw, 0.85rem);">
+                                <i class="bi bi-inbox me-2" style="font-size: 1.2rem;"></i> Nenhuma matrícula cadastrada
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
         </div>
     </div>
 </section>
 
 <!-- ============================================ -->
-<!-- MODAIS -->
+<!-- MODAIS - MANTIDOS ORIGINAIS (FUNDO ESCURO) -->
 <!-- ============================================ -->
 
 <!-- MODAL: MATRÍCULA -->
@@ -249,7 +266,7 @@
 <div id="toastContainer" style="position: fixed; top: 60px; right: 10px; z-index: 99999; max-width: 280px;"></div>
 
 <!-- ============================================ -->
-<!-- ESTILOS OTIMIZADOS -->
+<!-- ESTILOS -->
 <!-- ============================================ -->
 <style>
     /* Reset e base */
@@ -394,13 +411,18 @@
     }
     .glass-card:active { transform: scale(0.99); }
     
-    .glass-card .display-6 { color: #00d4ff !important; }
-    .glass-card .display-6.text-success { color: #2ed573 !important; }
-    .glass-card .display-6.text-warning { color: #ffa502 !important; }
-    .glass-card .display-6.text-danger { color: #ff4757 !important; }
-    .glass-card .display-6.text-info { color: #7b2ffc !important; }
-    .glass-card .display-6.text-secondary { color: #6c757d !important; }
-    .glass-card .h5, .glass-card .h6 { color: #ffffff !important; }
+    .card-resumo {
+        transition: all 0.2s ease;
+        background: #ffffff !important;
+        border: 1px solid #ddd !important;
+    }
+    .card-resumo:hover {
+        border-color: #00d4ff !important;
+        box-shadow: 0 2px 12px rgba(0,212,255,0.1);
+    }
+    .card-resumo:active {
+        transform: scale(0.96);
+    }
     
     .badge { 
         padding: 2px 8px; 
@@ -428,74 +450,7 @@
     .modal-body select option { background-color: #1a1a2e !important; color: #ffffff !important; }
     .text-muted { color: rgba(255,255,255,0.5) !important; }
     
-    .lista-items { 
-        max-height: 400px; 
-        overflow-y: auto; 
-        -webkit-overflow-scrolling: touch;
-    }
-    .lista-items::-webkit-scrollbar { width: 3px; }
-    .lista-items::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 3px; }
-    .lista-items::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 3px; }
-    
-    /* Item de Matrícula - OTIMIZADO */
-    .item-matricula { 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
-        padding: 6px 8px; 
-        border-bottom: 1px solid rgba(255,255,255,0.03); 
-        border-radius: 4px; 
-        gap: 4px; 
-        flex-wrap: wrap; 
-        touch-action: manipulation;
-    }
-    .item-matricula:hover { background: rgba(255,255,255,0.02); }
-    .item-matricula .matricula-info { 
-        display: flex; 
-        align-items: center; 
-        gap: 6px; 
-        flex: 1; 
-        min-width: 0; 
-        flex-wrap: wrap; 
-    }
-    .item-matricula .matricula-info .aluno-nome { 
-        font-weight: 500; 
-        color: #ffffff; 
-        font-size: clamp(0.7rem, 2vw, 0.82rem); 
-        white-space: nowrap; 
-        overflow: hidden; 
-        text-overflow: ellipsis; 
-        max-width: 120px; 
-    }
-    .item-matricula .matricula-info .aluno-bi { 
-        font-size: clamp(0.5rem, 1.2vw, 0.6rem); 
-        color: rgba(255,255,255,0.35); 
-        display: none;
-    }
-    .item-matricula .matricula-info .matricula-detalhes { 
-        display: flex; 
-        gap: 4px; 
-        flex-wrap: wrap; 
-        align-items: center; 
-    }
-    .item-matricula .matricula-info .matricula-detalhes .badge { 
-        font-size: clamp(0.4rem, 1vw, 0.5rem); 
-        padding: 1px 6px; 
-    }
-    .item-matricula .matricula-actions { 
-        display: flex; 
-        gap: 3px; 
-        flex-shrink: 0; 
-    }
-    .item-matricula .matricula-actions .btn-sm { 
-        padding: 1px 4px; 
-        font-size: clamp(0.5rem, 1.2vw, 0.55rem); 
-        border-radius: 3px; 
-        line-height: 1.2; 
-        min-height: 24px;
-        touch-action: manipulation;
-    }
-    
+    /* STATUS BADGES - SEM EMOJIS */
     .status-badge.pendente { background: #ffa502; color: #ffffff; }
     .status-badge.confirmada { background: #2ed573; color: #ffffff; }
     .status-badge.concluida { background: #7b2ffc; color: #ffffff; }
@@ -529,20 +484,15 @@
     @keyframes slideInRight { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(30px); opacity: 0; } }
     
-    /* Responsividade - Telas Pequenas */
+    /* Responsividade */
     @media (max-width: 480px) {
-        .item-matricula .matricula-info .aluno-nome { max-width: 80px; font-size: 0.7rem; }
-        .item-matricula .matricula-info .matricula-detalhes .badge { font-size: 0.4rem; padding: 0px 4px; }
-        .item-matricula .matricula-actions .btn-sm { padding: 0px 3px; font-size: 0.45rem; }
-        .glass-card .display-6 { font-size: 1rem !important; }
-        .glass-card .h6 { font-size: 0.7rem !important; }
         .metal-title { font-size: 1rem; }
         .metal-header { padding: 0.5rem 0.6rem; }
         .modal-dialog { margin: 0.2rem; }
-        .lista-items { max-height: 280px; }
         .modal-body { padding: 8px !important; }
-        .item-matricula .matricula-info .aluno-bi { display: none; }
-        .col-4 .glass-card { padding: 0.3rem 0.1rem !important; }
+        .col-4 .card-resumo { padding: 0.3rem 0.1rem !important; }
+        .tabela-matriculas { font-size: 0.6rem !important; }
+        .tabela-matriculas th, .tabela-matriculas td { padding: 4px 4px !important; }
     }
     
     @media (max-width: 576px) {
@@ -552,15 +502,9 @@
         .metal-btn-primary { font-size: 0.6rem; padding: 2px 8px; min-height: 28px; }
         .glass-card { padding: 0.4rem 0.6rem !important; }
         .modal-dialog { margin: 0.3rem; }
-        .lista-items { max-height: 300px; }
         .modal-body { padding: 8px 10px !important; }
         .toast-custom { max-width: 90%; right: 5%; top: 60px; }
         #toastContainer { max-width: 90%; right: 5%; }
-    }
-    
-    @media (min-width: 768px) {
-        .item-matricula .matricula-info .aluno-nome { max-width: 250px; }
-        .item-matricula .matricula-info .aluno-bi { display: inline; }
     }
     
     /* Previne zoom em inputs no iOS */
@@ -569,7 +513,7 @@
     }
     
     /* Melhorias para touch */
-    button, .btn, .glass-card[onclick] { 
+    button, .btn, .card-resumo[onclick] { 
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
     }
@@ -795,35 +739,55 @@ function carregarMatriculas() {
                 const tipoLabel = item.tipo_display || item.tipo;
                 
                 html += `
-                    <div class="item-matricula">
-                        <div class="matricula-info">
-                            <span class="aluno-nome">${item.aluno_nome || 'N/A'}</span>
-                            <span class="aluno-bi">${item.aluno_bi || ''}</span>
-                            <div class="matricula-detalhes">
-                                <span class="badge bg-secondary">${item.ano_lectivo || ''}</span>
-                                <span class="badge bg-primary">${item.classe || ''}</span>
-                                ${item.turma ? `<span class="badge bg-info">${item.turma}</span>` : ''}
-                                <span class="badge bg-dark">${tipoLabel}</span>
-                                <span class="status-badge ${statusClass}">${statusLabel}</span>
-                            </div>
-                        </div>
-                        <div class="matricula-actions">
-                            ${item.status === 'pendente' ? `
-                                <button class="btn btn-sm btn-outline-success" onclick="window.abrirConfirmarModal(${item.id}, '${item.aluno_nome}')" title="Confirmar">
-                                    <i class="bi bi-check-circle"></i>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 6px 8px; color: #000 !important; font-weight: 500;">${item.aluno_nome || 'N/A'}</td>
+                        <td style="padding: 6px 8px; color: #000 !important;">${item.aluno_bi || ''}</td>
+                        <td style="text-align: center; padding: 6px 8px; color: #000 !important;">${item.ano_lectivo || ''}</td>
+                        <td style="text-align: center; padding: 6px 8px; color: #000 !important;">${item.classe || ''}</td>
+                        <td style="text-align: center; padding: 6px 8px; color: #000 !important;">${item.turma || '-'}</td>
+                        <td style="text-align: center; padding: 6px 8px; color: #000 !important;">${tipoLabel}</td>
+                        <td style="text-align: center; padding: 6px 8px;">
+                            <span class="status-badge ${statusClass}" style="padding: 2px 10px; border-radius: 12px; font-size: clamp(0.45rem, 1.2vw, 0.6rem); font-weight: 600; color: #fff !important; display: inline-block; white-space: nowrap;">
+                                ${statusLabel}
+                            </span>
+                        </td>
+                        <td style="text-align: center; padding: 6px 8px; white-space: nowrap;">
+                            <div style="display: flex; gap: 3px; justify-content: center;">
+                                ${item.status === 'pendente' ? `
+                                    <button class="btn-confirmar" onclick="window.abrirConfirmarModal(${item.id}, '${item.aluno_nome}')" title="Confirmar" style="background: #2ed573; color: #fff; border: none; border-radius: 4px; padding: 2px 6px; font-size: clamp(0.45rem, 1.2vw, 0.55rem); cursor: pointer;">
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                ` : ''}
+                                <button class="btn-editar" onclick="window.abrirModalMatricula(${item.id})" title="Editar" style="background: #00d4ff; color: #fff; border: none; border-radius: 4px; padding: 2px 6px; font-size: clamp(0.45rem, 1.2vw, 0.55rem); cursor: pointer;">
+                                    <i class="bi bi-pencil"></i>
                                 </button>
-                            ` : ''}
-                            <button class="btn btn-sm btn-outline-primary" onclick="window.abrirModalMatricula(${item.id})" title="Editar">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="window.abrirDeleteMatriculaModal(${item.id}, '${item.aluno_nome}')" title="Excluir">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </div>
+                                <button class="btn-excluir" onclick="window.abrirDeleteMatriculaModal(${item.id}, '${item.aluno_nome}')" title="Excluir" style="background: #ff4757; color: #fff; border: none; border-radius: 4px; padding: 2px 6px; font-size: clamp(0.45rem, 1.2vw, 0.55rem); cursor: pointer;">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
                 `;
             });
-            container.innerHTML = html;
+            container.innerHTML = `
+                <table style="width: 100%; border-collapse: collapse; font-size: clamp(0.65rem, 1.8vw, 0.8rem); color: #000 !important;">
+                    <thead>
+                        <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                            <th style="text-align: left; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Aluno</th>
+                            <th style="text-align: left; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">BI</th>
+                            <th style="text-align: center; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Ano Lectivo</th>
+                            <th style="text-align: center; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Classe</th>
+                            <th style="text-align: center; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Turma</th>
+                            <th style="text-align: center; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Tipo</th>
+                            <th style="text-align: center; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Status</th>
+                            <th style="text-align: center; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${html}
+                    </tbody>
+                </table>
+            `;
         } else {
             container.innerHTML = `<div class="text-center py-2 text-muted" style="font-size:0.65rem;">${d.error || 'Erro ao carregar'}</div>`;
         }
@@ -912,7 +876,6 @@ window.salvarMatricula = function() {
             mostrarToast('✅ ' + (d.message || 'Matrícula salva com sucesso!'), 'success');
             fecharModal('modalMatricula');
             
-            // Abrir impressão
             const matriculaId = d.id || d.data?.matricula?.id;
             if (matriculaId) {
                 const printUrl = `/escola/impressao/matricula/${matriculaId}/`;
@@ -1065,7 +1028,6 @@ function mostrarToast(msg, type = 'success') {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Matrícula - Inicializando...');
     
-    // Configurar modais
     ['modalMatricula', 'modalDelete', 'modalConfirmar'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -1076,16 +1038,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Carregar estatísticas (atualiza os cards)
     carregarStats();
     
-    // 🔥 A LISTA JÁ ESTÁ NO HTML - NÃO PRECISA CARREGAR NOVAMENTE
-    // Só atualizamos após alguns segundos para garantir dados frescos
     setTimeout(() => {
-        carregarMatriculas(); // Atualiza a lista em background
+        carregarMatriculas();
     }, 2000);
     
-    // Remover loading overlay
     setTimeout(() => {
         const overlay = document.getElementById('globalLoadingOverlay');
         if (overlay) {

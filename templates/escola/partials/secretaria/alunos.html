@@ -8,154 +8,109 @@
 <div class="metal-header mb-3 fade-in-up">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
         <div>
-            <h1 class="metal-title" style="font-size: clamp(1rem, 4vw, 1.2rem);">
+            <h1 class="metal-title" style="font-size: clamp(1rem, 4vw, 1.4rem);">
                 <i class="bi bi-people me-2"></i> Lista de Alunos por Turma
             </h1>
-            <p class="metal-subtitle" style="font-size: clamp(0.6rem, 2vw, 0.75rem);">Visualize todos os alunos organizados por turma</p>
+            <p class="metal-subtitle" style="font-size: clamp(0.7rem, 2vw, 0.9rem);">Visualize todos os alunos organizados por turma</p>
         </div>
         <div>
-            <span class="badge bg-primary" style="font-size: clamp(0.55rem, 1.5vw, 0.7rem); padding: 4px 10px; white-space: nowrap;">
+            <span class="badge bg-primary" style="font-size: clamp(0.6rem, 1.5vw, 0.8rem); padding: 4px 10px; white-space: nowrap;">
                 <i class="bi bi-people me-1"></i> Total: {{ total_alunos|default:0 }}
             </span>
         </div>
     </div>
 </div>
 
-<!-- FILTROS -->
-<div class="glass-card p-2 p-sm-3 mb-3 fade-in-up delay-1">
-    <div class="row g-1 g-sm-2 align-items-center">
-        <div class="col-12 col-sm-6 col-md-4">
-            <div class="d-flex gap-1 gap-sm-2">
-                <input type="text" id="buscarAluno" class="metal-form-control" placeholder="Buscar aluno..." style="font-size: clamp(0.7rem, 2vw, 0.8rem); padding: 6px 8px; min-height: 32px;">
-                <button class="metal-btn-primary" onclick="carregarAlunos()" style="font-size: clamp(0.6rem, 1.5vw, 0.7rem); padding: 4px 10px; min-height: 32px;">
-                    <i class="bi bi-search"></i>
-                </button>
+<!-- CORPO PRINCIPAL - DIVISÃO EM DUAS COLUNAS -->
+<div class="row g-2 g-sm-3 fade-in-up delay-1">
+    <!-- COLUNA ESQUERDA: LISTA DE TURMAS -->
+    <div class="col-12 col-md-4 col-lg-3">
+        <div class="glass-card p-2 p-sm-3" style="height: 100%; min-height: 250px; max-height: 350px; overflow: hidden; background: #ffffff; color: #000000 !important; border: 1px solid #ddd;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0" style="font-size: clamp(0.8rem, 2.5vw, 1rem); color: #000 !important;">
+                    <i class="bi bi-grid-3x3-gap-fill me-2" style="color: #000;"></i> Turmas
+                </h6>
+                <span class="badge bg-primary" id="count-turmas" style="font-size: clamp(0.6rem, 1.2vw, 0.75rem); color: #fff !important;">{{ turmas|length|default:0 }}</span>
+            </div>
+            
+            <!-- Campo de busca de turmas -->
+            <div class="mb-2">
+                <input type="text" id="buscarTurma" class="form-control" placeholder="Filtrar turma..." style="font-size: clamp(0.7rem, 1.5vw, 0.85rem); padding: 5px 10px; min-height: 32px; color: #000; background: #fff; border: 1px solid #ddd; border-radius: 6px;">
+            </div>
+            
+            <!-- Lista de Turmas -->
+            <div id="lista-turmas" class="lista-turmas" style="max-height: 220px; overflow-y: auto; -webkit-overflow-scrolling: touch;">
+                {% if turmas %}
+                    {% for turma in turmas %}
+                        <div class="item-turma" 
+                             onclick="selecionarTurma('{{ turma.id }}', '{{ turma.nome }}', '{{ turma.classe_nome|default:'' }}')"
+                             data-id="{{ turma.id }}"
+                             data-nome="{{ turma.nome|lower }}"
+                             data-classe="{{ turma.classe_nome|default:''|lower }}">
+                            <div style="min-width: 0; flex: 1;">
+                                <div class="turma-nome">{{ turma.nome }}</div>
+                                <div class="turma-info">{{ turma.classe_nome|default:'' }}</div>
+                            </div>
+                            <span class="badge {% if turma.total_alunos > 0 %}bg-success{% else %}bg-secondary{% endif %}" style="flex-shrink: 0; font-size: clamp(0.5rem, 1vw, 0.6rem); padding: 2px 8px; color: #fff !important;">
+                                {{ turma.total_alunos|default:0 }}
+                            </span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-3 text-muted" style="font-size: clamp(0.7rem, 1.8vw, 0.85rem); color: #999 !important;">
+                        <i class="bi bi-inbox me-1"></i> Nenhuma turma
+                    </div>
+                {% endif %}
             </div>
         </div>
-        <div class="col-6 col-sm-3 col-md-3">
-            <select id="filtroClasse" class="metal-form-control" style="font-size: clamp(0.65rem, 1.8vw, 0.8rem); padding: 4px 8px; min-height: 32px;" onchange="carregarAlunos()">
-                <option value="">Todas as Classes</option>
-                {% for classe in classes %}
-                    <option value="{{ classe.id }}">{{ classe.nome }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-6 col-sm-3 col-md-3">
-            <select id="filtroTurma" class="metal-form-control" style="font-size: clamp(0.65rem, 1.8vw, 0.8rem); padding: 4px 8px; min-height: 32px;" onchange="carregarAlunos()">
-                <option value="">Todas as Turmas</option>
-                {% for turma in turmas %}
-                    <option value="{{ turma.id }}">{{ turma.nome }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-12 col-sm-12 col-md-2 text-end">
-            <button class="metal-btn-secondary" onclick="limparFiltros()" style="font-size: clamp(0.6rem, 1.5vw, 0.7rem); padding: 4px 10px; min-height: 32px; width: 100%;">
-                <i class="bi bi-arrow-counterclockwise me-1"></i> Limpar
+    </div>
+    
+    <!-- COLUNA DIREITA: LISTA NOMINAL DA TURMA -->
+    <div class="col-12 col-md-8 col-lg-9">
+        <!-- BOTÕES DE AÇÃO - COLORIDOS -->
+        <div class="d-flex gap-2 mb-2 flex-wrap no-print">
+            <button class="btn-imprimir" onclick="imprimirLista()" style="background: #2ed573; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-size: clamp(0.7rem, 1.5vw, 0.85rem); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
+                <i class="bi bi-printer me-1"></i> Imprimir
             </button>
+            <button class="btn-pdf" onclick="exportarPDF()" style="background: #ff4757; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-size: clamp(0.7rem, 1.5vw, 0.85rem); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
+                <i class="bi bi-file-pdf me-1"></i> Exportar PDF
+            </button>
+        </div>
+        
+        <div id="lista-nominal-container" style="min-height: 300px; background: #ffffff; color: #000000 !important; border-radius: 8px; overflow: hidden; padding: 0 !important; border: 1px solid #ddd;">
+            <div class="text-center py-4" style="color: #999 !important; font-size: clamp(0.7rem, 1.8vw, 0.9rem);">
+                <i class="bi bi-hand-index-thumb me-2" style="font-size: clamp(1.5rem, 5vw, 2.5rem); display: block; margin-bottom: 8px; color: #ccc;"></i>
+                <span style="color: #999 !important;">Selecione uma turma</span>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- LISTA DE ALUNOS -->
-<section class="fade-in-up delay-2">
-    <div class="glass-card" style="padding: 0.6rem 0.8rem;">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="text-white mb-0" style="font-size: clamp(0.75rem, 2.5vw, 0.85rem);">
-                <i class="bi bi-list-ul me-2 text-primary"></i> Alunos
-                <span class="badge bg-primary ms-1" id="count-alunos" style="font-size: clamp(0.5rem, 1.2vw, 0.6rem); color: #ffffff !important;">0</span>
-            </h6>
-        </div>
-        <div id="lista-alunos" class="lista-items" style="max-height: 500px; -webkit-overflow-scrolling: touch;">
-            <div class="text-center py-3 text-muted" style="font-size: clamp(0.6rem, 1.8vw, 0.7rem); color: rgba(255,255,255,0.5) !important;">
-                <i class="bi bi-hourglass-split me-1"></i> Carregando...
-            </div>
-        </div>
-    </div>
-</section>
-
 <!-- ESTILOS -->
 <style>
+    * { 
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        box-sizing: border-box;
+    }
+    
     .metal-header { 
         background: linear-gradient(135deg, #00d4ff, #7b2ffc); 
         border-radius: 12px; 
-        padding: clamp(0.5rem, 2vw, 1rem) clamp(0.8rem, 3vw, 1.2rem); 
+        padding: clamp(0.5rem, 2vw, 1.2rem) clamp(0.8rem, 3vw, 1.5rem); 
         border: 1px solid rgba(255,255,255,0.1); 
     }
     .metal-title { color: white; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
     .metal-subtitle { color: rgba(255,255,255,0.9) !important; }
     
-    .metal-btn-primary { 
-        background: rgba(255,255,255,0.15); 
-        border: 1px solid rgba(255,255,255,0.3); 
-        color: white; 
-        border-radius: 8px; 
-        font-weight: 500; 
-        transition: all 0.2s ease; 
-        cursor: pointer; 
-        display: inline-flex; 
-        align-items: center; 
-        justify-content: center;
-        gap: 4px; 
-        white-space: nowrap; 
-        touch-action: manipulation;
-        min-height: 32px;
-        padding: 4px 12px;
-    }
-    .metal-btn-primary:hover { background: rgba(255,255,255,0.25); color: white; }
-    
-    .metal-btn-secondary { 
-        background: rgba(108,117,125,0.2); 
-        border: 1px solid rgba(108,117,125,0.3); 
-        color: #6c757d; 
-        border-radius: 8px; 
-        font-weight: 500; 
-        transition: all 0.2s ease; 
-        cursor: pointer;
-        touch-action: manipulation;
-        min-height: 32px;
-        padding: 4px 12px;
-    }
-    .metal-btn-secondary:hover { background: rgba(108,117,125,0.3); color: #5a6268; }
-    
-    .metal-form-control { 
-        background: rgba(255,255,255,0.05) !important; 
-        border: 1px solid rgba(255,255,255,0.1) !important; 
-        border-radius: 8px; 
-        padding: 6px 10px; 
-        color: #ffffff !important; 
-        font-size: clamp(0.7rem, 2vw, 0.85rem); 
-        width: 100%; 
-        min-height: 32px;
-        -webkit-appearance: none;
-        appearance: none;
-    }
-    .metal-form-control:focus { 
-        border-color: #00d4ff !important; 
-        box-shadow: 0 0 0 2px rgba(0,212,255,0.15) !important; 
-        outline: none; 
-        background: rgba(255,255,255,0.08) !important; 
-        color: #ffffff !important; 
-    }
-    .metal-form-control::placeholder { color: rgba(255,255,255,0.3) !important; }
-    .metal-form-control option { background-color: #1a1a2e !important; color: #ffffff !important; }
-    
-    .glass-card { 
-        background: rgba(255,255,255,0.03); 
-        backdrop-filter: blur(10px); 
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.05); 
-        border-radius: 12px; 
-        transition: all 0.2s ease; 
-        color: #ffffff !important; 
-    }
-    
     .badge { 
-        padding: 2px 8px; 
-        border-radius: 12px; 
+        padding: 3px 8px; 
+        border-radius: 10px; 
         font-weight: 600; 
         text-transform: uppercase; 
         letter-spacing: 0.3px; 
         color: #ffffff !important; 
+        font-size: clamp(0.5rem, 1vw, 0.65rem);
     }
     .bg-success { background-color: #2ed573 !important; }
     .bg-warning { background-color: #ffa502 !important; color: #212529 !important; }
@@ -168,157 +123,840 @@
     .fade-in-up { animation: fadeInUp 0.4s ease forwards; opacity: 0; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     .delay-1 { animation-delay: 0.05s; }
-    .delay-2 { animation-delay: 0.1s; }
     
     .text-muted { color: rgba(255,255,255,0.5) !important; }
     
-    .lista-items { 
-        max-height: 500px; 
+    .lista-turmas { 
+        max-height: 220px; 
         overflow-y: auto; 
         -webkit-overflow-scrolling: touch;
     }
-    .lista-items::-webkit-scrollbar { width: 3px; }
-    .lista-items::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 3px; }
-    .lista-items::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 3px; }
+    .lista-turmas::-webkit-scrollbar { width: 4px; }
+    .lista-turmas::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px; }
+    .lista-turmas::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
     
-    .item-aluno { 
+    .item-turma { 
         display: flex; 
         justify-content: space-between; 
         align-items: center; 
-        padding: 8px 12px; 
-        border-bottom: 1px solid rgba(255,255,255,0.03); 
-        border-radius: 4px; 
-        gap: 8px; 
-        flex-wrap: wrap; 
+        padding: 6px 10px; 
+        margin-bottom: 3px;
+        border-radius: 6px; 
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
         touch-action: manipulation;
+        gap: 4px;
+        color: #000 !important;
     }
-    .item-aluno:hover { background: rgba(255,255,255,0.02); }
-    .item-aluno .aluno-info { 
-        display: flex; 
-        align-items: center; 
-        gap: 8px; 
-        flex: 1; 
-        min-width: 0; 
-        flex-wrap: wrap; 
+    .item-turma:hover { 
+        background: rgba(0,0,0,0.05); 
+        border-color: rgba(0,0,0,0.1);
     }
-    .item-aluno .aluno-info .aluno-nome { 
-        font-weight: 500; 
-        color: #ffffff; 
-        font-size: clamp(0.7rem, 2vw, 0.82rem); 
-        white-space: nowrap; 
-        overflow: hidden; 
-        text-overflow: ellipsis; 
-        max-width: 150px; 
+    .item-turma.active { 
+        background: rgba(0,212,255,0.15); 
+        border-color: rgba(0,212,255,0.3);
     }
-    .item-aluno .aluno-info .aluno-bi { 
-        font-size: clamp(0.5rem, 1.2vw, 0.6rem); 
-        color: rgba(255,255,255,0.5); 
+    .item-turma .turma-nome { 
+        font-weight: 600; 
+        color: #000 !important; 
+        font-size: clamp(0.7rem, 1.8vw, 0.9rem); 
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
-    .item-aluno .aluno-info .aluno-detalhes { 
-        display: flex; 
-        gap: 4px; 
-        flex-wrap: wrap; 
-        align-items: center; 
+    .item-turma .turma-info { 
+        font-size: clamp(0.55rem, 1.2vw, 0.7rem); 
+        color: #555 !important; 
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
-    .item-aluno .aluno-info .aluno-detalhes .badge { 
-        font-size: clamp(0.4rem, 1vw, 0.5rem); 
-        padding: 1px 6px; 
+    
+    .glass-card {
+        background: #ffffff !important;
+        border: 1px solid #ddd !important;
+        border-radius: 12px;
+        padding: 0.8rem 1rem !important;
+        color: #000 !important;
+    }
+    
+    .glass-card .text-white {
+        color: #000 !important;
+    }
+    
+    /* ============================================
+       LISTA NOMINAL - DOCUMENTO OFICIAL
+       ============================================ */
+    .lista-nominal {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 15px 20px !important;
+        font-family: 'Times New Roman', Times, serif !important;
+        border: none !important;
+        box-shadow: none !important;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .lista-nominal .header-escola {
+        text-align: center;
+        border-bottom: 3px double #000;
+        padding-bottom: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .lista-nominal .header-escola .logo {
+        max-width: 100px;
+        max-height: 100px;
+        margin-bottom: 5px;
+        object-fit: contain;
+        display: inline-block;
+    }
+    
+    .lista-nominal .header-escola .nome-escola {
+        font-size: clamp(16pt, 4vw, 22pt);
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #000 !important;
+        display: block;
+        margin-top: 2px;
+    }
+    
+    .lista-nominal .header-escola .endereco-escola {
+        font-size: clamp(10pt, 2.5vw, 13pt);
+        color: #000 !important;
+        margin-top: 3px;
+        display: block;
+    }
+    
+    .lista-nominal .titulo-lista {
+        text-align: center;
+        font-size: clamp(14pt, 3.5vw, 18pt);
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin: 15px 0 12px 0;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #000;
+        color: #000 !important;
+    }
+    
+    .lista-nominal .info-turma {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px 15px;
+        margin-bottom: 12px;
+        padding: 6px 0;
+        border-bottom: 1px solid #000;
+        font-size: clamp(10pt, 2.5vw, 13pt);
+        color: #000 !important;
+    }
+    
+    .lista-nominal .info-turma .info-item {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .lista-nominal .info-turma .info-item .label {
+        font-weight: bold;
+        color: #000 !important;
+        white-space: nowrap;
+    }
+    
+    .lista-nominal .info-turma .info-item .valor {
+        font-weight: normal;
+        color: #000 !important;
+        word-break: break-word;
+    }
+    
+    .lista-nominal .tabela-alunos {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0 20px 0;
+        font-size: clamp(10pt, 2.2vw, 13pt);
+        color: #000 !important;
+        border: 1px solid #000;
+        table-layout: fixed;
+    }
+    
+    .lista-nominal .tabela-alunos thead th {
+        background: #ffffff !important;
+        border: 1px solid #000;
+        padding: 6px 10px;
+        text-align: center;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: clamp(9pt, 1.8vw, 12pt);
+        color: #000 !important;
+    }
+    
+    .lista-nominal .tabela-alunos tbody td {
+        border: 1px solid #000;
+        padding: 5px 10px;
+        text-align: left;
+        vertical-align: middle;
+        color: #000 !important;
+        font-size: clamp(9pt, 2vw, 12pt);
+        word-break: break-word;
+    }
+    
+    .lista-nominal .tabela-alunos tbody td.numero {
+        text-align: center;
+        font-weight: bold;
+        color: #000 !important;
+        width: 8%;
+    }
+    
+    .lista-nominal .tabela-alunos tbody td.genero,
+    .lista-nominal .tabela-alunos tbody td.idade {
+        text-align: center;
+        color: #000 !important;
+        width: 15%;
+    }
+    
+    .lista-nominal .tabela-alunos tbody td.nome {
+        width: 62%;
+    }
+    
+    .lista-nominal .tabela-alunos tbody tr:nth-child(even) {
+        background: #ffffff !important;
+    }
+    .lista-nominal .tabela-alunos tbody tr:nth-child(odd) {
+        background: #ffffff !important;
+    }
+    .lista-nominal .tabela-alunos tbody tr:hover {
+        background: #ffffff !important;
+    }
+    
+    .lista-nominal .rodape {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #000;
+        color: #000 !important;
+    }
+    
+    .lista-nominal .rodape .info-rodape {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+        color: #000 !important;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .lista-nominal .rodape .data-emissao {
+        font-size: clamp(10pt, 2vw, 13pt);
+        color: #000 !important;
+    }
+    
+    .lista-nominal .assinatura {
+        text-align: center;
+        margin-top: 30px;
+        color: #000 !important;
+    }
+    
+    .lista-nominal .assinatura .cargo {
+        font-size: clamp(10pt, 2.2vw, 13pt);
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+        color: #000 !important;
+    }
+    
+    .lista-nominal .assinatura .linha-assinatura {
+        width: clamp(150px, 40%, 280px);
+        border-bottom: 2px solid #000;
+        margin: 20px auto 5px auto;
+    }
+    
+    .lista-nominal .assinatura .nome-assinatura {
+        font-size: clamp(10pt, 2vw, 13pt);
+        font-weight: bold;
+        margin-top: 5px;
+        color: #000 !important;
+    }
+    
+    .lista-nominal .assinatura .funcao {
+        font-size: clamp(9pt, 1.8vw, 11pt);
+        color: #000 !important;
+    }
+    
+    /* REMOVER TODAS AS CORES CINZA */
+    .lista-nominal .tabela-alunos thead th {
+        background: #ffffff !important;
+        border: 1px solid #000 !important;
+        color: #000 !important;
+    }
+    
+    .lista-nominal .tabela-alunos tbody td {
+        background: #ffffff !important;
+        border: 1px solid #000 !important;
+        color: #000 !important;
+    }
+    
+    .lista-nominal .tabela-alunos tbody tr:nth-child(even) {
+        background: #ffffff !important;
+    }
+    
+    .lista-nominal .tabela-alunos tbody tr:nth-child(odd) {
+        background: #ffffff !important;
+    }
+    
+    .lista-nominal .tabela-alunos tbody tr:hover {
+        background: #ffffff !important;
+    }
+    
+    .lista-nominal .info-turma {
+        border-bottom: 1px solid #000 !important;
+    }
+    
+    .lista-nominal .header-escola {
+        border-bottom: 3px double #000 !important;
+    }
+    
+    .lista-nominal .rodape {
+        border-top: 1px solid #000 !important;
+    }
+    
+    /* FUNDO BRANCO */
+    #lista-nominal-container {
+        background: #ffffff !important;
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .no-print {
+        display: block;
+    }
+    
+    /* BOTÕES COLORIDOS */
+    .btn-imprimir:hover {
+        opacity: 0.85;
+        transform: scale(1.02);
+    }
+    .btn-pdf:hover {
+        opacity: 0.85;
+        transform: scale(1.02);
+    }
+    
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+        #lista-nominal-container {
+            background: #ffffff !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            border: none !important;
+        }
+        .lista-nominal {
+            padding: 15px 20px !important;
+        }
+        .glass-card {
+            background: #ffffff !important;
+            border: 1px solid #ddd !important;
+        }
+        .metal-header {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        .btn-imprimir, .btn-pdf {
+            display: none !important;
+        }
+        .d-flex.gap-2 {
+            display: none !important;
+        }
+    }
+    
+    /* RESPONSIVO - MOBILE */
+    @media (max-width: 768px) {
+        .row.g-2.g-sm-3 {
+            gap: 0.5rem !important;
+        }
+        .glass-card {
+            min-height: 200px !important;
+            max-height: 280px !important;
+        }
+        .lista-turmas {
+            max-height: 180px !important;
+        }
+        .item-turma {
+            padding: 4px 8px !important;
+        }
+        .lista-nominal {
+            padding: 10px 12px !important;
+        }
+        .lista-nominal .info-turma {
+            grid-template-columns: 1fr 1fr;
+            gap: 2px 10px;
+            font-size: 9pt;
+        }
+        .lista-nominal .tabela-alunos {
+            font-size: 8.5pt !important;
+        }
+        .lista-nominal .tabela-alunos thead th {
+            font-size: 7.5pt !important;
+            padding: 4px 6px !important;
+        }
+        .lista-nominal .tabela-alunos tbody td {
+            padding: 3px 6px !important;
+            font-size: 8pt !important;
+        }
+        .d-flex.gap-2 {
+            gap: 4px !important;
+        }
+        .btn-imprimir, .btn-pdf {
+            font-size: 0.65rem !important;
+            padding: 5px 12px !important;
+        }
     }
     
     @media (max-width: 480px) {
-        .item-aluno .aluno-info .aluno-nome { max-width: 80px; font-size: 0.7rem; }
-        .item-aluno .aluno-info .aluno-detalhes .badge { font-size: 0.4rem; padding: 0px 4px; }
-        .metal-title { font-size: 1rem; }
-        .metal-header { padding: 0.5rem 0.6rem; }
-        .lista-items { max-height: 300px; }
+        .lista-nominal .info-turma {
+            grid-template-columns: 1fr;
+            gap: 2px;
+            font-size: 8pt;
+            padding: 4px 0;
+        }
+        .lista-nominal .tabela-alunos {
+            font-size: 7pt !important;
+        }
+        .lista-nominal .tabela-alunos thead th {
+            font-size: 6pt !important;
+            padding: 2px 4px !important;
+        }
+        .lista-nominal .tabela-alunos tbody td {
+            padding: 2px 4px !important;
+            font-size: 6.5pt !important;
+        }
+        .lista-nominal .header-escola .nome-escola {
+            font-size: 12pt !important;
+        }
+        .lista-nominal .titulo-lista {
+            font-size: 10pt !important;
+        }
+        .lista-nominal .assinatura .cargo {
+            font-size: 8pt !important;
+        }
+        .lista-nominal .assinatura .linha-assinatura {
+            width: 120px !important;
+        }
+        .lista-nominal .header-escola .logo {
+            max-width: 60px !important;
+            max-height: 60px !important;
+        }
+        .metal-header {
+            padding: 0.3rem 0.5rem !important;
+        }
+        .metal-title {
+            font-size: 0.9rem !important;
+        }
+        .metal-subtitle {
+            font-size: 0.6rem !important;
+        }
+        .glass-card {
+            min-height: 150px !important;
+            max-height: 220px !important;
+            padding: 0.4rem 0.6rem !important;
+        }
+        .lista-turmas {
+            max-height: 130px !important;
+        }
+        .item-turma .turma-nome {
+            font-size: 0.65rem !important;
+        }
+        .item-turma .turma-info {
+            font-size: 0.55rem !important;
+        }
+        .item-turma {
+            padding: 3px 6px !important;
+        }
+        #lista-nominal-container {
+            min-height: 200px !important;
+        }
+        .d-flex.gap-2 {
+            gap: 3px !important;
+            flex-wrap: wrap !important;
+        }
+        .btn-imprimir, .btn-pdf {
+            font-size: 0.55rem !important;
+            padding: 4px 10px !important;
+        }
+        .btn-imprimir i, .btn-pdf i {
+            font-size: 0.55rem !important;
+        }
     }
 </style>
 
 <!-- SCRIPTS -->
 <script>
 // ============================================
-// VARIÁVEIS
+// DADOS DIRETOS DO DJANGO (INLINE)
 // ============================================
-const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+var turmasData = {{ turmas_json|default:'[]'|safe }};
+var escolaData = {{ escola_json|default:'{}'|safe }};
+
+console.log('📦 Turmas recebidas:', turmasData);
+console.log('🏫 Escola:', escolaData);
 
 // ============================================
-// CARREGAR ALUNOS
+// VARIÁVEIS
 // ============================================
-function carregarAlunos() {
-    const busca = document.getElementById('buscarAluno')?.value || '';
-    const classe = document.getElementById('filtroClasse')?.value || '';
-    const turma = document.getElementById('filtroTurma')?.value || '';
-    
-    const container = document.getElementById('lista-alunos');
-    const badge = document.getElementById('count-alunos');
-    
-    container.innerHTML = '<div class="text-center py-2 text-muted" style="font-size:0.65rem;"><i class="bi bi-hourglass-split me-1"></i>Carregando...</div>';
-    
-    let url = `/escola/api/secretaria/alunos/listar/?busca=${encodeURIComponent(busca)}`;
-    if (classe) url += `&classe=${classe}`;
-    if (turma) url += `&turma=${turma}`;
-    
-    fetch(url, {
-        method: 'GET',
-        headers: { 'X-Requested-With': 'XMLHttpRequest' },
-        credentials: 'include'
-    })
-    .then(r => r.json())
-    .then(d => {
-        if (d.success) {
-            const items = d.data || [];
-            if (badge) badge.textContent = items.length;
-            
-            if (!items.length) {
-                container.innerHTML = '<div class="text-center py-2 text-muted" style="font-size:0.65rem;"><i class="bi bi-inbox me-1"></i>Nenhum aluno encontrado</div>';
-                return;
-            }
-            
-            let html = '';
-            items.forEach(item => {
-                const statusMatricula = item.status_matricula || 'sem_matricula';
-                const statusLabel = item.status_matricula_display || 'Sem Matrícula';
-                const classeNome = item.classe || 'N/A';
-                const turmaNome = item.turma || 'N/A';
-                const anoLectivo = item.ano_lectivo || 'N/A';
-                
-                html += `
-                    <div class="item-aluno">
-                        <div class="aluno-info">
-                            <span class="aluno-nome">${item.nome_completo || 'N/A'}</span>
-                            <span class="aluno-bi">BI: ${item.bi || ''}</span>
-                            <div class="aluno-detalhes">
-                                <span class="badge bg-primary">${classeNome}</span>
-                                ${turmaNome !== 'N/A' ? `<span class="badge bg-info">${turmaNome}</span>` : ''}
-                                <span class="badge bg-secondary">${anoLectivo}</span>
-                                ${statusMatricula !== 'sem_matricula' ? `<span class="badge ${statusMatricula === 'confirmada' ? 'bg-success' : statusMatricula === 'pendente' ? 'bg-warning' : 'bg-secondary'}">${statusLabel}</span>` : ''}
-                            </div>
-                        </div>
-                        <div>
-                            <span class="badge bg-dark" style="font-size:0.5rem;">ID: ${item.id}</span>
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        } else {
-            container.innerHTML = `<div class="text-center py-2 text-muted" style="font-size:0.65rem;">${d.error || 'Erro ao carregar'}</div>`;
-        }
-    })
-    .catch(e => {
-        console.error('❌ Erro:', e);
-        container.innerHTML = '<div class="text-center py-2 text-muted" style="font-size:0.65rem;">Erro ao carregar dados</div>';
+let turmaSelecionadaId = null;
+let turmaSelecionadaNome = '';
+
+// ============================================
+// FUNÇÃO PARA OBTER NOME DO ARQUIVO
+// ============================================
+function getNomeArquivo(extensao) {
+    const nomeTurma = turmaSelecionadaNome || 'lista';
+    const dataAtual = new Date().toLocaleDateString('pt-PT', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric' 
+    }).replace(/\//g, '-');
+    return `Lista_Nominal_Turma_${nomeTurma}_${dataAtual}.${extensao}`;
+}
+
+// ============================================
+// FILTRAR TURMAS
+// ============================================
+function filtrarTurmas() {
+    const busca = document.getElementById('buscarTurma').value.toLowerCase();
+    document.querySelectorAll('.item-turma').forEach(el => {
+        const nome = el.dataset.nome || '';
+        const classe = el.dataset.classe || '';
+        const match = nome.includes(busca) || classe.includes(busca);
+        el.style.display = match ? 'flex' : 'none';
     });
 }
 
 // ============================================
-// FILTROS
+// SELECIONAR TURMA
 // ============================================
-function limparFiltros() {
-    document.getElementById('buscarAluno').value = '';
-    document.getElementById('filtroClasse').value = '';
-    document.getElementById('filtroTurma').value = '';
-    carregarAlunos();
+function selecionarTurma(id, nome, classe) {
+    turmaSelecionadaId = id;
+    turmaSelecionadaNome = nome;
+    
+    console.log('🔄 Selecionando turma:', id, nome);
+    
+    // Atualizar visual da turma
+    document.querySelectorAll('.item-turma').forEach(el => {
+        el.classList.remove('active');
+        el.style.background = 'transparent';
+        el.style.borderColor = 'transparent';
+    });
+    
+    const itemSelecionado = document.querySelector(`.item-turma[data-id="${id}"]`);
+    if (itemSelecionado) {
+        itemSelecionado.classList.add('active');
+        itemSelecionado.style.background = 'rgba(0,212,255,0.15)';
+        itemSelecionado.style.borderColor = 'rgba(0,212,255,0.3)';
+    }
+    
+    // CARREGAR A LISTA NOMINAL
+    exibirListaNominal(id);
+}
+
+// ============================================
+// EXIBIR LISTA NOMINAL - COM LOGO REAL
+// ============================================
+function exibirListaNominal(turmaId) {
+    const container = document.getElementById('lista-nominal-container');
+    
+    // ENCONTRAR A TURMA NOS DADOS
+    const turma = turmasData.find(t => t.id == turmaId);
+    
+    if (!turma) {
+        container.innerHTML = `
+            <div class="text-center py-3" style="color: #999 !important; font-size: clamp(0.7rem, 1.8vw, 0.9rem);">
+                <i class="bi bi-exclamation-triangle me-1" style="font-size: clamp(1.2rem, 4vw, 1.8rem); display: block; margin-bottom: 6px; color: #ccc;"></i>
+                <span style="color: #999 !important;">Turma não encontrada</span>
+            </div>
+        `;
+        return;
+    }
+    
+    const alunos = turma.alunos || [];
+    
+    // DADOS DA ESCOLA
+    const escolaNome = escolaData?.nome || 'Yitro - Gestão Escolar';
+    const escolaLogo = escolaData?.logo_url || null;
+    const escolaEndereco = escolaData?.endereco || '';
+    const escolaTelefone = escolaData?.telefone || '';
+    const escolaEmail = escolaData?.email || '';
+    
+    // MONTAR O HTML DO CABEÇALHO COM LOGO
+    let logoHtml = '';
+    if (escolaLogo) {
+        logoHtml = `<img src="${escolaLogo}" alt="Logo da Escola" class="logo" onerror="this.style.display='none'">`;
+    }
+    
+    // MONTAR ENDEREÇO E CONTATO
+    let infoContato = '';
+    if (escolaEndereco) infoContato += escolaEndereco;
+    if (escolaTelefone) infoContato += (infoContato ? ' | ' : '') + 'Tel: ' + escolaTelefone;
+    if (escolaEmail) infoContato += (infoContato ? ' | ' : '') + 'E-mail: ' + escolaEmail;
+    
+    // GERAR A LISTA NOMINAL
+    let html = `
+    <div class="lista-nominal" id="lista-nominal-print">
+        <!-- CABEÇALHO DA ESCOLA -->
+        <div class="header-escola">
+            ${logoHtml}
+            <span class="nome-escola">${escolaNome}</span>
+            ${infoContato ? `<span class="endereco-escola">${infoContato}</span>` : ''}
+        </div>
+
+        <!-- TÍTULO -->
+        <div class="titulo-lista">Lista Nominal</div>
+
+        <!-- INFORMAÇÕES DA TURMA -->
+        <div class="info-turma">
+            <div class="info-item">
+                <span class="label">Classe:</span>
+                <span class="valor">${turma.classe_nome || 'N/A'}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Turma:</span>
+                <span class="valor">${turma.nome}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Sala:</span>
+                <span class="valor">${turma.sala || 'N/A'}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Ano Lectivo:</span>
+                <span class="valor">${turma.ano_lectivo || ''}</span>
+            </div>
+        </div>
+
+        <!-- TABELA DE ALUNOS -->
+        <table class="tabela-alunos" id="tabela-alunos-print">
+            <thead>
+                <tr>
+                    <th style="width: 10%;">Nº</th>
+                    <th style="width: 55%;">Nome Completo</th>
+                    <th style="width: 18%;">Genero</th>
+                    <th style="width: 17%;">Idade</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    if (alunos.length === 0) {
+        html += `
+            <tr>
+                <td colspan="4" style="text-align: center; padding: 15px; color: #000 !important; font-size: clamp(9pt, 2vw, 12pt);">
+                    Nenhum aluno encontrado
+                </td>
+            </tr>
+        `;
+    } else {
+        alunos.forEach((aluno, index) => {
+            const genero = aluno.genero === 'M' ? 'Masculino' : aluno.genero === 'F' ? 'Feminino' : 'N/A';
+            const idade = aluno.idade || '';
+            
+            html += `
+                <tr>
+                    <td class="numero">${index + 1}</td>
+                    <td class="nome">${aluno.nome_completo || 'N/A'}</td>
+                    <td class="genero">${genero}</td>
+                    <td class="idade">${idade}</td>
+                </tr>
+            `;
+        });
+    }
+    
+    const dataAtual = new Date().toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    
+    html += `
+            </tbody>
+        </table>
+
+        <!-- RODAPÉ -->
+        <div class="rodape">
+            <div class="info-rodape">
+                <span class="data-emissao">
+                    <strong>Data:</strong> ${dataAtual}
+                </span>
+            </div>
+
+            <!-- ASSINATURA -->
+            <div class="assinatura">
+                <div class="cargo">O Sub-Director Pedagogico</div>
+                <div class="linha-assinatura"></div>
+                <div class="nome-assinatura">_________________________</div>
+                <div class="funcao">Sub-Director Pedagogico</div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    container.innerHTML = html;
+    console.log('✅ Lista Nominal exibida para turma:', turma.nome);
+}
+
+// ============================================
+// IMPRIMIR LISTA - APENAS O CONTEÚDO
+// ============================================
+function imprimirLista() {
+    if (!turmaSelecionadaId) {
+        alert('Selecione uma turma primeiro!');
+        return;
+    }
+    
+    const element = document.getElementById('lista-nominal-print');
+    if (!element) {
+        alert('Nenhuma lista para imprimir!');
+        return;
+    }
+    
+    const clone = element.cloneNode(true);
+    
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Lista Nominal - ${turmaSelecionadaNome}</title>
+        <style>
+            @page { margin: 0cm; padding: 0cm; }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { 
+                font-family: 'Times New Roman', Times, serif; 
+                font-size: 12pt; 
+                color: #000; 
+                background: #fff;
+                padding: 25px 35px;
+                margin: 0;
+                line-height: 1.4;
+            }
+            @media print {
+                body { padding: 15px 20px !important; margin: 0 !important; }
+                header, footer, .header, .footer, #header, #footer { display: none !important; }
+                .no-print { display: none !important; }
+                .lista-nominal { page-break-after: avoid; page-break-inside: avoid; }
+            }
+            .lista-nominal {
+                max-width: 100%;
+                margin: 0 auto;
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-family: 'Times New Roman', Times, serif !important;
+            }
+            .header-escola { text-align: center; border-bottom: 3px double #000; padding-bottom: 12px; margin-bottom: 15px; }
+            .header-escola .logo { max-width: 80px; max-height: 80px; margin-bottom: 5px; object-fit: contain; display: inline-block; }
+            .header-escola .nome-escola { font-size: 20pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #000 !important; display: block; margin-top: 2px; }
+            .header-escola .endereco-escola { font-size: 12pt; color: #000 !important; margin-top: 2px; display: block; }
+            .titulo-lista { text-align: center; font-size: 18pt; font-weight: bold; text-transform: uppercase; letter-spacing: 3px; margin: 15px 0 12px 0; padding-bottom: 8px; border-bottom: 1px solid #000; color: #000 !important; }
+            .info-turma { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px 20px; margin-bottom: 12px; padding: 6px 0; border-bottom: 1px solid #000; font-size: 12pt; color: #000 !important; }
+            .info-turma .info-item { display: flex; gap: 5px; }
+            .info-turma .info-item .label { font-weight: bold; color: #000 !important; }
+            .info-turma .info-item .valor { font-weight: normal; color: #000 !important; }
+            .tabela-alunos { width: 100%; border-collapse: collapse; margin: 10px 0 20px 0; font-size: 11.5pt; color: #000 !important; border: 1px solid #000; }
+            .tabela-alunos thead th { background: #ffffff !important; border: 1px solid #000; padding: 6px 10px; text-align: center; font-weight: bold; text-transform: uppercase; font-size: 10.5pt; color: #000 !important; }
+            .tabela-alunos tbody td { border: 1px solid #000; padding: 5px 10px; text-align: left; vertical-align: middle; color: #000 !important; font-size: 11pt; }
+            .tabela-alunos tbody td.numero { text-align: center; font-weight: bold; color: #000 !important; }
+            .tabela-alunos tbody td.genero, .tabela-alunos tbody td.idade { text-align: center; color: #000 !important; }
+            .tabela-alunos tbody tr:nth-child(even) { background: #ffffff !important; }
+            .tabela-alunos tbody tr:nth-child(odd) { background: #ffffff !important; }
+            .rodape { margin-top: 20px; padding-top: 15px; border-top: 1px solid #000; color: #000 !important; }
+            .rodape .info-rodape { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; color: #000 !important; flex-wrap: wrap; gap: 5px; }
+            .rodape .data-emissao { font-size: 12pt; color: #000 !important; }
+            .assinatura { text-align: center; margin-top: 35px; color: #000 !important; }
+            .assinatura .cargo { font-size: 12pt; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; color: #000 !important; }
+            .assinatura .linha-assinatura { width: 250px; border-bottom: 2px solid #000; margin: 25px auto 5px auto; }
+            .assinatura .nome-assinatura { font-size: 12pt; font-weight: bold; margin-top: 5px; color: #000 !important; }
+            .assinatura .funcao { font-size: 10pt; color: #000 !important; }
+            .tabela-alunos thead th { background: #ffffff !important; border: 1px solid #000 !important; color: #000 !important; }
+            .tabela-alunos tbody td { background: #ffffff !important; border: 1px solid #000 !important; color: #000 !important; }
+            .tabela-alunos tbody tr:nth-child(even) { background: #ffffff !important; }
+            .tabela-alunos tbody tr:nth-child(odd) { background: #ffffff !important; }
+            .info-turma { border-bottom: 1px solid #000 !important; }
+            .header-escola { border-bottom: 3px double #000 !important; }
+            .rodape { border-top: 1px solid #000 !important; }
+            @media (max-width: 600px) {
+                body { padding: 10px 12px; }
+                .info-turma { flex-direction: column; gap: 2px; }
+                .tabela-alunos { font-size: 9pt; }
+                .tabela-alunos thead th { font-size: 8pt; padding: 3px 4px; }
+                .tabela-alunos tbody td { font-size: 8pt; padding: 2px 4px; }
+                .header-escola .nome-escola { font-size: 14pt; }
+                .titulo-lista { font-size: 12pt; }
+                .assinatura .linha-assinatura { width: 150px; }
+            }
+        </style>
+    </head>
+    <body>
+        ${clone.outerHTML}
+    </body>
+    </html>
+    `;
+    
+    const win = window.open('', '_blank', 'width=800,height=600,scrollbars=yes');
+    if (!win) {
+        alert('Por favor, permita pop-ups para imprimir.');
+        return;
+    }
+    
+    win.document.write(htmlContent);
+    win.document.close();
+    
+    win.onload = function() {
+        setTimeout(function() {
+            win.print();
+        }, 500);
+    };
+}
+
+// ============================================
+// EXPORTAR PDF - COM NOME DA TURMA
+// ============================================
+function exportarPDF() {
+    if (!turmaSelecionadaId) {
+        alert('Selecione uma turma primeiro!');
+        return;
+    }
+    
+    const element = document.getElementById('lista-nominal-print');
+    if (!element) {
+        alert('Nenhuma lista para exportar!');
+        return;
+    }
+    
+    if (typeof html2pdf === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+        script.onload = function() {
+            gerarPDF(element);
+        };
+        document.head.appendChild(script);
+    } else {
+        gerarPDF(element);
+    }
+}
+
+function gerarPDF(element) {
+    const opt = {
+        margin: 10,
+        filename: getNomeArquivo('pdf'),
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+    
+    html2pdf().set(opt).from(element).save();
 }
 
 // ============================================
@@ -326,15 +964,17 @@ function limparFiltros() {
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Lista de Alunos - Inicializando...');
-    carregarAlunos();
     
-    // Buscar com Enter
-    document.getElementById('buscarAluno')?.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            carregarAlunos();
-        }
-    });
+    const primeiroItem = document.querySelector('.item-turma');
+    if (primeiroItem) {
+        const id = primeiroItem.dataset.id;
+        const nome = primeiroItem.querySelector('.turma-nome')?.textContent || '';
+        const classe = primeiroItem.querySelector('.turma-info')?.textContent || '';
+        console.log('📌 Primeira turma:', id, nome);
+        selecionarTurma(id, nome, classe);
+    } else {
+        console.log('⚠️ Nenhuma turma encontrada');
+    }
     
     console.log('✅ Lista de Alunos inicializada!');
 });

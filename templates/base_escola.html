@@ -1213,7 +1213,7 @@
         }
 
         // ============================================
-        // 🔥 FUNÇÃO LOADPAGE CORRIGIDA E OTIMIZADA
+        // 🔥 FUNÇÃO LOADPAGE CORRIGIDA
         // ============================================
         function loadPage(page, params = {}) {
             if (page === currentPage) {
@@ -1230,7 +1230,14 @@
             const activeLink = document.querySelector(`.sidebar-nav .nav-link-tech[data-page="${page}"]`);
             if (activeLink) activeLink.classList.add('active');
             
-            let url = `/escola/api/${page}/`;
+            // 🔥 CORREÇÃO: URLs da secretaria NÃO têm /api/
+            let url;
+            if (page.startsWith('secretaria/')) {
+                url = `/escola/${page}/`;
+            } else {
+                url = `/escola/api/${page}/`;
+            }
+            
             if (params.id) {
                 url += `${params.id}/`;
             }
@@ -1265,7 +1272,7 @@
                 
                 container.innerHTML = html;
                 
-                // 🔥 RE-EXECUTAR SCRIPTS
+                // Re-executar scripts
                 const scripts = container.querySelectorAll('script');
                 scripts.forEach(script => {
                     const newScript = document.createElement('script');
@@ -1278,7 +1285,7 @@
                     document.body.appendChild(newScript);
                 });
                 
-                // 🔥 ATUALIZAR TÍTULO
+                // Atualizar título
                 const titles = {
                     'pedagogico': 'Gestão Pedagógica',
                     'pedagogico/ano_lectivo': 'Gestão do Ano Lectivo',
@@ -1325,9 +1332,8 @@
                     closeSidebar();
                 }
                 
-                // 🔥 REMOVER LOADING FORÇADAMENTE
+                // Remover loading
                 setTimeout(function() {
-                    console.log('🔄 Forçando remoção do loading...');
                     if (typeof hideLoading === 'function') hideLoading();
                     const overlay = document.getElementById('globalLoadingOverlay');
                     if (overlay) {
@@ -1338,7 +1344,6 @@
                     document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
                     document.body.classList.remove('modal-open');
                     document.body.style.paddingRight = '';
-                    console.log('🔄 Loading removido com sucesso!');
                 }, 500);
             })
             .catch(error => {
