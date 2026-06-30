@@ -236,7 +236,6 @@
         letter-spacing: 0.5px;
     }
     
-    /* ===== SEÇÃO DE CATEGORIA ===== */
     .categoria-section {
         margin-bottom: 32px;
     }
@@ -283,7 +282,6 @@
         font-weight: 600;
     }
     
-    /* ===== CORES VIBRANTES POR CATEGORIA ===== */
     .categoria-produto .categoria-header {
         background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.05));
         border: 1px solid rgba(0, 212, 255, 0.25);
@@ -336,7 +334,6 @@
         border: 1px solid rgba(255, 165, 2, 0.15);
     }
     
-    /* Glass card para alertas e destaques */
     .glass-card {
         background: rgba(255, 255, 255, 0.03);
         backdrop-filter: blur(10px);
@@ -373,7 +370,6 @@
         text-decoration: none;
     }
     
-    /* 🔥 MODAL DE UPLOAD DE IMAGEM */
     .modal-upload {
         display: none;
         position: fixed;
@@ -564,7 +560,6 @@
         background: rgba(0, 212, 255, 0.2);
     }
     
-    /* Responsivo */
     @media (max-width: 768px) {
         .categoria-header {
             padding: 10px 14px;
@@ -727,10 +722,7 @@
 </div>
 {% endif %}
 
-<!-- ============================================ -->
 <!-- PRODUTOS ORGANIZADOS POR CATEGORIA -->
-<!-- ============================================ -->
-
 <!-- 1. PRODUTOS FÍSICOS -->
 {% if produtos %}
 <div class="categoria-section categoria-produto">
@@ -744,7 +736,6 @@
         <div class="col-6 col-md-4 col-lg-3">
             <div class="product-card">
                 <span class="product-badge produto">{{ item.get_tipo_display }}</span>
-                
                 <div class="product-image-wrapper">
                     {% if item.imagem %}
                     <img src="{{ item.imagem.url }}" alt="{{ item.nome }}" id="img-{{ item.id }}">
@@ -754,10 +745,8 @@
                     </div>
                     {% endif %}
                 </div>
-                
                 <h6 class="product-title">{{ item.nome|truncatechars:30 }}</h6>
                 <p class="product-description">{{ item.descricao|default:"Sem descrição"|truncatechars:50 }}</p>
-                
                 <div class="mt-auto">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -803,7 +792,6 @@
         <div class="col-6 col-md-4 col-lg-3">
             <div class="product-card">
                 <span class="product-badge servico">{{ item.get_tipo_display }}</span>
-                
                 <div class="product-image-wrapper">
                     {% if item.imagem %}
                     <img src="{{ item.imagem.url }}" alt="{{ item.nome }}" id="img-{{ item.id }}">
@@ -813,10 +801,8 @@
                     </div>
                     {% endif %}
                 </div>
-                
                 <h6 class="product-title">{{ item.nome|truncatechars:30 }}</h6>
                 <p class="product-description">{{ item.descricao|default:"Sem descrição"|truncatechars:50 }}</p>
-                
                 <div class="mt-auto">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -862,7 +848,6 @@
         <div class="col-6 col-md-4 col-lg-3">
             <div class="product-card">
                 <span class="product-badge software">{{ item.get_tipo_display }}</span>
-                
                 <div class="product-image-wrapper">
                     {% if item.imagem %}
                     <img src="{{ item.imagem.url }}" alt="{{ item.nome }}" id="img-{{ item.id }}">
@@ -872,10 +857,8 @@
                     </div>
                     {% endif %}
                 </div>
-                
                 <h6 class="product-title">{{ item.nome|truncatechars:30 }}</h6>
                 <p class="product-description">{{ item.descricao|default:"Sem descrição"|truncatechars:50 }}</p>
-                
                 <div class="mt-auto">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -921,7 +904,6 @@
         <div class="col-6 col-md-4 col-lg-3">
             <div class="product-card">
                 <span class="product-badge consultoria">{{ item.get_tipo_display }}</span>
-                
                 <div class="product-image-wrapper">
                     {% if item.imagem %}
                     <img src="{{ item.imagem.url }}" alt="{{ item.nome }}" id="img-{{ item.id }}">
@@ -931,10 +913,8 @@
                     </div>
                     {% endif %}
                 </div>
-                
                 <h6 class="product-title">{{ item.nome|truncatechars:30 }}</h6>
                 <p class="product-description">{{ item.descricao|default:"Sem descrição"|truncatechars:50 }}</p>
-                
                 <div class="mt-auto">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -1056,7 +1036,6 @@
         uploadFileData = null;
         uploadFileBase64 = null;
         
-        // Resetar preview
         document.getElementById('previewImg').style.display = 'none';
         document.getElementById('previewPlaceholder').style.display = 'block';
         document.getElementById('previewImg').src = '';
@@ -1065,7 +1044,6 @@
         document.getElementById('uploadStatus').style.display = 'none';
         document.getElementById('btnSaveUpload').disabled = true;
         
-        // Verificar se já tem imagem
         const imgElement = document.getElementById('img-' + itemId);
         if (imgElement && imgElement.src) {
             document.getElementById('previewImg').src = imgElement.src;
@@ -1103,14 +1081,12 @@
         const file = input.files[0];
         if (!file) return;
         
-        // Validar tamanho (5MB)
         if (file.size > 5 * 1024 * 1024) {
             showMessage('❌ Imagem muito grande (máx 5MB)', 'error');
             input.value = '';
             return;
         }
         
-        // Validar tipo
         const tiposPermitidos = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
         if (!tiposPermitidos.includes(file.type)) {
             showMessage('❌ Formato não suportado. Use JPEG, PNG, GIF ou WEBP.', 'error');
@@ -1141,7 +1117,6 @@
         input.onchange = function(e) {
             const file = e.target.files[0];
             if (file) {
-                // Validar tamanho
                 if (file.size > 5 * 1024 * 1024) {
                     showMessage('❌ Imagem muito grande (máx 5MB)', 'error');
                     return;
@@ -1187,7 +1162,6 @@
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Enviando...';
         
-        // Mostrar progresso
         document.getElementById('progressBar').style.display = 'block';
         document.getElementById('uploadStatus').style.display = 'block';
         document.getElementById('uploadStatus').textContent = 'Enviando imagem...';
@@ -1195,17 +1169,13 @@
         let formData = new FormData();
         
         if (uploadFileBase64 && uploadFileBase64.startsWith('data:image')) {
-            // Upload via Base64 (câmera ou celular)
             formData.append('imagem_base64', uploadFileBase64);
         } else if (uploadFileData) {
-            // Upload via arquivo (computador)
             formData.append('imagem', uploadFileData);
         } else {
-            // Remover imagem
             formData.append('remover', 'true');
         }
         
-        // Simular progresso
         let progress = 0;
         const interval = setInterval(() => {
             progress += 10;
@@ -1231,7 +1201,6 @@
                 document.getElementById('uploadStatus').textContent = '✅ ' + data.message;
                 document.getElementById('uploadStatus').style.color = '#2ed573';
                 
-                // Atualizar imagem na lista
                 const imgElement = document.getElementById('img-' + uploadItemId);
                 if (imgElement && data.url) {
                     imgElement.src = data.url + '?t=' + Date.now();
@@ -1240,7 +1209,6 @@
                 setTimeout(() => {
                     fecharUpload();
                     showMessage('✅ Imagem atualizada com sucesso!', 'success');
-                    // Recarregar a página para atualizar tudo
                     setTimeout(() => location.reload(), 500);
                 }, 1000);
             } else {
@@ -1339,21 +1307,18 @@
         }, 3000);
     }
     
-    // Fechar modal com ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && document.getElementById('modalUpload').classList.contains('active')) {
             fecharUpload();
         }
     });
     
-    // Fechar modal clicando fora
     document.getElementById('modalUpload').addEventListener('click', function(e) {
         if (e.target === this) {
             fecharUpload();
         }
     });
     
-    // Estilos para animações
     const styleAnim = document.createElement('style');
     styleAnim.textContent = `
         @keyframes slideIn {
