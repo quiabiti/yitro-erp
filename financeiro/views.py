@@ -564,15 +564,47 @@ def lista_faturas(request):
 # financeiro/views.py - Adicionar função de upload
 
 # ============================================================
-# 🔥 UPLOAD DE IMAGEM - ADICIONAR NO views.py
+# 🔥 UPLOAD DE IMAGEM - CORRIGIDO (SEM imghdr)
 # ============================================================
 
 import base64
-import imghdr
 from django.core.files.base import ContentFile
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from datetime import datetime
+
+
+def detectar_tipo_imagem(arquivo):
+    """Detecta o tipo de imagem pelos primeiros bytes (sem imghdr)"""
+    try:
+        # Ler os primeiros bytes do arquivo
+        if hasattr(arquivo, 'read'):
+            posicao = arquivo.tell()
+            cabecalho = arquivo.read(12)
+            arquivo.seek(posicao)
+        else:
+            cabecalho = arquivo[:12]
+        
+        # Verificar cabeçalhos de arquivo
+        if cabecalho.startswith(b'\xFF\xD8\xFF'):
+            return 'jpeg'
+        elif cabecalho.startswith(b'\x89PNG\x0D\x0A\x1A\x0A'):
+            return 'png'
+        elif cabecalho.startswith(b'GIF87a') or cabecalho.startswith(b'GIF89a'):
+            return 'gif'
+        elif cabecalho.startswith(b'RIFF') and cabecalho[8:12] == b'WEBP':
+            return 'webp'
+        elif cabecalho.startswith(b'BM'):
+            return 'bmp'
+        elif cabecalho.startswith(b'II') or cabecalho.startswith(b'MM'):
+            return 'tiff'
+        elif cabecalho.startswith(b'%PDF'):
+            return 'pdf'
+        return None
+    except:
+        return None
+
 
 @csrf_exempt
 def upload_produto_imagem(request, produto_id):
@@ -589,12 +621,13 @@ def upload_produto_imagem(request, produto_id):
         if not request.user.is_superuser and not request.user.is_staff:
             return JsonResponse({'error': 'Sem permissão'}, status=403)
         
+        from .models import Produto
         produto = get_object_or_404(Produto, id=produto_id)
         
         # 🔥 VERIFICAR EMPRESA
         if not request.user.is_superuser:
             empresa = get_empresa_do_usuario(request.user)
-            if produto.empresa and produto.empresa != empresa:
+            if hasattr(produto, 'empresa') and produto.empresa and produto.empresa != empresa:
                 return JsonResponse({'error': 'Sem permissão'}, status=403)
         
         # 🔥 REMOVER IMAGEM
@@ -616,13 +649,10 @@ def upload_produto_imagem(request, produto_id):
             if imagem.size > 5 * 1024 * 1024:
                 return JsonResponse({'error': 'Imagem muito grande (máx 5MB)'}, status=400)
             
-            # Validar tipo
-            try:
-                img_type = imghdr.what(imagem)
-                if img_type not in ['jpeg', 'png', 'gif', 'webp']:
-                    return JsonResponse({'error': 'Formato não suportado'}, status=400)
-            except:
-                pass
+            # 🔥 DETECTAR TIPO SEM imghdr
+            img_type = detectar_tipo_imagem(imagem)
+            if img_type not in ['jpeg', 'png', 'gif', 'webp']:
+                return JsonResponse({'error': 'Formato não suportado'}, status=400)
             
             produto.imagem = imagem
             produto.save()
@@ -642,7 +672,7 @@ def upload_produto_imagem(request, produto_id):
                 formato, img_str = imagem_base64.split(';base64,')
                 extensao = formato.split('/')[-1]
                 # Mapear extensões
-                if extensao == 'jpeg' or extensao == 'jpg':
+                if extensao in ['jpeg', 'jpg']:
                     extensao = 'jpg'
                 elif extensao == 'png':
                     extensao = 'png'
@@ -664,7 +694,6 @@ def upload_produto_imagem(request, produto_id):
                 return JsonResponse({'error': 'Imagem muito grande (máx 5MB)'}, status=400)
             
             # Criar nome único
-            from datetime import datetime
             filename = f"produtos/{produto.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.{extensao}"
             
             # Salvar
