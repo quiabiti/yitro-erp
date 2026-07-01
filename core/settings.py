@@ -22,9 +22,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     
-    # 🔥 CLOUDINARY - ADICIONAR ESTAS LINHAS
-    'cloudinary_storage',
-    'cloudinary',
+    # 🔥 CLOUDINARY - REMOVIDO
+    # 'cloudinary_storage',
+    # 'cloudinary',
     
     'autenticacao',
     'financeiro',
@@ -55,49 +55,19 @@ MIDDLEWARE = [
 ]
 
 # ============================================
-# 🔥 CLOUDINARY CONFIGURATION
+# 🔥 CONFIGURAÇÃO DE ARMAZENAMENTO LOCAL
 # ============================================
 
-# Cloudinary credentials from environment variables
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),
-    'API_KEY': env('CLOUDINARY_API_KEY', default=''),
-    'API_SECRET': env('CLOUDINARY_API_SECRET', default=''),
-}
+# Usar armazenamento local para arquivos de mídia
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Check if Cloudinary is configured
-CLOUDINARY_CONFIGURED = all([
-    CLOUDINARY_STORAGE['CLOUD_NAME'],
-    CLOUDINARY_STORAGE['API_KEY'],
-    CLOUDINARY_STORAGE['API_SECRET']
-])
-
-if CLOUDINARY_CONFIGURED:
-    # Use Cloudinary for media files
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    # Cloudinary media URL
-    MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_STORAGE['CLOUD_NAME']}/"
-    print(f"✅ Cloudinary configurado: {CLOUDINARY_STORAGE['CLOUD_NAME']}")
-else:
-    # Fallback to local storage
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-    MEDIA_URL = '/media/'
-    print("⚠️ Cloudinary não configurado. Usando armazenamento local.")
-
-# Cloudinary upload options (opcional)
-CLOUDINARY_OPTIONS = {
-    'allowed_formats': ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff', 'svg', 'ico'],
-    'max_bytes': 5242880,  # 5MB
-    'folder': 'yitro',
-    'use_filename': True,
-    'unique_filename': True,
-}
+print("✅ Usando armazenamento local para arquivos de mídia")
 
 # ============================================
-# FIM DA CONFIGURAÇÃO CLOUDINARY
+# FIM DA CONFIGURAÇÃO DE ARMAZENAMENTO
 # ============================================
-
-# ... resto do seu código permanece igual ...
 
 # 🔥 CONFIGURAÇÕES CSRF
 CSRF_COOKIE_SECURE = False
@@ -189,11 +159,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# MEDIA_URL já definido acima (Cloudinary ou local)
-# MEDIA_ROOT - só usado se for local
-if not CLOUDINARY_CONFIGURED:
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
+# MEDIA_URL e MEDIA_ROOT já definidos acima
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/auth/login/'
