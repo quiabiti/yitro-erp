@@ -131,90 +131,99 @@ def secretaria_pagamentos(request):
     return render(request, 'escola/partials/secretaria/pagamentos.html', context)
 
 
-# escola/secretaria/views.py - CORRIGIDO
+# escola/secretaria/views.py
 
 @login_required
 def secretaria_alunos(request):
-    """Lista de Alunos por Turma - Secretaria Geral"""
-    tenant_id = get_tenant_id(request)
+    """Lista de Alunos por Turma - Secretaria Geral (OTIMIZADO)"""
     import json
+    from django.db.models import Prefetch
     
-    # 🔥 Buscar escola (tenant)
-    escola = None
-    if tenant_id:
-        escola = Instituicao.objects.filter(id=tenant_id, ativo=True).first()
+    tenant_id = get_tenant_id(request)
     
-    # 🔥 Buscar turmas com contagem de alunos
+    # 🔥 BUSCA RÁPIDA - UMA ÚNICA CONSULTA
     if tenant_id:
-        turmas = Turma.objects.filter(tenant_id=tenant_id, ativo=True).select_related('classe', 'ano_lectivo').order_by('classe__nome', 'nome')
-        total_alunos = Aluno.objects.filter(tenant_id=tenant_id, ativo=True).count()
-        alunos = Aluno.objects.filter(tenant_id=tenant_id, ativo=True).prefetch_related('matriculas')
+        # Buscar turmas com prefetch de alunos em UMA consulta
+        turmas = Turma.objects.filter(
+            tenant_id=tenant_id, 
+            ativo=True
+        ).select_related('classe', 'ano_lectivo').order_by('classe__nome', 'nome')
+        
+        # Buscar todos os alunos com matrículas em UMA consulta
+        alunos = Aluno.objects.filter(
+            tenant_id=tenant_id, 
+            ativo=True
+        ).prefetch_related(
+            Prefetch('matriculas', queryset=Matricula.objects.filter(ativo=True))
+        )
+        
+        total_alunos = alunos.count()
     else:
         turmas = Turma.objects.filter(ativo=True).select_related('classe', 'ano_lectivo').order_by('classe__nome', 'nome')
-        total_alunos = Aluno.objects.filter(ativo=True).count()
-        alunos = Aluno.objects.filter(ativo=True).prefetch_related('matriculas')
+        alunos = Aluno.objects.filter(ativo=True).prefetch_related(
+            Prefetch('matriculas', queryset=Matricula.objects.filter(ativo=True))
+        )
+        total_alunos = alunos.count()
     
-    # 🔥 Preparar dados das turmas com lista de alunos
+    # 🔥 CRIAR DICIONÁRIO DE MATRÍCULAS POR TURMA (OTIMIZADO)
+    matriculas_por_turma = {}
+    for aluno in alunos:
+        for matricula in aluno.matriculas.all():
+            turma_id = matricula.turma_id
+            if turma_id not in matriculas_por_turma:
+                matriculas_por_turma[turma_id] = []
+            matriculas_por_turma[turma_id].append({
+                'id': aluno.id,
+                'nome_completo': aluno.nome_completo,
+                'bi': aluno.bi,
+                'genero': aluno.genero,
+                'idade': aluno.get_idade(),
+                'status_matricula': matricula.status,
+                'status_matricula_display': matricula.get_status_display(),
+            })
+    
+    # 🔥 MONTAR DADOS DAS TURMAS (RÁPIDO)
     turmas_data = []
     for turma in turmas:
-        alunos_turma = []
-        for aluno in alunos:
-            matricula = aluno.matriculas.filter(turma=turma).first()
-            if matricula:
-                alunos_turma.append({
-                    'id': aluno.id,
-                    'nome_completo': aluno.nome_completo,
-                    'bi': aluno.bi,
-                    'genero': aluno.genero,
-                    'idade': aluno.get_idade(),
-                    'classe': turma.classe.nome if turma.classe else None,
-                    'turma': turma.nome,
-                    'sala': turma.sala if hasattr(turma, 'sala') and turma.sala else None,
-                    'ano_lectivo': str(turma.ano_lectivo) if turma.ano_lectivo else None,
-                    'status_matricula': matricula.status if matricula else None,
-                    'status_matricula_display': matricula.get_status_display() if matricula else 'Sem Matrícula',
-                })
-        
+        alunos_turma = matriculas_por_turma.get(turma.id, [])
         turmas_data.append({
             'id': turma.id,
             'nome': turma.nome,
             'classe_nome': turma.classe.nome if turma.classe else None,
-            'sala': turma.sala if hasattr(turma, 'sala') and turma.sala else None,
+            'sala': getattr(turma, 'sala', None),
             'ano_lectivo': str(turma.ano_lectivo) if turma.ano_lectivo else None,
             'total_alunos': len(alunos_turma),
             'alunos': alunos_turma,
         })
     
-    # 🔥 Preparar dados da escola
+    # 🔥 DADOS DA ESCOLA (CACHE)
+    escola = None
+    if tenant_id:
+        escola = Instituicao.objects.filter(id=tenant_id, ativo=True).first()
+    
     escola_data = {
         'nome': escola.nome if escola else 'Yitro - Gestão Escolar',
         'logo_url': escola.logo.url if escola and escola.logo else None,
-        'endereco': escola.endereco if escola and hasattr(escola, 'endereco') else '',
-        'telefone': escola.telefone if escola and hasattr(escola, 'telefone') else '',
-        'email': escola.email if escola and hasattr(escola, 'email') else '',
-        'provincia': escola.provincia if escola and hasattr(escola, 'provincia') else '',
-        'municipio': escola.municipio if escola and hasattr(escola, 'municipio') else '',
+        'endereco': getattr(escola, 'endereco', ''),
+        'telefone': getattr(escola, 'telefone', ''),
+        'email': getattr(escola, 'email', ''),
+        'provincia': getattr(escola, 'provincia', ''),
+        'municipio': getattr(escola, 'municipio', ''),
     }
     
-    # 🔥 CONVERTER PARA JSON
+    # 🔥 CONVERTER PARA JSON (RÁPIDO)
     turmas_json = json.dumps(turmas_data, ensure_ascii=False, default=str)
     escola_json = json.dumps(escola_data, ensure_ascii=False, default=str)
     
-    # 🔥 LOG PARA DEBUG
-    print(f"📦 Turmas encontradas: {len(turmas_data)}")
-    print(f"📦 Total de alunos: {total_alunos}")
-    print(f"📦 JSON turmas: {turmas_json[:200] if turmas_json else 'VAZIO'}")
-    
+    # 🔥 CONTEXT (MÍNIMO)
     context = {
+        'turmas_json': turmas_json,
+        'escola_json': escola_json,
+        'turmas': turmas_data,
+        'total_alunos': total_alunos,
         'titulo': 'Lista de Alunos por Turma',
         'icone': 'bi-people',
         'modulo': 'Secretaria Geral',
-        'turmas': turmas_data,
-        'total_alunos': total_alunos,
-        'escola': escola_data,
-        # 🔥🔥🔥 ESSAS DUAS LINHAS SÃO O SEGREDO! 🔥🔥🔥
-        'turmas_json': turmas_json,  # ← ESSENCIAL!
-        'escola_json': escola_json,   # ← ESSENCIAL!
     }
     
     return render(request, 'escola/partials/secretaria/alunos.html', context)
