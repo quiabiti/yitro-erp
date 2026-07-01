@@ -86,12 +86,6 @@
     </div>
 </div>
 
-<!-- ============================================ -->
-<!-- DADOS JSON SEGUROS USANDO json_script -->
-<!-- ============================================ -->
-{{ turmas_json|json_script:"turmas-data" }}
-{{ escola_json|json_script:"escola-data" }}
-
 <!-- ESTILOS -->
 <style>
     * { 
@@ -605,28 +599,28 @@
 <!-- SCRIPTS -->
 <script>
 // ============================================
-// CARREGAR DADOS DO DJANGO DE FORMA SEGURA
+// CARREGAR DADOS DO BASE_ESCOLA.HTML
 // ============================================
-function getDataFromScript(id) {
-    const element = document.getElementById(id);
-    if (element) {
-        try {
-            const data = JSON.parse(element.textContent);
-            console.log(`✅ Dados carregados: ${id}`, data);
-            return data;
-        } catch(e) {
-            console.error(`❌ Erro ao parsear ${id}:`, e);
-            console.log('📦 Conteúdo:', element.textContent.substring(0, 200));
-            return null;
+function carregarDadosDoBase() {
+    try {
+        const scriptTag = document.getElementById('dados-escola');
+        if (scriptTag) {
+            const dados = JSON.parse(scriptTag.textContent);
+            console.log('✅ Dados carregados do base_escola.html');
+            return dados;
         }
+        console.warn('⚠️ Elemento dados-escola não encontrado');
+        return null;
+    } catch(e) {
+        console.error('❌ Erro ao ler dados-escola:', e);
+        return null;
     }
-    console.warn(`⚠️ Elemento ${id} não encontrado`);
-    return null;
 }
 
 // CARREGAR OS DADOS
-var turmasData = getDataFromScript('turmas-data') || [];
-var escolaData = getDataFromScript('escola-data') || {};
+const dadosBase = carregarDadosDoBase();
+var turmasData = dadosBase?.turmas || [];
+var escolaData = dadosBase?.escola || {};
 
 console.log('📦 Turmas recebidas:', turmasData);
 console.log('📦 Total de turmas:', turmasData.length);
