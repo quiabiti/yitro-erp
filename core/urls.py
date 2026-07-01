@@ -3,11 +3,21 @@ from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
-from django.views.static import serve  # ← ADICIONAR ESTA IMPORTAÇÃO
+from django.views.static import serve
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('autenticacao.urls')),
+    
+    # 🔥 REDIRECIONAMENTOS PARA COMPATIBILIDADE
+    # Redireciona /usuarios/ para /auth/
+    path('usuarios/', RedirectView.as_view(url='/auth/', permanent=False)),
+    path('usuarios/login/', RedirectView.as_view(url='/auth/login/', permanent=False)),
+    path('usuarios/logout/', RedirectView.as_view(url='/auth/logout/', permanent=False)),
+    # Se tiver outras URLs como registro, perfil, etc.
+    path('usuarios/registro/', RedirectView.as_view(url='/auth/registro/', permanent=False)),
+    path('usuarios/perfil/', RedirectView.as_view(url='/auth/perfil/', permanent=False)),
+    
     path('', RedirectView.as_view(url='/servicos/'), name='home'),
     path('servicos/', include('servicos.urls')),
     path('financeiro/', include('financeiro.urls')),

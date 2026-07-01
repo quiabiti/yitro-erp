@@ -86,6 +86,12 @@
     </div>
 </div>
 
+<!-- ============================================ -->
+<!-- DADOS JSON SEGUROS USANDO json_script -->
+<!-- ============================================ -->
+{{ turmas_json|json_script:"turmas-data" }}
+{{ escola_json|json_script:"escola-data" }}
+
 <!-- ESTILOS -->
 <style>
     * { 
@@ -599,12 +605,31 @@
 <!-- SCRIPTS -->
 <script>
 // ============================================
-// DADOS DIRETOS DO DJANGO (INLINE)
+// CARREGAR DADOS DO DJANGO DE FORMA SEGURA
 // ============================================
-var turmasData = {{ turmas_json|default:'[]'|safe }};
-var escolaData = {{ escola_json|default:'{}'|safe }};
+function getDataFromScript(id) {
+    const element = document.getElementById(id);
+    if (element) {
+        try {
+            const data = JSON.parse(element.textContent);
+            console.log(`✅ Dados carregados: ${id}`, data);
+            return data;
+        } catch(e) {
+            console.error(`❌ Erro ao parsear ${id}:`, e);
+            console.log('📦 Conteúdo:', element.textContent.substring(0, 200));
+            return null;
+        }
+    }
+    console.warn(`⚠️ Elemento ${id} não encontrado`);
+    return null;
+}
+
+// CARREGAR OS DADOS
+var turmasData = getDataFromScript('turmas-data') || [];
+var escolaData = getDataFromScript('escola-data') || {};
 
 console.log('📦 Turmas recebidas:', turmasData);
+console.log('📦 Total de turmas:', turmasData.length);
 console.log('🏫 Escola:', escolaData);
 
 // ============================================
@@ -676,6 +701,7 @@ function exibirListaNominal(turmaId) {
     const turma = turmasData.find(t => t.id == turmaId);
     
     if (!turma) {
+        console.error('❌ Turma não encontrada:', turmaId);
         container.innerHTML = `
             <div class="text-center py-3" style="color: #999 !important; font-size: clamp(0.7rem, 1.8vw, 0.9rem);">
                 <i class="bi bi-exclamation-triangle me-1" style="font-size: clamp(1.2rem, 4vw, 1.8rem); display: block; margin-bottom: 6px; color: #ccc;"></i>
@@ -686,6 +712,7 @@ function exibirListaNominal(turmaId) {
     }
     
     const alunos = turma.alunos || [];
+    console.log(`👨‍🎓 Alunos na turma ${turma.nome}: ${alunos.length}`);
     
     // DADOS DA ESCOLA
     const escolaNome = escolaData?.nome || 'Yitro - Gestão Escolar';
@@ -745,7 +772,7 @@ function exibirListaNominal(turmaId) {
                 <tr>
                     <th style="width: 10%;">Nº</th>
                     <th style="width: 55%;">Nome Completo</th>
-                    <th style="width: 18%;">Genero</th>
+                    <th style="width: 18%;">Género</th>
                     <th style="width: 17%;">Idade</th>
                 </tr>
             </thead>
@@ -756,7 +783,7 @@ function exibirListaNominal(turmaId) {
         html += `
             <tr>
                 <td colspan="4" style="text-align: center; padding: 15px; color: #000 !important; font-size: clamp(9pt, 2vw, 12pt);">
-                    Nenhum aluno encontrado
+                    Nenhum aluno encontrado nesta turma
                 </td>
             </tr>
         `;
@@ -792,10 +819,10 @@ function exibirListaNominal(turmaId) {
 
             <!-- ASSINATURA -->
             <div class="assinatura">
-                <div class="cargo">O Sub-Director Pedagogico</div>
+                <div class="cargo">O Sub-Director Pedagógico</div>
                 <div class="linha-assinatura"></div>
                 <div class="nome-assinatura">_________________________</div>
-                <div class="funcao">Sub-Director Pedagogico</div>
+                <div class="funcao">Sub-Director Pedagógico</div>
             </div>
         </div>
     </div>
@@ -960,10 +987,31 @@ function gerarPDF(element) {
 }
 
 // ============================================
-// INICIALIZAR
+// EVENTO PARA FILTRAR TURMAS
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Lista de Alunos - Inicializando...');
+    
+    // Verificar se há turmas
+    if (!turmasData || turmasData.length === 0) {
+        console.warn('⚠️ Nenhuma turma disponível');
+        const container = document.getElementById('lista-nominal-container');
+        if (container) {
+            container.innerHTML = `
+                <div class="text-center py-4" style="color: #999 !important; font-size: clamp(0.7rem, 1.8vw, 0.9rem);">
+                    <i class="bi bi-inbox" style="font-size: clamp(2rem, 5vw, 3rem); display: block; margin-bottom: 8px; color: #ccc;"></i>
+                    <span style="color: #999 !important;">Nenhuma turma encontrada</span>
+                    <br><small style="color: #999 !important;">Cadastre uma turma para ver a lista de alunos.</small>
+                </div>
+            `;
+        }
+        // Atualizar o contador
+        document.getElementById('count-turmas').textContent = '0';
+        return;
+    }
+    
+    // Atualizar contador
+    document.getElementById('count-turmas').textContent = turmasData.length;
     
     const primeiroItem = document.querySelector('.item-turma');
     if (primeiroItem) {
@@ -973,9 +1021,12 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('📌 Primeira turma:', id, nome);
         selecionarTurma(id, nome, classe);
     } else {
-        console.log('⚠️ Nenhuma turma encontrada');
+        console.log('⚠️ Nenhuma turma encontrada na lista');
     }
     
     console.log('✅ Lista de Alunos inicializada!');
 });
+
+// Configurar o filtro
+document.getElementById('buscarTurma')?.addEventListener('input', filtrarTurmas);
 </script>

@@ -380,6 +380,7 @@
             filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
         }
 
+        /* 🔥 LOGO PADRÃO (em qualquer lugar) */
         .logo-yitro .logo-text {
             font-family: 'Orbitron', monospace;
             font-weight: 700;
@@ -400,6 +401,30 @@
             height: 1px;
             background: linear-gradient(90deg, transparent, var(--gold), var(--primary), transparent);
             opacity: 0.3;
+        }
+
+        /* 🔥 LOGO NA BARRA SUPERIOR - AZUL */
+        .top-header .logo-yitro .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+            color: #00d4ff !important;
+            background: none !important;
+            -webkit-background-clip: unset !important;
+            -webkit-text-fill-color: unset !important;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.15);
+            position: relative;
+        }
+        .top-header .logo-yitro .logo-text::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), var(--secondary), transparent);
+            opacity: 0.4;
         }
 
         .app-wrapper {
@@ -446,18 +471,20 @@
             text-decoration: none;
             font-size: 0.85rem;
             font-weight: 500;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             position: relative;
             background: transparent;
             margin-bottom: 2px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
         .sidebar-nav .nav-link-tech i { 
             font-size: 1.3rem; 
             width: 28px; 
             text-align: center; 
             flex-shrink: 0;
-            transition: all 0.3s ease;
+            transition: all 0.15s ease;
         }
         .sidebar-nav .nav-link-tech:hover { 
             background: rgba(0, 0, 0, 0.04) !important; 
@@ -467,6 +494,17 @@
         .sidebar-nav .nav-link-tech:hover i {
             transform: scale(1.15);
         }
+        
+        /* 🔥 EFEITO DE CLIQUE - PRESSIONADO */
+        .sidebar-nav .nav-link-tech:active {
+            transform: scale(0.94) !important;
+            background: rgba(0, 212, 255, 0.15) !important;
+            transition: all 0.08s ease !important;
+        }
+        .sidebar-nav .nav-link-tech:active i {
+            transform: scale(0.85) !important;
+        }
+        
         .sidebar-nav .nav-link-tech.active {
             background: rgba(0, 212, 255, 0.1) !important;
             color: #000 !important;
@@ -517,6 +555,10 @@
             background: rgba(0, 0, 0, 0.03) !important;
             transform: translateX(4px);
         }
+        .sidebar-nav .submenu .nav-link-tech:active {
+            transform: scale(0.94) !important;
+            background: rgba(0, 212, 255, 0.12) !important;
+        }
         .sidebar-nav .nav-link-tech .chevron {
             margin-left: auto;
             transition: transform 0.3s ease;
@@ -544,6 +586,7 @@
         
         .nav-link-tech[href*="logout"] i { color: #ff4757 !important; }
         .nav-link-tech[href*="logout"]:hover { color: #ff4757 !important; background: rgba(255, 71, 87, 0.08) !important; }
+        .nav-link-tech[href*="logout"]:active { background: rgba(255, 71, 87, 0.2) !important; }
         
         .nav-link-tech .bi-file-earmark-text { color: #ffa502 !important; }
         .nav-link-tech .bi-book { color: #7b2ffc !important; }
@@ -593,6 +636,9 @@
             background: rgba(255, 71, 87, 0.08);
             transform: scale(1.1);
         }
+        .sidebar-user .logout-btn:active {
+            transform: scale(0.9) !important;
+        }
 
         .sidebar-overlay {
             position: fixed;
@@ -611,20 +657,27 @@
         .sidebar-toggle {
             background: none;
             border: none;
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(0, 0, 0, 0.5) !important;
             font-size: 1.5rem;
             cursor: pointer;
             padding: 4px 8px;
             border-radius: 8px;
-            transition: all 0.3s ease;
+            transition: all 0.15s ease;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .sidebar-toggle:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
+        .sidebar-toggle:hover { 
+            color: #000 !important; 
+            background: rgba(0, 0, 0, 0.05) !important;
+        }
+        .sidebar-toggle:active {
+            transform: scale(0.88) !important;
+            background: rgba(0, 0, 0, 0.1) !important;
+        }
 
         /* ============================================
-           🔥 TOP HEADER - INTACTO
+           🔥 TOP HEADER - BRANCO COM LETRAS PRETAS (igual à sidebar)
            ============================================ */
         .top-header {
             position: fixed;
@@ -633,10 +686,10 @@
             right: 0;
             z-index: 1050;
             height: var(--header-height);
-            background: rgba(10, 14, 26, 0.7);
+            background: #ffffff !important;
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
             padding: 0 1.5rem;
             display: flex;
             align-items: center;
@@ -644,18 +697,21 @@
             flex-shrink: 0;
             gap: 15px;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
         }
         .top-header .header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .top-header .page-title {
             font-size: 1rem;
             font-weight: 600;
-            color: #fff;
+            color: #000 !important;
             display: flex;
             align-items: center;
             gap: 10px;
             white-space: nowrap;
         }
-        .top-header .page-title i { color: var(--primary); }
+        .top-header .page-title i { 
+            color: var(--primary) !important; 
+        }
         .top-header .header-actions { display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
         .top-header .header-actions .notif-badge { position: relative; }
         .top-header .header-actions .notif-badge .badge-dot {
@@ -666,21 +722,33 @@
             height: 8px;
             background: #ff4757;
             border-radius: 50%;
-            border: 2px solid var(--dark);
+            border: 2px solid #ffffff;
             animation: pulse-dot 2s infinite;
         }
         @keyframes pulse-dot { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
         .top-header .header-actions .btn-icon {
             background: none;
             border: none;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(0, 0, 0, 0.4) !important;
             font-size: 1.2rem;
             cursor: pointer;
             padding: 6px;
             border-radius: 8px;
-            transition: 0.3s;
+            transition: 0.15s ease;
         }
-        .top-header .header-actions .btn-icon:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
+        .top-header .header-actions .btn-icon:hover { 
+            color: #000 !important; 
+            background: rgba(0, 0, 0, 0.05) !important;
+        }
+        .top-header .header-actions .btn-icon:active {
+            transform: scale(0.85) !important;
+            background: rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .top-header .badge.bg-primary {
+            background-color: var(--primary) !important;
+            color: #000 !important;
+        }
 
         .main-content {
             flex: 1;
@@ -830,7 +898,7 @@
                 <a class="nav-link-tech" onclick="loadPage('pedagogico')">
                     <i class="bi bi-calendar3"></i> Gestão do Ano Lectivo
                 </a>
-                <a class="nav-link-tech" onclick="loadPage('pedagogico/lista_alunos')">
+                <a class="nav-link-tech" onclick="loadPage('secretaria/alunos')">
                     <i class="bi bi-people"></i> Lista dos Alunos
                 </a>
                 <a class="nav-link-tech" onclick="loadPage('pedagogico/pautas')">
@@ -1196,7 +1264,7 @@
         }
 
         // ============================================
-        // 🔥 FUNÇÃO LOADPAGE CORRIGIDA
+        // 🔥 FUNÇÃO LOADPAGE - VERSÃO CORRIGIDA
         // ============================================
         function loadPage(page, params = {}) {
             if (page === currentPage) {
@@ -1213,11 +1281,66 @@
             const activeLink = document.querySelector(`.sidebar-nav .nav-link-tech[data-page="${page}"]`);
             if (activeLink) activeLink.classList.add('active');
             
-            let url;
-            if (page.startsWith('secretaria/')) {
-                url = `/escola/${page}/`;
-            } else {
-                url = `/escola/api/${page}/`;
+            // 🔥 MAPEAMENTO COMPLETO DAS URLs - TODAS COM /escola/
+            const urlMap = {
+                // Dashboard
+                'dashboard': '/escola/api/dashboard/',
+                
+                // Pedagógico
+                'pedagogico': '/escola/pedagogico/',
+                'pedagogico/ano_lectivo': '/escola/pedagogico/ano_lectivo/',
+                'pedagogico/lista_alunos': '/escola/pedagogico/lista_alunos/',
+                'pedagogico/pautas': '/escola/pedagogico/pautas/',
+                'pedagogico/mapa_aproveitamento': '/escola/pedagogico/mapa_aproveitamento/',
+                'pedagogico/relatorio': '/escola/pedagogico/relatorio/',
+                'pedagogico/professores': '/escola/pedagogico/professores/',
+                'pedagogico/efetividade': '/escola/pedagogico/efetividade/',
+                'pedagogico/usuarios': '/escola/pedagogico/usuarios/',
+                
+                // Secretaria
+                'secretaria/matriculas': '/escola/secretaria/matriculas/',
+                'secretaria/pagamentos': '/escola/secretaria/pagamentos/',
+                'secretaria/alunos': '/escola/secretaria/alunos/',
+                'secretaria/documentos': '/escola/secretaria/documentos/',
+                
+                // Professor
+                'professor/lancar_notas': '/escola/professor/lancar_notas/',
+                'professor/pauta_trimestral': '/escola/professor/pauta_trimestral/',
+                'professor/horario': '/escola/professor/horario/',
+                'professor/efetividade': '/escola/professor/efetividade/',
+                'professor/avaliacao': '/escola/professor/avaliacao/',
+                
+                // Administrativo
+                'admin/funcionarios': '/escola/admin/funcionarios/',
+                'admin/documentos': '/escola/admin/documentos/',
+                'admin/relatorios': '/escola/admin/relatorios/',
+                'admin/custos': '/escola/admin/custos/',
+                'admin/folha_salarial': '/escola/admin/folha_salarial/',
+                'admin/usuarios': '/escola/admin/usuarios/',
+                
+                // Financeiro
+                'financeiro/relatorio': '/escola/financeiro/relatorio/',
+                'financeiro/tributario': '/escola/financeiro/tributario/',
+                
+                // Configurações e outros
+                'configuracoes': '/escola/configuracoes/',
+                'escolas': '/escola/escolas/',
+                'usuarios': '/escola/usuarios/',
+            };
+            
+            let url = urlMap[page];
+            
+            // Se não encontrar no mapa, tenta construir a URL
+            if (!url) {
+                if (page.startsWith('secretaria/') || 
+                    page.startsWith('pedagogico/') || 
+                    page.startsWith('professor/') || 
+                    page.startsWith('admin/') || 
+                    page.startsWith('financeiro/')) {
+                    url = `/escola/${page}/`;
+                } else {
+                    url = `/escola/api/${page}/`;
+                }
             }
             
             if (params.id) {
@@ -1238,6 +1361,7 @@
                 if (!response.ok) {
                     if (response.status === 401) throw new Error('Sessão expirada. Faça login novamente.');
                     if (response.status === 403) throw new Error('Sem permissão para aceder a esta página.');
+                    if (response.status === 404) throw new Error('Página não encontrada: ' + url);
                     throw new Error('Erro na requisição');
                 }
                 return response.text();
@@ -1300,7 +1424,7 @@
                 
                 const pageTitle = document.getElementById('pageTitle');
                 if (pageTitle) {
-                    pageTitle.textContent = titles[page] || page.split('/').pop().replace('_', ' ').title();
+                    pageTitle.textContent = titles[page] || page.split('/').pop().replace('_', ' ').replace('-', ' ').toUpperCase();
                 }
                 
                 const pageIcon = document.getElementById('pageIcon');
@@ -1330,11 +1454,14 @@
                 const container = document.getElementById('contentContainer');
                 if (container) {
                     container.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="bi bi-exclamation-triangle"></i> 
-                            Erro ao carregar página: ${error.message}
+                        <div class="alert alert-danger" style="background: rgba(255,71,87,0.1); border: 1px solid rgba(255,71,87,0.3); border-radius: 12px; padding: 20px; color: #fff;">
+                            <h5><i class="bi bi-exclamation-triangle" style="color: #ff4757;"></i> Erro ao carregar página</h5>
+                            <p>${error.message}</p>
                             ${error.message.includes('Sessão expirada') ? 
-                                `<br><a href="/auth/login/?next=${encodeURIComponent(window.location.pathname)}">Clique aqui para fazer login novamente</a>` : ''}
+                                `<br><a href="/auth/login/?next=${encodeURIComponent(window.location.pathname)}" class="btn btn-primary">Fazer login novamente</a>` : ''}
+                            ${error.message.includes('não encontrada') ? 
+                                `<br><small class="text-muted">URL tentada: ${url}</small>` : ''}
+                            <br><button class="btn btn-secondary mt-2" onclick="location.reload()">Recarregar</button>
                         </div>
                     `;
                 }
