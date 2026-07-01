@@ -25,7 +25,7 @@
 <div class="row g-2 g-sm-3 fade-in-up delay-1">
     <!-- COLUNA ESQUERDA: LISTA DE TURMAS -->
     <div class="col-12 col-md-4 col-lg-3">
-        <div class="glass-card p-2 p-sm-3" style="height: 100%; min-height: 250px; max-height: 350px; overflow: hidden; background: #ffffff; color: #000000 !important; border: 1px solid #ddd;">
+        <div class="glass-card p-2 p-sm-3" style="height: 100%; min-height: 250px; max-height: 350px; overflow: hidden; background: #ffffff; color: #000000 !important; border: 1px solid #000;">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h6 class="mb-0" style="font-size: clamp(0.8rem, 2.5vw, 1rem); color: #000 !important;">
                     <i class="bi bi-grid-3x3-gap-fill me-2" style="color: #000;"></i> Turmas
@@ -35,7 +35,7 @@
             
             <!-- Campo de busca de turmas -->
             <div class="mb-2">
-                <input type="text" id="buscarTurma" class="form-control" placeholder="Filtrar turma..." style="font-size: clamp(0.7rem, 1.5vw, 0.85rem); padding: 5px 10px; min-height: 32px; color: #000; background: #fff; border: 1px solid #ddd; border-radius: 6px;">
+                <input type="text" id="buscarTurma" class="form-control" placeholder="Filtrar turma..." style="font-size: clamp(0.7rem, 1.5vw, 0.85rem); padding: 5px 10px; min-height: 32px; color: #000; background: #fff; border: 1px solid #000; border-radius: 6px;">
             </div>
             
             <!-- Lista de Turmas -->
@@ -57,7 +57,7 @@
                         </div>
                     {% endfor %}
                 {% else %}
-                    <div class="text-center py-3 text-muted" style="font-size: clamp(0.7rem, 1.8vw, 0.85rem); color: #999 !important;">
+                    <div class="text-center py-3 text-muted" style="font-size: clamp(0.7rem, 1.8vw, 0.85rem); color: #000 !important;">
                         <i class="bi bi-inbox me-1"></i> Nenhuma turma
                     </div>
                 {% endif %}
@@ -77,10 +77,10 @@
             </button>
         </div>
         
-        <div id="lista-nominal-container" style="min-height: 300px; background: #ffffff; color: #000000 !important; border-radius: 8px; overflow: hidden; padding: 0 !important; border: 1px solid #ddd;">
-            <div class="text-center py-4" style="color: #999 !important; font-size: clamp(0.7rem, 1.8vw, 0.9rem);">
-                <i class="bi bi-hand-index-thumb me-2" style="font-size: clamp(1.5rem, 5vw, 2.5rem); display: block; margin-bottom: 8px; color: #ccc;"></i>
-                <span style="color: #999 !important;">Selecione uma turma</span>
+        <div id="lista-nominal-container" style="min-height: 300px; background: #ffffff; color: #000000 !important; border-radius: 8px; overflow: hidden; padding: 0 !important; border: 1px solid #000;">
+            <div class="text-center py-4" style="color: #000 !important; font-size: clamp(0.7rem, 1.8vw, 0.9rem);">
+                <i class="bi bi-hand-index-thumb me-2" style="font-size: clamp(1.5rem, 5vw, 2.5rem); display: block; margin-bottom: 8px; color: #000;"></i>
+                <span style="color: #000 !important;">Selecione uma turma</span>
             </div>
         </div>
     </div>
@@ -117,14 +117,14 @@
     .bg-danger { background-color: #ff4757 !important; }
     .bg-primary { background-color: #00d4ff !important; }
     .bg-info { background-color: #7b2ffc !important; }
-    .bg-secondary { background-color: #6c757d !important; }
-    .bg-dark { background-color: #343a40 !important; }
+    .bg-secondary { background-color: #000 !important; }
+    .bg-dark { background-color: #000 !important; }
     
     .fade-in-up { animation: fadeInUp 0.4s ease forwards; opacity: 0; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     .delay-1 { animation-delay: 0.05s; }
     
-    .text-muted { color: rgba(255,255,255,0.5) !important; }
+    .text-muted { color: rgba(0,0,0,0.5) !important; }
     
     .lista-turmas { 
         max-height: 220px; 
@@ -167,7 +167,7 @@
     }
     .item-turma .turma-info { 
         font-size: clamp(0.55rem, 1.2vw, 0.7rem); 
-        color: #555 !important; 
+        color: #000 !important; 
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -175,7 +175,7 @@
     
     .glass-card {
         background: #ffffff !important;
-        border: 1px solid #ddd !important;
+        border: 1px solid #000 !important;
         border-radius: 12px;
         padding: 0.8rem 1rem !important;
         color: #000 !important;
@@ -425,7 +425,7 @@
     /* FUNDO BRANCO */
     #lista-nominal-container {
         background: #ffffff !important;
-        border: 1px solid #ddd !important;
+        border: 1px solid #000 !important;
         box-shadow: none !important;
         padding: 0 !important;
         border-radius: 8px;
@@ -462,7 +462,7 @@
         }
         .glass-card {
             background: #ffffff !important;
-            border: 1px solid #ddd !important;
+            border: 1px solid #000 !important;
         }
         .metal-header {
             -webkit-print-color-adjust: exact !important;
@@ -599,30 +599,13 @@
 <!-- SCRIPTS -->
 <script>
 // ============================================
-// CARREGAR DADOS DO BASE_ESCOLA.HTML
+// CARREGAR DADOS DIRETAMENTE DO DJANGO
 // ============================================
-function carregarDadosDoBase() {
-    try {
-        const scriptTag = document.getElementById('dados-escola');
-        if (scriptTag) {
-            const dados = JSON.parse(scriptTag.textContent);
-            console.log('✅ Dados carregados do base_escola.html');
-            return dados;
-        }
-        console.warn('⚠️ Elemento dados-escola não encontrado');
-        return null;
-    } catch(e) {
-        console.error('❌ Erro ao ler dados-escola:', e);
-        return null;
-    }
-}
+// 🔥 DADOS PASSADOS PELA VIEW secretaria_alunos
+var turmasData = {{ turmas_json|safe }};
+var escolaData = {{ escola_json|safe }};
 
-// CARREGAR OS DADOS
-const dadosBase = carregarDadosDoBase();
-var turmasData = dadosBase?.turmas || [];
-var escolaData = dadosBase?.escola || {};
-
-console.log('📦 Turmas recebidas:', turmasData);
+console.log('📦 Turmas recebidas do Django:', turmasData);
 console.log('📦 Total de turmas:', turmasData.length);
 console.log('🏫 Escola:', escolaData);
 
@@ -691,22 +674,33 @@ function selecionarTurma(id, nome, classe) {
 function exibirListaNominal(turmaId) {
     const container = document.getElementById('lista-nominal-container');
     
+    // 🔥 VERIFICAR DADOS DA TURMA
+    console.log('🔍 Buscando turma ID:', turmaId);
+    console.log('🔍 Turmas disponíveis:', turmasData);
+    
     // ENCONTRAR A TURMA NOS DADOS
     const turma = turmasData.find(t => t.id == turmaId);
     
     if (!turma) {
         console.error('❌ Turma não encontrada:', turmaId);
         container.innerHTML = `
-            <div class="text-center py-3" style="color: #999 !important; font-size: clamp(0.7rem, 1.8vw, 0.9rem);">
-                <i class="bi bi-exclamation-triangle me-1" style="font-size: clamp(1.2rem, 4vw, 1.8rem); display: block; margin-bottom: 6px; color: #ccc;"></i>
-                <span style="color: #999 !important;">Turma não encontrada</span>
+            <div class="text-center py-3" style="color: #000 !important; font-size: clamp(0.7rem, 1.8vw, 0.9rem);">
+                <i class="bi bi-exclamation-triangle me-1" style="font-size: clamp(1.2rem, 4vw, 1.8rem); display: block; margin-bottom: 6px; color: #000;"></i>
+                <span style="color: #000 !important;">Turma não encontrada</span>
             </div>
         `;
         return;
     }
     
-    const alunos = turma.alunos || [];
-    console.log(`👨‍🎓 Alunos na turma ${turma.nome}: ${alunos.length}`);
+    // 🔥 VERIFICAR ONDE ESTÃO OS ALUNOS
+    console.log('🔍 Dados da turma:', turma);
+    console.log('🔍 Chaves da turma:', Object.keys(turma));
+    
+    // 🔥 TENTAR DIFERENTES FORMAS DE OBTER OS ALUNOS
+    const alunos = turma.alunos || turma.alunos_list || turma.estudantes || [];
+    
+    console.log(`👨‍🎓 Alunos na turma ${turma.nome}:`, alunos);
+    console.log(`📊 Total de alunos: ${alunos.length}`);
     
     // DADOS DA ESCOLA
     const escolaNome = escolaData?.nome || 'Yitro - Gestão Escolar';
@@ -789,7 +783,7 @@ function exibirListaNominal(turmaId) {
             html += `
                 <tr>
                     <td class="numero">${index + 1}</td>
-                    <td class="nome">${aluno.nome_completo || 'N/A'}</td>
+                    <td class="nome">${aluno.nome_completo || aluno.nome || 'N/A'}</td>
                     <td class="genero">${genero}</td>
                     <td class="idade">${idade}</td>
                 </tr>
@@ -992,10 +986,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const container = document.getElementById('lista-nominal-container');
         if (container) {
             container.innerHTML = `
-                <div class="text-center py-4" style="color: #999 !important; font-size: clamp(0.7rem, 1.8vw, 0.9rem);">
-                    <i class="bi bi-inbox" style="font-size: clamp(2rem, 5vw, 3rem); display: block; margin-bottom: 8px; color: #ccc;"></i>
-                    <span style="color: #999 !important;">Nenhuma turma encontrada</span>
-                    <br><small style="color: #999 !important;">Cadastre uma turma para ver a lista de alunos.</small>
+                <div class="text-center py-4" style="color: #000 !important; font-size: clamp(0.7rem, 1.8vw, 0.9rem);">
+                    <i class="bi bi-inbox" style="font-size: clamp(2rem, 5vw, 3rem); display: block; margin-bottom: 8px; color: #000;"></i>
+                    <span style="color: #000 !important;">Nenhuma turma encontrada</span>
+                    <br><small style="color: #000 !important;">Cadastre uma turma para ver a lista de alunos.</small>
                 </div>
             `;
         }
