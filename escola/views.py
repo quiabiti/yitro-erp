@@ -1,11 +1,14 @@
-# escola/views.py - VERSÃO CORRIGIDA
+# escola/views.py - VERSÃO CORRIGIDA COMPLETA
 
+import json
+import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
+from django.core.serializers.json import DjangoJSONEncoder
 from core.decorators import (
     yitro_admin_required, 
     super_admin_required, 
@@ -15,7 +18,6 @@ from core.decorators import (
 )
 from .configuracao.models import Instituicao, UsuarioInstituicao
 from django.contrib.auth import get_user_model
-import logging
 
 # 🔥 IMPORTAR MODELOS PEDAGÓGICOS
 from .pedagogico.models import Classe, Disciplina, Turma, AnoLectivo
@@ -86,12 +88,12 @@ def get_tenant_id_para_salvar(request, item=None):
 
 
 # ============================================
-# VIEW PRINCIPAL - SPA
+# VIEW PRINCIPAL - SPA (CORRIGIDA COM JSON)
 # ============================================
 
 @login_required
 def index(request):
-    """Página inicial da Escola - Carrega o SPA"""
+    """Página inicial da Escola - Carrega o SPA com dados JSON"""
     user = request.user
     
     tenant_slug = request.GET.get('tenant')
@@ -103,6 +105,8 @@ def index(request):
     tenant_nome_fantasia = None
     carregar_dashboard = False
     esta_na_escola = False
+    turmas = []
+    escola = None
     
     if tenant_slug:
         try:
@@ -112,8 +116,46 @@ def index(request):
             carregar_dashboard = True
             esta_na_escola = True
             request.session['tenant_id'] = escola.id
+            
+            # 🔥 Buscar turmas da escola
+            try:
+                turmas = Turma.objects.filter(
+                    tenant_id=escola.id,
+                    ativo=True
+                ).order_by('nome')
+                logger.info(f"✅ {turmas.count()} turmas encontradas para {escola.nome}")
+            except Exception as e:
+                logger.warning(f"⚠️ Erro ao buscar turmas: {e}")
+                turmas = []
+                
         except Instituicao.DoesNotExist:
+            logger.warning(f"❌ Escola não encontrada: {tenant_slug}")
             pass
+    
+    # 🔥 Converter turmas para JSON
+    turmas_list = []
+    for t in turmas:
+        turmas_list.append({
+            'id': t.id,
+            'nome': t.nome,
+            'ano': getattr(t, 'ano', None),
+            'descricao': getattr(t, 'descricao', ''),
+        })
+    turmas_json = json.dumps(turmas_list, cls=DjangoJSONEncoder)
+    
+    # 🔥 Converter escola para JSON
+    escola_dict = {}
+    if escola:
+        escola_dict = {
+            'id': escola.id,
+            'nome': escola.nome,
+            'slug': escola.slug,
+            'nome_fantasia': escola.nome_fantasia,
+            'cor_primaria': getattr(escola, 'cor_primaria', '#00d4ff'),
+            'cor_secundaria': getattr(escola, 'cor_secundaria', '#7b2ffc'),
+            'logo': getattr(escola, 'logo', None) and escola.logo.url if hasattr(escola, 'logo') else None,
+        }
+    escola_json = json.dumps(escola_dict, cls=DjangoJSONEncoder)
     
     context = {
         'is_super_admin': is_super_admin,
@@ -125,6 +167,10 @@ def index(request):
         'tenant_nome_fantasia': tenant_nome_fantasia,
         'carregar_dashboard': carregar_dashboard,
         'esta_na_escola': esta_na_escola,
+        'turmas': turmas,
+        'turmas_json': turmas_json,  # 🔥 Dados das turmas em JSON
+        'escola_json': escola_json,  # 🔥 Dados da escola em JSON
+        'escola': escola,
     }
     
     return render(request, 'base_escola.html', context)
@@ -329,7 +375,7 @@ def api_escola_deletar(request, escola_id):
 
 
 # ============================================
-# 🔥 DASHBOARD - CORRIGIDO
+# 🔥 DASHBOARD
 # ============================================
 
 @login_required
@@ -445,46 +491,123 @@ def api_dashboard(request):
 
 
 # ============================================
-# 🔥 SECRETARIA GERAL
+# 🔥 SECRETARIA GERAL (CORRIGIDAS COM DADOS)
 # ============================================
 
 @login_required
 def secretaria_matriculas(request):
     """Matrícula e Confirmação - Secretaria Geral"""
+    tenant = get_tenant_escola(request)
     context = {
         'titulo': 'Matrícula e Confirmação',
         'icone': 'bi-file-earmark-text',
         'modulo': 'Secretaria Geral',
+        'tenant_nome': tenant.nome if tenant else None,
+        'tenant_id': tenant.id if tenant else None,
     }
     return render(request, 'escola/partials/secretaria/matriculas.html', context)
+
 
 @login_required
 def secretaria_pagamentos(request):
     """Pagamentos - Secretaria Geral"""
+    tenant = get_tenant_escola(request)
     context = {
         'titulo': 'Pagamentos',
         'icone': 'bi-wallet2',
         'modulo': 'Secretaria Geral',
+        'tenant_nome': tenant.nome if tenant else None,
+        'tenant_id': tenant.id if tenant else None,
     }
     return render(request, 'escola/partials/secretaria/pagamentos.html', context)
 
+
 @login_required
 def secretaria_alunos(request):
-    """Lista de Alunos por Turma - Secretaria Geral"""
-    context = {
-        'titulo': 'Lista de Alunos por Turma',
-        'icone': 'bi-people',
-        'modulo': 'Secretaria Geral',
-    }
-    return render(request, 'escola/partials/secretaria/alunos.html', context)
+    """Lista de Alunos por Turma - Secretaria Geral COM DADOS"""
+    try:
+        tenant = get_tenant_escola(request)
+        tenant_id = tenant.id if tenant else None
+        
+        # Buscar alunos se o modelo existir
+        alunos = []
+        turmas = []
+        alunos_json = '[]'
+        turmas_json = '[]'
+        
+        if tenant_id and Aluno is not None:
+            alunos = Aluno.objects.filter(
+                tenant_id=tenant_id,
+                ativo=True
+            ).select_related('turma').order_by('nome')[:100]
+            
+            turmas = Turma.objects.filter(
+                tenant_id=tenant_id,
+                ativo=True
+            ).order_by('nome')
+            
+            # 🔥 Converter alunos para JSON
+            alunos_list = []
+            for a in alunos:
+                alunos_list.append({
+                    'id': a.id,
+                    'nome': a.nome,
+                    'matricula': a.matricula,
+                    'turma': a.turma.nome if a.turma else '-',
+                    'turma_id': a.turma.id if a.turma else None,
+                    'data_nascimento': a.data_nascimento.strftime('%d/%m/%Y') if hasattr(a, 'data_nascimento') and a.data_nascimento else '-',
+                    'status': getattr(a, 'status', 'ATIVO'),
+                })
+            alunos_json = json.dumps(alunos_list, cls=DjangoJSONEncoder)
+            
+            # 🔥 Converter turmas para JSON
+            turmas_json = json.dumps([
+                {'id': t.id, 'nome': t.nome} for t in turmas
+            ], cls=DjangoJSONEncoder)
+        
+        context = {
+            'titulo': 'Lista de Alunos por Turma',
+            'icone': 'bi-people',
+            'modulo': 'Secretaria Geral',
+            'alunos': alunos,
+            'turmas': turmas,
+            'total_alunos': len(alunos),
+            'tenant_id': tenant_id,
+            'tenant_nome': tenant.nome if tenant else None,
+            'tem_alunos': Aluno is not None,
+            'alunos_json': alunos_json,  # 🔥 Dados dos alunos em JSON
+            'turmas_json': turmas_json,  # 🔥 Dados das turmas em JSON
+        }
+        
+        return render(request, 'escola/partials/secretaria/alunos.html', context)
+        
+    except Exception as e:
+        logger.error(f"❌ Erro em secretaria_alunos: {e}")
+        context = {
+            'titulo': 'Lista de Alunos por Turma',
+            'icone': 'bi-people',
+            'modulo': 'Secretaria Geral',
+            'erro': str(e),
+            'alunos': [],
+            'turmas': [],
+            'total_alunos': 0,
+            'alunos_json': '[]',
+            'turmas_json': '[]',
+            'tem_alunos': False,
+        }
+        return render(request, 'escola/partials/secretaria/alunos.html', context)
+
 
 @login_required
 def secretaria_documentos(request):
     """Solicitação de Documentos - Secretaria Geral"""
+    tenant = get_tenant_escola(request)
     context = {
         'titulo': 'Solicitação de Documentos',
         'icone': 'bi-file-earmark',
         'modulo': 'Secretaria Geral',
+        'tenant_nome': tenant.nome if tenant else None,
+        'tenant_id': tenant.id if tenant else None,
     }
     return render(request, 'escola/partials/secretaria/documentos.html', context)
 
@@ -496,60 +619,83 @@ def secretaria_documentos(request):
 @login_required
 def admin_funcionarios(request):
     """Funcionários - Área Administrativa"""
+    tenant = get_tenant_escola(request)
     context = {
         'titulo': 'Funcionários',
         'icone': 'bi-people',
         'modulo': 'Área Administrativa',
+        'tenant_nome': tenant.nome if tenant else None,
+        'tenant_id': tenant.id if tenant else None,
     }
     return render(request, 'escola/partials/admin/funcionarios.html', context)
+
 
 @login_required
 def admin_documentos(request):
     """Documentos - Área Administrativa"""
+    tenant = get_tenant_escola(request)
     context = {
         'titulo': 'Documentos',
         'icone': 'bi-file-earmark',
         'modulo': 'Área Administrativa',
+        'tenant_nome': tenant.nome if tenant else None,
+        'tenant_id': tenant.id if tenant else None,
     }
     return render(request, 'escola/partials/admin/documentos.html', context)
+
 
 @login_required
 def admin_relatorios(request):
     """Relatórios - Área Administrativa"""
+    tenant = get_tenant_escola(request)
     context = {
         'titulo': 'Relatórios',
         'icone': 'bi-file-earmark-text',
         'modulo': 'Área Administrativa',
+        'tenant_nome': tenant.nome if tenant else None,
+        'tenant_id': tenant.id if tenant else None,
     }
     return render(request, 'escola/partials/admin/relatorios.html', context)
+
 
 @login_required
 def admin_custos(request):
     """Gestão de Custos - Área Administrativa"""
+    tenant = get_tenant_escola(request)
     context = {
         'titulo': 'Gestão de Custos',
         'icone': 'bi-coin',
         'modulo': 'Área Administrativa',
+        'tenant_nome': tenant.nome if tenant else None,
+        'tenant_id': tenant.id if tenant else None,
     }
     return render(request, 'escola/partials/admin/custos.html', context)
+
 
 @login_required
 def admin_folha_salarial(request):
     """Efetividade e Folha Salarial - Área Administrativa"""
+    tenant = get_tenant_escola(request)
     context = {
         'titulo': 'Efetividade e Folha Salarial',
         'icone': 'bi-cash-stack',
         'modulo': 'Área Administrativa',
+        'tenant_nome': tenant.nome if tenant else None,
+        'tenant_id': tenant.id if tenant else None,
     }
     return render(request, 'escola/partials/admin/folha_salarial.html', context)
+
 
 @login_required
 def admin_usuarios(request):
     """Usuários - Área Administrativa"""
+    tenant = get_tenant_escola(request)
     context = {
         'titulo': 'Usuários - Administrativo',
         'icone': 'bi-people',
         'modulo': 'Área Administrativa',
+        'tenant_nome': tenant.nome if tenant else None,
+        'tenant_id': tenant.id if tenant else None,
     }
     return render(request, 'escola/partials/admin/usuarios.html', context)
 
@@ -561,19 +707,182 @@ def admin_usuarios(request):
 @login_required
 def financeiro_relatorio(request):
     """Relatório Financeiro - Área Financeira"""
+    tenant = get_tenant_escola(request)
     context = {
         'titulo': 'Relatório Financeiro',
         'icone': 'bi-file-earmark-text',
         'modulo': 'Área Financeira',
+        'tenant_nome': tenant.nome if tenant else None,
+        'tenant_id': tenant.id if tenant else None,
     }
     return render(request, 'escola/partials/financeiro/relatorio.html', context)
+
 
 @login_required
 def financeiro_tributario(request):
     """Relatório Tributário - Área Financeira"""
+    tenant = get_tenant_escola(request)
     context = {
         'titulo': 'Relatório Tributário',
         'icone': 'bi-receipt',
         'modulo': 'Área Financeira',
+        'tenant_nome': tenant.nome if tenant else None,
+        'tenant_id': tenant.id if tenant else None,
     }
     return render(request, 'escola/partials/financeiro/tributario.html', context)
+
+
+# ============================================
+# 🔥 API PARA ALUNOS (AJAX)
+# ============================================
+
+@login_required
+def api_alunos_listar(request):
+    """API para listar alunos da escola atual (JSON)"""
+    try:
+        tenant = get_tenant_escola(request)
+        tenant_id = tenant.id if tenant else None
+        
+        if not tenant_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'Nenhuma escola selecionada'
+            }, status=400)
+        
+        if Aluno is None:
+            return JsonResponse({
+                'success': False,
+                'error': 'Modelo Aluno não encontrado'
+            }, status=404)
+        
+        alunos = Aluno.objects.filter(
+            tenant_id=tenant_id,
+            ativo=True
+        ).select_related('turma').order_by('nome')
+        
+        dados_alunos = []
+        for aluno in alunos:
+            dados_alunos.append({
+                'id': aluno.id,
+                'nome': aluno.nome,
+                'matricula': aluno.matricula,
+                'turma': aluno.turma.nome if aluno.turma else '-',
+                'turma_id': aluno.turma.id if aluno.turma else None,
+                'data_nascimento': aluno.data_nascimento.strftime('%d/%m/%Y') if hasattr(aluno, 'data_nascimento') and aluno.data_nascimento else '-',
+                'status': getattr(aluno, 'status', 'ATIVO'),
+                'status_display': dict(getattr(aluno, 'STATUS_CHOICES', [('ATIVO', 'Ativo')])).get(getattr(aluno, 'status', 'ATIVO'), 'Ativo'),
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'data': dados_alunos,
+            'total': len(dados_alunos),
+            'tenant_id': tenant_id,
+            'tenant_nome': tenant.nome
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao listar alunos: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@login_required
+def api_alunos_por_turma(request, turma_id):
+    """API para listar alunos por turma (JSON)"""
+    try:
+        tenant = get_tenant_escola(request)
+        tenant_id = tenant.id if tenant else None
+        
+        if not tenant_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'Nenhuma escola selecionada'
+            }, status=400)
+        
+        if Aluno is None:
+            return JsonResponse({
+                'success': False,
+                'error': 'Modelo Aluno não encontrado'
+            }, status=404)
+        
+        alunos = Aluno.objects.filter(
+            tenant_id=tenant_id,
+            turma_id=turma_id,
+            ativo=True
+        ).order_by('nome')
+        
+        dados_alunos = []
+        for aluno in alunos:
+            dados_alunos.append({
+                'id': aluno.id,
+                'nome': aluno.nome,
+                'matricula': aluno.matricula,
+                'data_nascimento': aluno.data_nascimento.strftime('%d/%m/%Y') if hasattr(aluno, 'data_nascimento') and aluno.data_nascimento else '-',
+                'status': getattr(aluno, 'status', 'ATIVO'),
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'data': dados_alunos,
+            'total': len(dados_alunos),
+            'turma_id': turma_id
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao listar alunos por turma: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@login_required
+def api_turmas_listar(request):
+    """API para listar turmas da escola (JSON)"""
+    try:
+        tenant = get_tenant_escola(request)
+        tenant_id = tenant.id if tenant else None
+        
+        if not tenant_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'Nenhuma escola selecionada'
+            }, status=400)
+        
+        turmas = Turma.objects.filter(
+            tenant_id=tenant_id,
+            ativo=True
+        ).order_by('nome')
+        
+        dados_turmas = []
+        for turma in turmas:
+            total_alunos = 0
+            if Aluno is not None:
+                total_alunos = Aluno.objects.filter(
+                    turma=turma,
+                    ativo=True
+                ).count()
+            
+            dados_turmas.append({
+                'id': turma.id,
+                'nome': turma.nome,
+                'ano': getattr(turma, 'ano', None),
+                'total_alunos': total_alunos,
+                'descricao': getattr(turma, 'descricao', ''),
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'data': dados_turmas,
+            'total': len(dados_turmas)
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao listar turmas: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
