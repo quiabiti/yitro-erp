@@ -359,47 +359,121 @@
             100% { transform: translateY(-10vh) scale(1) rotate(720deg); opacity: 0; }
         }
 
+        /* ============================================
+           🎯 LOGO YITRO - AZUL DESTACADO SEM MISTURAR COM BRANCO
+           ============================================ */
         .logo-yitro {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             text-decoration: none;
             flex-shrink: 0;
+            position: relative;
+            padding: 4px 10px 4px 6px;
+            border-radius: 12px;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            cursor: default !important;
+            pointer-events: none !important;
         }
 
         .logo-yitro .logo-icon {
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             position: relative;
             flex-shrink: 0;
+            filter: drop-shadow(0 0 30px rgba(0, 120, 255, 0.4));
         }
 
         .logo-yitro .logo-icon svg {
             width: 100%;
             height: 100%;
-            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
+            filter: drop-shadow(0 2px 12px rgba(0, 80, 200, 0.3));
         }
 
         .logo-yitro .logo-text {
             font-family: 'Orbitron', monospace;
-            font-weight: 700;
-            font-size: 1.3rem;
-            letter-spacing: 2px;
-            background: linear-gradient(180deg, #ffffff 0%, #c0d0e0 50%, #8090a0 100%);
+            font-weight: 900;
+            font-size: 1.5rem;
+            letter-spacing: 4px;
+            position: relative;
+            background: linear-gradient(180deg, 
+                #4dc9f6 0%, 
+                #1a8cff 30%,
+                #0077dd 55%,
+                #1a8cff 80%,
+                #4dc9f6 100%);
+            background-size: 100% 200%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-            position: relative;
+            animation: shimmerLogo 5s ease-in-out infinite;
+            text-shadow: none;
+            padding-right: 4px;
+            line-height: 1.2;
         }
-        .logo-yitro .logo-text::after {
-            content: '';
+
+        @keyframes shimmerLogo {
+            0%, 100% { background-position: 0% 0%; }
+            50% { background-position: 0% 100%; }
+        }
+
+        /* Textura de fundo do logo - apenas visual, sem interação */
+        .logo-yitro .logo-texture {
             position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold), var(--primary), transparent);
-            opacity: 0.3;
+            inset: -4px;
+            border-radius: 14px;
+            background-image: 
+                radial-gradient(circle at 30% 40%, rgba(0, 180, 255, 0.04) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(0, 100, 255, 0.03) 0%, transparent 50%),
+                repeating-linear-gradient(45deg, 
+                    transparent, 
+                    transparent 3px,
+                    rgba(0, 150, 255, 0.008) 3px,
+                    rgba(0, 150, 255, 0.008) 6px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.6;
+            animation: textureMove 25s linear infinite;
+        }
+
+        @keyframes textureMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 60px 60px; }
+        }
+
+        /* Brilho externo do logo */
+        .logo-yitro .logo-glow {
+            position: absolute;
+            inset: -8px;
+            border-radius: 16px;
+            background: radial-gradient(ellipse at 50% 50%, rgba(0, 150, 255, 0.06), transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        /* Estrela decorativa do logo */
+        .logo-yitro .logo-star {
+            position: absolute;
+            top: -4px;
+            right: -2px;
+            color: #4dc9f6;
+            font-size: 10px;
+            opacity: 0.6;
+            animation: starPulse 2.5s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        @keyframes starPulse {
+            0%, 100% { opacity: 0.4; transform: scale(0.9) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
         }
 
         .app-wrapper {
@@ -611,7 +685,7 @@
         .sidebar-toggle {
             background: none;
             border: none;
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(0, 0, 0, 0.4);
             font-size: 1.5rem;
             cursor: pointer;
             padding: 4px 8px;
@@ -621,10 +695,10 @@
             align-items: center;
             justify-content: center;
         }
-        .sidebar-toggle:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
+        .sidebar-toggle:hover { color: #1a1a2e; background: rgba(0, 0, 0, 0.04); }
 
         /* ============================================
-           🔥 TOP HEADER - INTACTO
+           🔥 TOP HEADER - BRANCA
            ============================================ */
         .top-header {
             position: fixed;
@@ -633,10 +707,8 @@
             right: 0;
             z-index: 1050;
             height: var(--header-height);
-            background: rgba(10, 14, 26, 0.7);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: #ffffff !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
             padding: 0 1.5rem;
             display: flex;
             align-items: center;
@@ -644,18 +716,19 @@
             flex-shrink: 0;
             gap: 15px;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
         }
         .top-header .header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .top-header .page-title {
             font-size: 1rem;
             font-weight: 600;
-            color: #fff;
+            color: #1a1a2e !important;
             display: flex;
             align-items: center;
             gap: 10px;
             white-space: nowrap;
         }
-        .top-header .page-title i { color: var(--primary); }
+        .top-header .page-title i { color: #00d4ff !important; }
         .top-header .header-actions { display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
         .top-header .header-actions .notif-badge { position: relative; }
         .top-header .header-actions .notif-badge .badge-dot {
@@ -666,21 +739,21 @@
             height: 8px;
             background: #ff4757;
             border-radius: 50%;
-            border: 2px solid var(--dark);
+            border: 2px solid #ffffff;
             animation: pulse-dot 2s infinite;
         }
         @keyframes pulse-dot { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
         .top-header .header-actions .btn-icon {
             background: none;
             border: none;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(0, 0, 0, 0.4);
             font-size: 1.2rem;
             cursor: pointer;
             padding: 6px;
             border-radius: 8px;
             transition: 0.3s;
         }
-        .top-header .header-actions .btn-icon:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
+        .top-header .header-actions .btn-icon:hover { color: #1a1a2e; background: rgba(0, 0, 0, 0.04); }
 
         .main-content {
             flex: 1;
@@ -718,8 +791,9 @@
             .top-header { padding: 0 1rem; }
             .top-header .page-title { font-size: 0.9rem; }
             .content-container { padding: 1rem 1rem 3rem; }
-            .logo-yitro .logo-text { font-size: 1rem; }
-            .logo-yitro .logo-icon { width: 30px; height: 30px; }
+            .logo-yitro .logo-text { font-size: 1.2rem; letter-spacing: 2px; }
+            .logo-yitro .logo-icon { width: 32px; height: 32px; }
+            .logo-yitro { padding: 2px 6px 2px 4px; gap: 8px; }
         }
 
         @media (max-width: 576px) {
@@ -729,8 +803,10 @@
             .top-header .header-actions { gap: 8px; }
             .content-container { padding: 0.8rem 0.8rem 2rem; }
             .sidebar { width: 280px; }
-            .logo-yitro .logo-text { font-size: 0.85rem; }
-            .logo-yitro .logo-icon { width: 26px; height: 26px; }
+            .logo-yitro .logo-text { font-size: 1rem; letter-spacing: 1.5px; }
+            .logo-yitro .logo-icon { width: 28px; height: 28px; }
+            .logo-yitro { padding: 2px 4px 2px 2px; gap: 6px; }
+            .logo-yitro .logo-star { font-size: 7px; top: -2px; right: 0px; }
             .sidebar-toggle { font-size: 1.1rem; }
             .loading-spinner-dinamico { width: 80px; height: 80px; }
             .loading-spinner-dinamico .spinner-ring-dinamico:nth-child(1) { width: 80px; height: 80px; }
@@ -817,6 +893,9 @@
                 <a class="nav-link-tech" onclick="loadPage('secretaria/documentos')">
                     <i class="bi bi-file-earmark"></i> Solicitação de Documentos
                 </a>
+                <a class="nav-link-tech" onclick="loadPage('secretaria/relatorio_financeiro')">
+                    <i class="bi bi-graph-up-arrow"></i> Relatório Financeiro
+                </a>
             </div>
             {% endif %}
 
@@ -830,7 +909,7 @@
                 <a class="nav-link-tech" onclick="loadPage('pedagogico')">
                     <i class="bi bi-calendar3"></i> Gestão do Ano Lectivo
                 </a>
-                <a class="nav-link-tech" onclick="loadPage('pedagogico/lista_alunos')">
+                <a class="nav-link-tech" onclick="loadPage('secretaria/alunos')">
                     <i class="bi bi-people"></i> Lista dos Alunos
                 </a>
                 <a class="nav-link-tech" onclick="loadPage('pedagogico/pautas')">
@@ -850,6 +929,28 @@
                 </a>
                 <a class="nav-link-tech" onclick="loadPage('pedagogico/usuarios')">
                     <i class="bi bi-people"></i> Usuários
+                </a>
+            </div>
+            {% endif %}
+
+            {% if perms.escola.coordenacao or user.is_superuser %}
+            <!-- Coordenação -->
+            <a class="nav-link-tech" onclick="toggleSubmenu(this)">
+                <i class="bi bi-clipboard-check"></i> Coordenação
+                <span class="chevron"><i class="bi bi-chevron-right"></i></span>
+            </a>
+            <div class="submenu">
+                <a class="nav-link-tech" onclick="loadPage('coordenacao/faltas')">
+                    <i class="bi bi-calendar-x"></i> Lançar Faltas
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('coordenacao/supervisao')">
+                    <i class="bi bi-eye"></i> Supervisão da Planificação
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('coordenacao/relatorio_semanal')">
+                    <i class="bi bi-file-earmark-text"></i> Relatório Semanal
+                </a>
+                <a class="nav-link-tech" onclick="loadPage('coordenacao/avaliacao_docente')">
+                    <i class="bi bi-star"></i> Avaliação do Corpo Docente
                 </a>
             </div>
             {% endif %}
@@ -981,14 +1082,18 @@
                     <i class="bi bi-list"></i>
                 </button>
 
-                <a href="{% url 'home' %}" class="logo-yitro">
+                <!-- LOGO YITRO - APENAS VISUAL, NÃO É BOTÃO -->
+                <div class="logo-yitro">
+                    <div class="logo-glow"></div>
+                    <div class="logo-texture"></div>
                     <div class="logo-icon">
                         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <defs>
                                 <linearGradient id="yGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
-                                    <stop offset="50%" style="stop-color:#0099cc;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#006699;stop-opacity:1" />
+                                    <stop offset="0%" style="stop-color:#4dc9f6;stop-opacity:1" />
+                                    <stop offset="30%" style="stop-color:#1a8cff;stop-opacity:1" />
+                                    <stop offset="60%" style="stop-color:#0066dd;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#0055bb;stop-opacity:1" />
                                 </linearGradient>
                                 <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" style="stop-color:#f0d080;stop-opacity:1" />
@@ -996,37 +1101,47 @@
                                     <stop offset="100%" style="stop-color:#b8922e;stop-opacity:1" />
                                 </linearGradient>
                                 <filter id="glow3d">
-                                    <feDropShadow dx="2" dy="4" stdDeviation="6" flood-color="#00d4ff" flood-opacity="0.4"/>
-                                    <feDropShadow dx="-1" dy="-1" stdDeviation="3" flood-color="#7b2ffc" flood-opacity="0.2"/>
+                                    <feDropShadow dx="2" dy="4" stdDeviation="8" flood-color="#0066dd" flood-opacity="0.6"/>
+                                    <feDropShadow dx="-1" dy="-1" stdDeviation="4" flood-color="#4dc9f6" flood-opacity="0.3"/>
+                                </filter>
+                                <filter id="iconGlow">
+                                    <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#1a8cff" flood-opacity="0.4"/>
                                 </filter>
                             </defs>
-                            <polygon points="50,8 84,29 84,71 50,92 16,71 16,29" fill="rgba(0,212,255,0.06)" stroke="rgba(0,212,255,0.15)" stroke-width="1.5"/>
-                            <line x1="16" y1="29" x2="30" y2="42" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
-                            <line x1="84" y1="29" x2="70" y2="42" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
-                            <line x1="16" y1="71" x2="30" y2="58" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
-                            <line x1="84" y1="71" x2="70" y2="58" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
-                            <path d="M35,30 L50,50 L50,70" stroke="url(#yGrad)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow3d)"/>
-                            <path d="M65,30 L50,50 L50,70" stroke="url(#yGrad)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow3d)"/>
-                            <circle cx="40" cy="38" r="2" fill="#00d4ff" opacity="0.6"/>
-                            <circle cx="60" cy="38" r="2" fill="#00d4ff" opacity="0.6"/>
-                            <circle cx="50" cy="50" r="3" fill="#7b2ffc" opacity="0.8"/>
-                            <circle cx="50" cy="65" r="2" fill="#00d4ff" opacity="0.5"/>
-                            <polygon points="44,75 50,72 56,75 56,81 50,84 44,81" fill="rgba(212,168,67,0.15)" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.8"/>
-                            <polygon points="38,81 44,78 50,81 50,87 44,90 38,87" fill="rgba(212,168,67,0.10)" stroke="url(#goldGrad)" stroke-width="1" opacity="0.6"/>
-                            <polygon points="50,81 56,78 62,81 62,87 56,90 50,87" fill="rgba(212,168,67,0.10)" stroke="url(#goldGrad)" stroke-width="1" opacity="0.6"/>
-                            <circle cx="35" cy="30" r="1.5" fill="#00d4ff" opacity="0.8">
+                            <!-- Hexágono base -->
+                            <polygon points="50,8 84,29 84,71 50,92 16,71 16,29" fill="rgba(0,80,200,0.06)" stroke="rgba(0,100,200,0.2)" stroke-width="1.5"/>
+                            <!-- Linhas internas -->
+                            <line x1="16" y1="29" x2="30" y2="42" stroke="rgba(0,100,200,0.15)" stroke-width="1"/>
+                            <line x1="84" y1="29" x2="70" y2="42" stroke="rgba(0,100,200,0.15)" stroke-width="1"/>
+                            <line x1="16" y1="71" x2="30" y2="58" stroke="rgba(0,100,200,0.15)" stroke-width="1"/>
+                            <line x1="84" y1="71" x2="70" y2="58" stroke="rgba(0,100,200,0.15)" stroke-width="1"/>
+                            <!-- Forma Y central -->
+                            <path d="M35,30 L50,50 L50,70" stroke="url(#yGrad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow3d)"/>
+                            <path d="M65,30 L50,50 L50,70" stroke="url(#yGrad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow3d)"/>
+                            <!-- Pontos de luz animados -->
+                            <circle cx="40" cy="38" r="3" fill="#4dc9f6" opacity="0.8">
                                 <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
                             </circle>
-                            <circle cx="65" cy="30" r="1.5" fill="#00d4ff" opacity="0.8">
-                                <animate attributeName="opacity" values="0.3;1;0.3" dur="2.5s" repeatCount="indefinite"/>
+                            <circle cx="60" cy="38" r="3" fill="#4dc9f6" opacity="0.8">
+                                <animate attributeName="opacity" values="0.3;1;0.3" dur="2.3s" repeatCount="indefinite"/>
                             </circle>
-                            <circle cx="50" cy="78" r="1.5" fill="#d4a843" opacity="0.6">
-                                <animate attributeName="opacity" values="0.2;0.8;0.2" dur="3s" repeatCount="indefinite"/>
+                            <circle cx="50" cy="50" r="4" fill="#1a8cff" opacity="0.9" filter="url(#iconGlow)"/>
+                            <circle cx="50" cy="65" r="3" fill="#4dc9f6" opacity="0.7">
+                                <animate attributeName="opacity" values="0.2;0.8;0.2" dur="2.7s" repeatCount="indefinite"/>
                             </circle>
+                            <!-- Detalhes dourados -->
+                            <polygon points="44,75 50,72 56,75 56,81 50,84 44,81" fill="rgba(0,80,200,0.12)" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.7"/>
+                            <polygon points="38,81 44,78 50,81 50,87 44,90 38,87" fill="rgba(0,80,200,0.08)" stroke="url(#goldGrad)" stroke-width="1" opacity="0.5"/>
+                            <polygon points="50,81 56,78 62,81 62,87 56,90 50,87" fill="rgba(0,80,200,0.08)" stroke="url(#goldGrad)" stroke-width="1" opacity="0.5"/>
+                            <!-- Estrela decorativa -->
+                            <path d="M50,5 L53,15 L63,17 L56,25 L58,34 L50,29 L42,34 L44,25 L37,17 L47,15 Z" fill="rgba(77,201,246,0.12)" stroke="rgba(77,201,246,0.25)" stroke-width="1" opacity="0.7">
+                                <animate attributeName="opacity" values="0.3;0.9;0.3" dur="4s" repeatCount="indefinite"/>
+                            </path>
                         </svg>
                     </div>
                     <span class="logo-text">Yitro</span>
-                </a>
+                    <span class="logo-star">✦</span>
+                </div>
 
                 <div class="page-title">
                     <i class="bi bi-mortarboard" id="pageIcon"></i>
@@ -1040,7 +1155,7 @@
                         {% endif %}
                     </span>
                     {% if tenant_nome %}
-                        <span class="badge bg-primary ms-2" style="font-size: 0.6rem; padding: 3px 10px;">
+                        <span class="badge bg-primary ms-2" style="font-size: 0.6rem; padding: 3px 10px; background: #1a8cff !important;">
                             <i class="bi bi-building"></i> {{ tenant_nome_fantasia|default:tenant_nome }}
                         </span>
                     {% endif %}
@@ -1283,6 +1398,11 @@
                     'secretaria/pagamentos': 'Pagamentos',
                     'secretaria/alunos': 'Lista de Alunos por Turma',
                     'secretaria/documentos': 'Solicitação de Documentos',
+                    'secretaria/relatorio_financeiro': 'Relatório Financeiro',
+                    'coordenacao/faltas': 'Lançar Faltas',
+                    'coordenacao/supervisao': 'Supervisão da Planificação',
+                    'coordenacao/relatorio_semanal': 'Relatório Semanal',
+                    'coordenacao/avaliacao_docente': 'Avaliação do Corpo Docente',
                     'professor/lancar_notas': 'Lançar Notas',
                     'professor/pauta_trimestral': 'Pauta Trimestral',
                     'professor/horario': 'Meu Horário',
@@ -1364,6 +1484,7 @@
                 'secretaria/pagamentos': 'wallet2',
                 'secretaria/alunos': 'people',
                 'secretaria/documentos': 'file-earmark',
+                'secretaria/relatorio_financeiro': 'graph-up-arrow',
                 'pedagogico/ano_lectivo': 'calendar3',
                 'pedagogico/lista_alunos': 'people',
                 'pedagogico/pautas': 'journal',
@@ -1372,6 +1493,10 @@
                 'pedagogico/professores': 'person-badge',
                 'pedagogico/efetividade': 'check-circle',
                 'pedagogico/usuarios': 'people',
+                'coordenacao/faltas': 'calendar-x',
+                'coordenacao/supervisao': 'eye',
+                'coordenacao/relatorio_semanal': 'file-earmark-text',
+                'coordenacao/avaliacao_docente': 'star',
                 'professor/lancar_notas': 'pencil',
                 'professor/pauta_trimestral': 'journal',
                 'professor/horario': 'clock',
@@ -1472,7 +1597,6 @@
             const turma = turmas.find(t => t.id == turmaId);
             if (turma) {
                 console.log('✅ Turma encontrada:', turma);
-                // Carregar alunos da turma
                 carregarAlunosPorTurma(turmaId);
                 return turma;
             } else {
@@ -1502,7 +1626,6 @@
             .then(data => {
                 if (data.success) {
                     console.log(`✅ ${data.total} alunos carregados para turma ${turmaId}`);
-                    // Renderizar alunos (implementar conforme necessário)
                     renderizarAlunos(data.data);
                 } else {
                     console.error('❌ Erro ao carregar alunos:', data.error);
@@ -1516,10 +1639,9 @@
             });
         }
 
-        // 🔥 Função para renderizar alunos (será implementada no template)
+        // 🔥 Função para renderizar alunos
         function renderizarAlunos(alunos) {
             console.log('📊 Renderizando alunos:', alunos);
-            // A implementação será feita no template específico
         }
 
         // 🔥 Inicializar dados ao carregar a página
@@ -1528,7 +1650,6 @@
             if (dados) {
                 console.log('✅ Dados da escola carregados com sucesso!');
                 
-                // Verificar se há turmas
                 if (dados.turmas && dados.turmas.length > 0) {
                     console.log(`📚 ${dados.turmas.length} turmas disponíveis`);
                     dados.turmas.forEach(t => {
@@ -1540,8 +1661,5 @@
             }
         });
     </script>
-</body>
-</html>
-
 </body>
 </html>
