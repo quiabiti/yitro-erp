@@ -1,0 +1,367 @@
+{% load static %}
+
+<form id="usuarioForm" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="usuario_id" id="usuario_id" value="{{ usuario.id|default:'' }}">
+    
+    <!-- Dados Pessoais -->
+    <div class="row">
+        <div class="col-12 mb-3">
+            <label class="metal-form-label">Nome de Usuário <span class="text-danger">*</span></label>
+            <input type="text" name="username" id="username" class="metal-form-control" 
+                   placeholder="Digite o nome de usuário"
+                   value="{{ usuario.username|default:'' }}" required>
+            <div class="invalid-feedback-metal" id="username-error"></div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">E-mail <span class="text-danger">*</span></label>
+            <input type="email" name="email" id="email" class="metal-form-control" 
+                   placeholder="Digite o e-mail"
+                   value="{{ usuario.email|default:'' }}" required>
+            <div class="invalid-feedback-metal" id="email-error"></div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Telefone</label>
+            <input type="text" name="telefone" id="telefone" class="metal-form-control" 
+                   placeholder="Digite o telefone"
+                   value="{{ usuario.telefone|default:'' }}">
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Primeiro Nome</label>
+            <input type="text" name="first_name" id="first_name" class="metal-form-control" 
+                   placeholder="Digite o primeiro nome"
+                   value="{{ usuario.first_name|default:'' }}">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Último Nome</label>
+            <input type="text" name="last_name" id="last_name" class="metal-form-control" 
+                   placeholder="Digite o último nome"
+                   value="{{ usuario.last_name|default:'' }}">
+        </div>
+    </div>
+    
+    <!-- Senha -->
+    <div class="row">
+        <div class="col-12 mb-2">
+            <h6 class="text-primary" style="font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">
+                <i class="bi bi-lock me-2"></i>{% if edit %}Alterar Senha{% else %}Senha{% endif %}
+            </h6>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">{% if edit %}Nova Senha (opcional){% else %}Senha <span class="text-danger">*</span>{% endif %}</label>
+            <input type="password" name="password" id="password" class="metal-form-control" 
+                   placeholder="{% if edit %}Digite a nova senha{% else %}Digite a senha{% endif %}"
+                   {% if not edit %}required{% endif %}>
+            <div class="invalid-feedback-metal" id="password-error"></div>
+            <small class="text-muted" style="font-size: 0.65rem;">Mínimo 6 caracteres</small>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Confirmar Senha</label>
+            <input type="password" name="password_confirm" id="password_confirm" class="metal-form-control" 
+                   placeholder="Confirme a senha"
+                   {% if not edit %}required{% endif %}>
+            <div class="invalid-feedback-metal" id="password_confirm-error"></div>
+        </div>
+    </div>
+    
+    <!-- Permissões -->
+    <div class="row">
+        <div class="col-12 mb-2">
+            <h6 class="text-primary" style="font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">
+                <i class="bi bi-shield me-2"></i>Permissões
+            </h6>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Grupos</label>
+            <select name="groups" id="groups" multiple class="metal-form-select" 
+                    style="min-height: 80px;">
+                {% for grupo in grupos %}
+                <option value="{{ grupo.name }}" 
+                    {% if usuario and grupo in usuario.groups.all %}selected{% endif %}>
+                    {{ grupo.name }}
+                </option>
+                {% endfor %}
+            </select>
+            <small class="text-muted" style="font-size: 0.6rem;">Segure Ctrl/Cmd para múltiplas seleções</small>
+        </div>
+        
+        <div class="col-md-6 mb-3">
+            <label class="metal-form-label">Escolas</label>
+            {% if is_super_admin %}
+                <select name="instituicoes" id="instituicoes" multiple class="metal-form-select" 
+                        style="min-height: 80px;">
+                    {% for inst in instituicoes %}
+                    <option value="{{ inst.id }}"
+                        {% if usuario and inst in usuario.instituicoes.all %}selected{% endif %}>
+                        {{ inst.nome }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <small class="text-muted" style="font-size: 0.6rem;">Segure Ctrl/Cmd para múltiplas seleções</small>
+            {% else %}
+                <input type="hidden" name="instituicoes" value="{{ tenant_id }}">
+                <div class="metal-form-control-readonly">
+                    <i class="bi bi-building me-2"></i> {{ tenant_nome }}
+                    <small class="text-muted" style="display: block; font-size: 0.6rem; margin-top: 3px;">
+                        <i class="bi bi-info-circle"></i> Associado a esta escola automaticamente
+                    </small>
+                </div>
+            {% endif %}
+            <div class="invalid-feedback-metal" id="instituicoes-error"></div>
+        </div>
+    </div>
+    
+    <!-- Status -->
+    <div class="row">
+        <div class="col-12 mb-2">
+            <h6 class="text-primary" style="font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">
+                <i class="bi bi-toggle-on me-2"></i>Status
+            </h6>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="form-check form-switch">
+                <input type="checkbox" name="is_active" class="form-check-input" id="id_is_active" 
+                       {% if usuario %}{% if usuario.is_active %}checked{% endif %}{% else %}checked{% endif %}>
+                <label class="form-check-label text-white" for="id_is_active">
+                    <span id="isActiveLabel">{% if usuario and usuario.is_active %}Ativo{% else %}Ativo{% endif %}</span>
+                </label>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="form-check form-switch">
+                <input type="checkbox" name="is_superuser" class="form-check-input" id="id_is_superuser" 
+                       {% if usuario and usuario.is_superuser %}checked{% endif %}>
+                <label class="form-check-label text-white" for="id_is_superuser">
+                    <span id="isSuperuserLabel">{% if usuario and usuario.is_superuser %}Sim{% else %}Não{% endif %}</span>
+                    <span style="font-size: 0.7rem; color: #ffa502;"> ⭐ Super Admin</span>
+                </label>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- ESTILOS METAIS (responsivo) -->
+<style>
+    /* 🔥 ESTILOS DOS CAMPOS - IGUAL AO MODELO */
+    .metal-form-label {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: clamp(0.7rem, 2vw, 0.8rem);
+        font-weight: 500;
+        margin-bottom: 4px;
+        display: block;
+    }
+    
+    .metal-form-control,
+    .metal-form-select,
+    .metal-form-control-readonly {
+        width: 100%;
+        padding: clamp(8px, 1.5vw, 12px) clamp(10px, 2vw, 14px);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
+        transition: all 0.3s ease;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    
+    .metal-form-control:focus,
+    .metal-form-select:focus {
+        border-color: #00d4ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15) !important;
+        outline: none;
+    }
+    
+    .metal-form-control::placeholder,
+    .metal-form-select::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+        font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+    }
+    
+    .metal-form-select option {
+        background: #1a1a2e;
+        color: #fff;
+        padding: 8px;
+    }
+    
+    .metal-form-control-readonly {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        cursor: default;
+        min-height: clamp(40px, 6vw, 48px);
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    /* 🔥 TOGGLE SWITCHES - ESTILO IGUAL AO MODELO */
+    .form-check.form-switch {
+        padding-left: 2.5em;
+        margin-bottom: 4px;
+    }
+    
+    .form-check-input {
+        width: clamp(36px, 6vw, 44px);
+        height: clamp(18px, 3vw, 22px);
+        margin-top: 0;
+        cursor: pointer;
+        background-color: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba(255,255,255,0.3)'/%3e%3c/svg%3e");
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+    
+    .form-check-input:checked {
+        background-color: #00d4ff;
+        border-color: #00d4ff;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+    }
+    
+    .form-check-input:focus {
+        border-color: #00d4ff;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
+    }
+    
+    .form-check-label {
+        color: rgba(255, 255, 255, 0.8) !important;
+        font-size: clamp(0.75rem, 2vw, 0.85rem);
+        cursor: pointer;
+        user-select: none;
+        padding-left: 4px;
+    }
+    
+    /* 🔥 VALIDAÇÃO */
+    .invalid-feedback-metal {
+        display: none;
+        font-size: clamp(0.6rem, 1.5vw, 0.7rem);
+        color: #ff4757 !important;
+        margin-top: 4px;
+    }
+    
+    .invalid-feedback-metal.show {
+        display: block;
+    }
+    
+    .metal-form-control.is-invalid,
+    .metal-form-select.is-invalid {
+        border-color: #ff4757 !important;
+    }
+    
+    /* 🔥 RESPONSIVO - MOBILE */
+    @media (max-width: 576px) {
+        .metal-form-control,
+        .metal-form-select {
+            padding: 8px 10px;
+            font-size: 0.8rem;
+            min-height: 40px;
+        }
+        
+        .metal-form-label {
+            font-size: 0.7rem;
+        }
+        
+        .form-check.form-switch {
+            padding-left: 2.2em;
+        }
+        
+        .form-check-input {
+            width: 32px;
+            height: 16px;
+        }
+        
+        .form-check-label {
+            font-size: 0.7rem;
+        }
+        
+        .metal-form-control-readonly {
+            font-size: 0.75rem;
+            padding: 8px 10px;
+            min-height: 40px;
+        }
+    }
+    
+    @media (max-width: 380px) {
+        .metal-form-control,
+        .metal-form-select {
+            padding: 6px 8px;
+            font-size: 0.7rem;
+            min-height: 34px;
+        }
+        
+        .metal-form-label {
+            font-size: 0.6rem;
+        }
+        
+        .form-check.form-switch {
+            padding-left: 1.8em;
+        }
+        
+        .form-check-input {
+            width: 28px;
+            height: 14px;
+        }
+        
+        .form-check-label {
+            font-size: 0.6rem;
+        }
+        
+        .metal-form-control-readonly {
+            font-size: 0.65rem;
+            padding: 6px 8px;
+            min-height: 34px;
+        }
+    }
+    
+    /* Previne zoom em inputs no iOS */
+    @supports (-webkit-touch-callout: none) {
+        .metal-form-control,
+        .metal-form-select {
+            font-size: 16px !important;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 🔥 SWITCH: Usuário Ativo
+    const activeCheckbox = document.getElementById('id_is_active');
+    const activeLabel = document.getElementById('isActiveLabel');
+    
+    if (activeCheckbox && activeLabel) {
+        activeCheckbox.addEventListener('change', function() {
+            activeLabel.textContent = this.checked ? 'Ativo' : 'Inativo';
+        });
+        // Inicializar
+        activeLabel.textContent = activeCheckbox.checked ? 'Ativo' : 'Inativo';
+    }
+    
+    // 🔥 SWITCH: Super Admin
+    const superCheckbox = document.getElementById('id_is_superuser');
+    const superLabel = document.getElementById('isSuperuserLabel');
+    
+    if (superCheckbox && superLabel) {
+        superCheckbox.addEventListener('change', function() {
+            superLabel.textContent = this.checked ? 'Sim' : 'Não';
+        });
+        // Inicializar
+        superLabel.textContent = superCheckbox.checked ? 'Sim' : 'Não';
+    }
+});
+</script>

@@ -1,0 +1,885 @@
+{% load static %}
+{% load humanize %}
+
+<!-- ============================================ -->
+<!-- HEADER - ESTILO PADRÃO (IGUAL AO DASHBOARD) -->
+<!-- ============================================ -->
+<div class="metal-header mb-3 fade-in-up">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+        <div>
+            <h1 class="metal-title" style="font-size: clamp(1rem, 4vw, 1.2rem);">
+                <i class="bi bi-people me-2"></i> Usuários
+            </h1>
+            {% if tenant_nome %}
+                <p class="metal-subtitle" style="font-size: clamp(0.6rem, 2vw, 0.75rem);">
+                    <i class="bi bi-building me-1"></i> {{ tenant_nome }}
+                    <span class="badge bg-success ms-2" style="font-size: clamp(0.45rem, 1.2vw, 0.55rem);">Ativo</span>
+                </p>
+            {% else %}
+                <p class="metal-subtitle" style="font-size: clamp(0.6rem, 2vw, 0.75rem);">
+                    <i class="bi bi-building me-1"></i> Todas as escolas
+                </p>
+            {% endif %}
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <button class="metal-btn-primary" onclick="window.abrirModalNovoUsuario()" style="font-size: clamp(0.6rem, 1.8vw, 0.7rem); padding: 6px 12px; min-height: 34px; white-space: nowrap;">
+                <i class="bi bi-plus-circle me-1"></i> Novo Usuário
+            </button>
+            <span class="badge bg-success" style="font-size: clamp(0.55rem, 1.5vw, 0.7rem); padding: 4px 10px; white-space: nowrap;">
+                <i class="bi bi-check-circle me-1"></i> {{ total_ativos|default:0 }} ativos
+            </span>
+            <span class="metal-btn-primary" style="cursor: default; font-size: clamp(0.6rem, 1.8vw, 0.7rem); padding: 6px 12px; min-height: 34px; white-space: nowrap;">
+                <i class="bi bi-calendar3 me-1"></i> {% now "d/m/Y H:i" %}
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- CARDS RESUMO - FUNDO BRANCO -->
+<!-- ============================================ -->
+<div class="row g-1 g-sm-2 mb-3 fade-in-up delay-1">
+    <div class="col-4 col-md-3">
+        <div class="card-resumo text-center p-1 p-sm-2" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #000;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #00d4ff !important;"><i class="bi bi-people"></i></div>
+            <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;">{{ total_usuarios|default:0 }}</h3>
+            <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Total</p>
+        </div>
+    </div>
+    <div class="col-4 col-md-3">
+        <div class="card-resumo text-center p-1 p-sm-2" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #000;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #2ed573 !important;"><i class="bi bi-check-circle"></i></div>
+            <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;">{{ total_ativos|default:0 }}</h3>
+            <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Ativos</p>
+        </div>
+    </div>
+    <div class="col-4 col-md-3">
+        <div class="card-resumo text-center p-1 p-sm-2" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #000;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #ffa502 !important;"><i class="bi bi-clock-history"></i></div>
+            <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;">{{ total_inativos|default:0 }}</h3>
+            <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Inativos</p>
+        </div>
+    </div>
+    <div class="col-4 col-md-3">
+        <div class="card-resumo text-center p-1 p-sm-2" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #000;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #7b2ffc !important;"><i class="bi bi-shield-check"></i></div>
+            <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;">{{ total_admins|default:0 }}</h3>
+            <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Administradores</p>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- FILTROS E BUSCA -->
+<!-- ============================================ -->
+<div class="glass-card p-2 p-sm-3 mb-3 fade-in-up delay-2" style="background: #ffffff !important; border: 1px solid #000 !important;">
+    <div class="row g-1 g-sm-2 align-items-center">
+        <div class="col-12 col-sm-6 col-md-4">
+            <div class="d-flex gap-1 gap-sm-2">
+                <input type="text" id="searchUsuario" class="form-control form-control-sm" placeholder="🔍 Buscar usuário..." style="font-size: clamp(0.7rem, 2vw, 0.8rem); padding: 6px 10px; min-height: 32px; color: #000; background: #fff; border: 1px solid #000; border-radius: 6px; width: 100%;" onkeyup="window.filtrarUsuarios()">
+                <button class="btn btn-primary btn-sm" onclick="window.filtrarUsuarios()" style="font-size: clamp(0.6rem, 1.5vw, 0.7rem); padding: 4px 12px; min-height: 32px; background: #00d4ff; color: #fff; border: none; border-radius: 6px; white-space: nowrap;">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-6 col-sm-3 col-md-3">
+            <select id="filtroStatus" class="form-select form-select-sm" style="font-size: clamp(0.65rem, 1.8vw, 0.8rem); padding: 4px 10px; min-height: 32px; color: #000; background: #fff; border: 1px solid #000; border-radius: 6px; width: 100%;" onchange="window.filtrarUsuarios()">
+                <option value="">Status</option>
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+            </select>
+        </div>
+        <div class="col-6 col-sm-3 col-md-3">
+            <select id="filtroGrupo" class="form-select form-select-sm" style="font-size: clamp(0.65rem, 1.8vw, 0.8rem); padding: 4px 10px; min-height: 32px; color: #000; background: #fff; border: 1px solid #000; border-radius: 6px; width: 100%;" onchange="window.filtrarUsuarios()">
+                <option value="">Grupo</option>
+                {% for grupo in grupos %}
+                <option value="{{ grupo }}">{{ grupo }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-sm-12 col-md-2 text-end">
+            <button class="btn btn-secondary btn-sm w-100" onclick="window.limparFiltrosUsuarios()" style="font-size: clamp(0.6rem, 1.5vw, 0.7rem); padding: 4px 10px; min-height: 32px; background: #000; color: #fff; border: none; border-radius: 6px;">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Limpar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- LISTA DE USUÁRIOS -->
+<!-- ============================================ -->
+<section class="fade-in-up delay-3">
+    <div class="glass-card" style="padding: 0.6rem 0.8rem; background: #ffffff !important; border: 1px solid #000 !important;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 style="font-size: clamp(0.75rem, 2.5vw, 0.85rem); color: #000 !important; font-weight: 700; margin: 0;">
+                <i class="bi bi-list-ul me-2" style="color: #00d4ff;"></i> Usuários
+                <span class="badge bg-primary ms-1" id="count-usuarios" style="font-size: clamp(0.5rem, 1.2vw, 0.6rem); color: #fff !important;">{{ total_usuarios|default:0 }}</span>
+            </h6>
+            <button type="button" class="metal-btn-primary" onclick="window.abrirModalNovoUsuario()" style="font-size: clamp(0.55rem, 1.5vw, 0.65rem); padding: 2px 8px; min-height: 28px; background: #2ed573; color: #fff; border: none; border-radius: 6px;">
+                <i class="bi bi-plus-circle me-1"></i> Novo
+            </button>
+        </div>
+        
+        <div id="listaUsuarios" class="row g-1 g-sm-2">
+            {% for usuario in usuarios %}
+            <div class="col-12 col-sm-6 col-md-4 mb-1 mb-sm-2 usuario-item" 
+                 data-nome="{{ usuario.get_full_name|lower }}" 
+                 data-username="{{ usuario.username|lower }}" 
+                 data-email="{{ usuario.email|lower }}" 
+                 data-status="{% if usuario.is_active %}ativo{% else %}inativo{% endif %}"
+                 data-grupo="{% if usuario.groups.all %}{{ usuario.groups.first.name }}{% else %}Nenhum{% endif %}">
+                <div class="usuario-card" onclick="window.verUsuario('{{ usuario.id }}')" style="cursor: pointer; background: #ffffff !important; border: 1px solid #000 !important; border-radius: 10px; padding: 0.6rem; transition: all 0.2s ease; color: #000 !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #00d4ff, #7b2ffc); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; color: #fff !important; flex-shrink: 0;">
+                            {{ usuario.get_full_name|first|default:usuario.username|first|upper }}
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="color: #000 !important; font-weight: 600; font-size: clamp(0.7rem, 2vw, 0.85rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                {{ usuario.get_full_name|default:usuario.username }}
+                            </div>
+                            <div style="color: #000 !important; font-size: clamp(0.5rem, 1.2vw, 0.6rem);">
+                                <i class="bi bi-person"></i> @{{ usuario.username }}
+                            </div>
+                            <div style="color: #000 !important; font-size: clamp(0.5rem, 1.2vw, 0.6rem);">
+                                <i class="bi bi-envelope"></i> {{ usuario.email }}
+                            </div>
+                        </div>
+                        <i class="bi bi-chevron-right" style="color: #000; font-size: 1rem;"></i>
+                    </div>
+                    <div class="mt-1 d-flex justify-content-between align-items-center">
+                        <span class="status-badge {% if usuario.is_active %}ativo{% else %}inativo{% endif %}" style="padding: 2px 10px; border-radius: 12px; font-size: clamp(0.4rem, 1vw, 0.55rem); font-weight: 600; color: #fff !important; display: inline-block;">
+                            {{ usuario.is_active|yesno:"Ativo,Inativo" }}
+                        </span>
+                        <span style="font-size: clamp(0.4rem, 1vw, 0.55rem); color: #000 !important; background: #f0f0f0; padding: 2px 8px; border-radius: 10px;">
+                            {% if usuario.groups.all %}{{ usuario.groups.first.name }}{% else %}Usuário{% endif %}
+                        </span>
+                        <div class="d-flex gap-1">
+                            <button class="btn-editar" onclick="event.stopPropagation(); window.editarUsuario('{{ usuario.id }}')" title="Editar" style="background: #ffa502; color: #fff; border: none; border-radius: 4px; padding: 2px 6px; font-size: clamp(0.4rem, 1vw, 0.5rem); cursor: pointer;">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            {% if user.is_superuser %}
+                            <button class="btn-excluir" onclick="event.stopPropagation(); window.deletarUsuario('{{ usuario.id }}', '{{ usuario.get_full_name|default:usuario.username|escapejs }}')" title="Excluir" style="background: #ff4757; color: #fff; border: none; border-radius: 4px; padding: 2px 6px; font-size: clamp(0.4rem, 1vw, 0.5rem); cursor: pointer;">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mt-1 text-center">
+                        <small style="color: #000 !important; font-size: clamp(0.45rem, 1.1vw, 0.55rem);">
+                            <i class="bi bi-calendar3"></i> {{ usuario.date_joined|date:"d/m/Y" }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div style="text-align: center; padding: 30px 10px; color: #000 !important; font-size: clamp(0.7rem, 1.8vw, 0.85rem);">
+                    <i class="bi bi-inbox me-2" style="font-size: 1.2rem;"></i> Nenhum usuário cadastrado
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Paginação -->
+        {% if is_paginated %}
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center" style="margin: 0;">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" style="color: #000 !important; background: #fff !important; border: 1px solid #000 !important; font-size: clamp(0.6rem, 1.5vw, 0.7rem); padding: 4px 10px;">Anterior</a></li>
+                {% endif %}
+                <li class="page-item active"><span class="page-link" style="background: #00d4ff !important; border-color: #00d4ff !important; color: #fff !important; font-size: clamp(0.6rem, 1.5vw, 0.7rem); padding: 4px 10px;">{{ page_obj.number }}</span></li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" style="color: #000 !important; background: #fff !important; border: 1px solid #000 !important; font-size: clamp(0.6rem, 1.5vw, 0.7rem); padding: 4px 10px;">Próximo</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</section>
+
+<!-- ============================================ -->
+<!-- RODAPÉ -->
+<!-- ============================================ -->
+<div class="row mt-3">
+    <div class="col-12 text-center">
+        <small style="color: #000 !important; font-size: clamp(0.5rem, 1.2vw, 0.6rem);">
+            <i class="bi bi-dot"></i> Sistema Yitro - Gestão Escolar
+            <i class="bi bi-dot"></i> Versão 1.0
+            <i class="bi bi-dot"></i> {% now "Y" %}
+        </small>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- MODAL DO FORMULÁRIO (USUÁRIO)               -->
+<!-- ============================================ -->
+<div class="modal fade" id="globalModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg modal-xl">
+        <div class="modal-content metal-modal-content" style="border-radius: 12px; margin: 10px;">
+            <div class="modal-header metal-modal-header" style="padding: 8px 12px;">
+                <h5 class="modal-title" id="modalTitle" style="font-size: clamp(0.85rem, 2.5vw, 0.95rem);">
+                    <i class="bi bi-person-plus me-2"></i>Novo Usuário
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="font-size: 0.8rem;"></button>
+            </div>
+            <div class="modal-body" id="modalBody" style="padding: 10px 12px;">
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status" style="width:1.5rem;height:1.5rem;"></div>
+                    <p class="mt-2 text-muted" style="font-size:0.8rem;">Carregando formulário...</p>
+                </div>
+            </div>
+            <div class="modal-footer metal-modal-footer" style="padding: 6px 12px;">
+                <button type="button" class="metal-btn-secondary" data-bs-dismiss="modal" style="font-size: clamp(0.65rem, 1.8vw, 0.75rem); padding: 4px 12px; min-height: 32px;">Cancelar</button>
+                <button type="button" class="metal-btn-primary" id="modalSaveBtn" onclick="window.salvarUsuario()" style="font-size: clamp(0.65rem, 1.8vw, 0.75rem); padding: 4px 12px; min-height: 32px;">
+                    <i class="bi bi-check-circle me-1"></i>Salvar Usuário
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- TOAST -->
+<!-- ============================================ -->
+<div id="toastContainer" style="position: fixed; top: 60px; right: 10px; z-index: 99999; max-width: 280px;"></div>
+
+<!-- ============================================ -->
+<!-- ESTILOS -->
+<!-- ============================================ -->
+<style>
+    /* Reset e base */
+    * { 
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+    }
+    
+    .metal-header { 
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc); 
+        border-radius: 12px; 
+        padding: clamp(0.5rem, 2vw, 1rem) clamp(0.8rem, 3vw, 1.2rem); 
+        border: 1px solid rgba(255,255,255,0.1); 
+    }
+    .metal-title { color: white; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    .metal-subtitle { color: rgba(255,255,255,0.9) !important; }
+    
+    .metal-btn-primary { 
+        background: rgba(255,255,255,0.15); 
+        border: 1px solid rgba(255,255,255,0.3); 
+        color: white; 
+        border-radius: 8px; 
+        font-weight: 500; 
+        transition: all 0.2s ease; 
+        cursor: pointer; 
+        display: inline-flex; 
+        align-items: center; 
+        justify-content: center;
+        gap: 4px; 
+        white-space: nowrap; 
+        touch-action: manipulation;
+        min-height: 32px;
+        padding: 4px 12px;
+    }
+    .metal-btn-primary:active { transform: scale(0.96); }
+    .metal-btn-primary:hover { background: rgba(255,255,255,0.25); color: white; }
+    
+    .metal-btn-secondary { 
+        background: rgba(0,0,0,0.1); 
+        border: 1px solid rgba(0,0,0,0.2); 
+        color: #000; 
+        border-radius: 8px; 
+        font-weight: 500; 
+        transition: all 0.2s ease; 
+        cursor: pointer;
+        touch-action: manipulation;
+        min-height: 32px;
+        padding: 4px 12px;
+    }
+    .metal-btn-secondary:active { transform: scale(0.96); }
+    .metal-btn-secondary:hover { background: rgba(0,0,0,0.2); color: #000; }
+    
+    .metal-modal-content { 
+        background: #0a0e1a; 
+        border: 1px solid rgba(0,212,255,0.2); 
+        border-radius: 12px; 
+    }
+    .metal-modal-header { 
+        background: linear-gradient(135deg, #00d4ff, #7b2ffc); 
+        color: white; 
+        border-radius: 12px 12px 0 0; 
+    }
+    .metal-modal-footer { 
+        background: rgba(0,0,0,0.2); 
+        border-top: 1px solid rgba(255,255,255,0.05); 
+        border-radius: 0 0 12px 12px; 
+    }
+    
+    .glass-card { 
+        background: #ffffff !important; 
+        border: 1px solid #000 !important; 
+        border-radius: 12px; 
+        transition: all 0.2s ease; 
+        color: #000 !important; 
+    }
+    .glass-card:active { transform: scale(0.99); }
+    .glass-card:hover {
+        border-color: #00d4ff !important;
+        box-shadow: 0 2px 12px rgba(0,212,255,0.1);
+    }
+    
+    .card-resumo {
+        transition: all 0.2s ease;
+        background: #ffffff !important;
+        border: 1px solid #000 !important;
+    }
+    .card-resumo:hover {
+        border-color: #00d4ff !important;
+        box-shadow: 0 2px 12px rgba(0,212,255,0.1);
+    }
+    .card-resumo:active {
+        transform: scale(0.96);
+    }
+    
+    .badge { 
+        padding: 2px 8px; 
+        border-radius: 12px; 
+        font-weight: 600; 
+        text-transform: uppercase; 
+        letter-spacing: 0.3px; 
+        color: #ffffff !important; 
+    }
+    .bg-success { background-color: #2ed573 !important; }
+    .bg-warning { background-color: #ffa502 !important; color: #212529 !important; }
+    .bg-danger { background-color: #ff4757 !important; }
+    .bg-primary { background-color: #00d4ff !important; }
+    .bg-info { background-color: #7b2ffc !important; }
+    .bg-secondary { background-color: #000 !important; }
+    
+    .fade-in-up { animation: fadeInUp 0.4s ease forwards; opacity: 0; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    .delay-1 { animation-delay: 0.05s; }
+    .delay-2 { animation-delay: 0.1s; }
+    .delay-3 { animation-delay: 0.15s; }
+    
+    .modal-body { color: #ffffff !important; }
+    .modal-body select option { background-color: #1a1a2e !important; color: #ffffff !important; }
+    .text-muted { color: rgba(255,255,255,0.5) !important; }
+    
+    /* STATUS BADGES */
+    .status-badge.ativo { background: #2ed573; color: #ffffff; }
+    .status-badge.inativo { background: #000; color: #ffffff; }
+    
+    /* USUÁRIO CARD */
+    .usuario-card {
+        transition: all 0.2s ease;
+        background: #ffffff !important;
+        border: 1px solid #000 !important;
+        border-radius: 10px;
+        padding: 0.6rem;
+        color: #000 !important;
+    }
+    .usuario-card:hover {
+        border-color: #00d4ff !important;
+        box-shadow: 0 2px 12px rgba(0,212,255,0.1);
+    }
+    .usuario-card:active {
+        transform: scale(0.98);
+    }
+    
+    .btn-editar { 
+        background: #ffa502; 
+        color: #fff; 
+        border: none; 
+        border-radius: 4px; 
+        padding: 2px 6px; 
+        font-size: clamp(0.4rem, 1vw, 0.5rem); 
+        cursor: pointer;
+        touch-action: manipulation;
+    }
+    .btn-editar:active { transform: scale(0.9); }
+    
+    .btn-excluir { 
+        background: #ff4757; 
+        color: #fff; 
+        border: none; 
+        border-radius: 4px; 
+        padding: 2px 6px; 
+        font-size: clamp(0.4rem, 1vw, 0.5rem); 
+        cursor: pointer;
+        touch-action: manipulation;
+    }
+    .btn-excluir:active { transform: scale(0.9); }
+    
+    .toast-custom { 
+        background: rgba(10,14,26,0.95); 
+        backdrop-filter: blur(10px); 
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(0,212,255,0.2); 
+        border-radius: 10px; 
+        padding: 8px 12px; 
+        margin-bottom: 6px; 
+        color: #fff; 
+        animation: slideInRight 0.3s ease; 
+        display: flex; 
+        align-items: center; 
+        gap: 8px; 
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4); 
+        font-size: clamp(0.7rem, 2vw, 0.8rem); 
+    }
+    .toast-custom.success { border-left: 3px solid #2ed573; }
+    .toast-custom.error { border-left: 3px solid #ff4757; }
+    .toast-custom.warning { border-left: 3px solid #ffa502; }
+    .toast-custom .toast-icon { font-size: clamp(0.8rem, 2.2vw, 1rem); }
+    .toast-custom.success .toast-icon { color: #2ed573; }
+    .toast-custom.error .toast-icon { color: #ff4757; }
+    .toast-custom.warning .toast-icon { color: #ffa502; }
+    
+    @keyframes slideInRight { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(30px); opacity: 0; } }
+    
+    /* Responsividade */
+    @media (max-width: 480px) {
+        .metal-title { font-size: 1rem; }
+        .metal-header { padding: 0.5rem 0.6rem; }
+        .modal-dialog { margin: 0.2rem; }
+        .modal-body { padding: 8px !important; }
+        .col-4 .card-resumo { padding: 0.3rem 0.1rem !important; }
+        .usuario-card { padding: 0.4rem !important; }
+    }
+    
+    @media (max-width: 576px) {
+        .metal-header { padding: 0.4rem 0.6rem; }
+        .metal-title { font-size: 0.95rem; }
+        .metal-subtitle { font-size: 0.6rem; }
+        .metal-btn-primary { font-size: 0.6rem; padding: 2px 8px; min-height: 28px; }
+        .glass-card { padding: 0.4rem 0.6rem !important; }
+        .modal-dialog { margin: 0.3rem; }
+        .modal-body { padding: 8px 10px !important; }
+        .toast-custom { max-width: 90%; right: 5%; top: 60px; }
+        #toastContainer { max-width: 90%; right: 5%; }
+    }
+    
+    /* Previne zoom em inputs no iOS */
+    @supports (-webkit-touch-callout: none) {
+        input, select, textarea { font-size: 16px !important; }
+    }
+    
+    /* Melhorias para touch */
+    button, .btn, .card-resumo[onclick], .usuario-card[onclick] { 
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .pagination .page-link {
+        color: #000 !important;
+        background: #fff !important;
+        border: 1px solid #000 !important;
+        padding: 4px 10px;
+        font-size: clamp(0.6rem, 1.5vw, 0.7rem);
+    }
+    .pagination .page-link:hover {
+        background: #f8f9fa !important;
+    }
+    .pagination .active .page-link {
+        background: #00d4ff !important;
+        border-color: #00d4ff !important;
+        color: #fff !important;
+    }
+    
+    /* 🔥 CORREÇÃO: Campos de busca visíveis */
+    .form-control, .form-select {
+        color: #000 !important;
+        background: #fff !important;
+        border: 1px solid #000 !important;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #00d4ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2) !important;
+        outline: none;
+    }
+    .form-control::placeholder {
+        color: #000 !important;
+    }
+</style>
+
+<!-- ============================================ -->
+<!-- SCRIPTS -->
+<!-- ============================================ -->
+<script>
+(function() {
+    "use strict";
+
+    function getCSRFToken() {
+        const token = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+        if (token) return token;
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        return meta ? meta.getAttribute('content') : '';
+    }
+
+    // ============================================
+    // TOAST
+    // ============================================
+    function mostrarToast(msg, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast-custom ${type}`;
+        const icons = { success: 'bi-check-circle-fill', error: 'bi-exclamation-triangle-fill', warning: 'bi-exclamation-triangle-fill' };
+        toast.innerHTML = `
+            <i class="bi ${icons[type] || icons.success} toast-icon"></i>
+            <span style="flex:1;font-size:0.8rem;">${msg}</span>
+            <button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:1rem;cursor:pointer;padding:0 4px;">
+                <i class="bi bi-x"></i>
+            </button>
+        `;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.animation = 'slideOutRight 0.3s ease forwards';
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
+
+    // ============================================
+    // FILTRAR USUÁRIOS
+    // ============================================
+    window.filtrarUsuarios = function() {
+        const search = document.getElementById('searchUsuario').value.toLowerCase().trim();
+        const status = document.getElementById('filtroStatus').value;
+        const grupo = document.getElementById('filtroGrupo').value.toLowerCase().trim();
+        const items = document.querySelectorAll('.usuario-item');
+        let visiveis = 0;
+        
+        items.forEach(item => {
+            const nome = item.dataset.nome || '';
+            const username = item.dataset.username || '';
+            const email = item.dataset.email || '';
+            const itemStatus = item.dataset.status || '';
+            const itemGrupo = item.dataset.grupo || '';
+            
+            let mostrar = true;
+            
+            // Busca
+            if (search !== '' && !nome.includes(search) && !username.includes(search) && !email.includes(search)) {
+                mostrar = false;
+            }
+            
+            // Status
+            if (status !== '' && itemStatus !== status) {
+                mostrar = false;
+            }
+            
+            // Grupo
+            if (grupo !== '' && itemGrupo.toLowerCase() !== grupo) {
+                mostrar = false;
+            }
+            
+            if (mostrar) {
+                item.style.display = '';
+                visiveis++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Atualiza contador
+        const badge = document.getElementById('count-usuarios');
+        if (badge) badge.textContent = visiveis;
+        
+        // Mostra mensagem se vazio
+        const emptyMsg = document.getElementById('emptySearchMsg');
+        if (emptyMsg) emptyMsg.remove();
+        
+        if (visiveis === 0 && items.length > 0) {
+            const msg = document.createElement('div');
+            msg.id = 'emptySearchMsg';
+            msg.className = 'col-12';
+            msg.innerHTML = `
+                <div style="text-align: center; padding: 20px 10px; color: #000 !important; font-size: clamp(0.7rem, 1.8vw, 0.85rem);">
+                    <i class="bi bi-search" style="font-size: 1.5rem; color: #000;"></i>
+                    <p class="mt-2" style="color: #000;">Nenhum usuário encontrado</p>
+                </div>
+            `;
+            document.getElementById('listaUsuarios').appendChild(msg);
+        }
+    };
+
+    // ============================================
+    // LIMPAR FILTROS
+    // ============================================
+    window.limparFiltrosUsuarios = function() {
+        document.getElementById('searchUsuario').value = '';
+        document.getElementById('filtroStatus').value = '';
+        document.getElementById('filtroGrupo').value = '';
+        window.filtrarUsuarios();
+    };
+
+    // ============================================
+    // ABRIR MODAL NOVO USUÁRIO
+    // ============================================
+    window.abrirModalNovoUsuario = function() {
+        fetch('/escola/api/admin/usuarios/form/', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Erro na requisição');
+            return response.text();
+        })
+        .then(html => {
+            document.getElementById('modalTitle').textContent = 'Novo Usuário';
+            document.getElementById('modalBody').innerHTML = html;
+            document.getElementById('modalSaveBtn').style.display = 'block';
+            document.getElementById('modalSaveBtn').textContent = 'Criar Usuário';
+            document.getElementById('modalSaveBtn').onclick = function() {
+                window.salvarUsuario();
+            };
+            const modal = new bootstrap.Modal(document.getElementById('globalModal'));
+            modal.show();
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            mostrarToast('❌ Erro ao abrir formulário: ' + error.message, 'error');
+        });
+    };
+
+    // ============================================
+    // ABRIR MODAL EDITAR USUÁRIO
+    // ============================================
+    window.editarUsuario = function(usuarioId) {
+        fetch(`/escola/api/admin/usuarios/form/${usuarioId}/`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Erro na requisição');
+            return response.text();
+        })
+        .then(html => {
+            document.getElementById('modalTitle').textContent = 'Editar Usuário';
+            document.getElementById('modalBody').innerHTML = html;
+            document.getElementById('modalSaveBtn').style.display = 'block';
+            document.getElementById('modalSaveBtn').textContent = 'Atualizar Usuário';
+            document.getElementById('modalSaveBtn').onclick = function() {
+                window.salvarUsuario();
+            };
+            const modal = new bootstrap.Modal(document.getElementById('globalModal'));
+            modal.show();
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            mostrarToast('❌ Erro ao abrir formulário: ' + error.message, 'error');
+        });
+    };
+
+    // ============================================
+    // VER USUÁRIO
+    // ============================================
+    window.verUsuario = function(usuarioId) {
+        mostrarToast('👤 Ver detalhes do usuário ID: ' + usuarioId, 'info');
+    };
+
+    // ============================================
+    // SALVAR USUÁRIO
+    // ============================================
+    window.salvarUsuario = function() {
+        const form = document.getElementById('usuarioForm');
+        if (!form) {
+            mostrarToast('❌ Formulário não encontrado', 'error');
+            return;
+        }
+
+        const formData = new FormData(form);
+        
+        const usuarioId = document.getElementById('usuario_id')?.value || '';
+        const url = usuarioId ? `/escola/api/admin/usuarios/salvar/${usuarioId}/` : '/escola/api/admin/usuarios/salvar/';
+        
+        const saveBtn = document.getElementById('modalSaveBtn');
+        const originalText = saveBtn.textContent;
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Salvando...';
+        
+        fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCSRFToken(),
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            saveBtn.disabled = false;
+            saveBtn.textContent = originalText;
+            
+            if (data.success) {
+                mostrarToast('✅ ' + data.message, 'success');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('globalModal'));
+                if (modal) modal.hide();
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                let errors = '';
+                if (data.errors) {
+                    for (let field in data.errors) {
+                        const errorField = document.getElementById(field);
+                        if (errorField) {
+                            errorField.classList.add('is-invalid');
+                            const errorMsg = document.getElementById(field + '-error');
+                            if (errorMsg) {
+                                errorMsg.textContent = data.errors[field];
+                                errorMsg.classList.add('show');
+                            }
+                        }
+                        errors += `${field}: ${data.errors[field]}\n`;
+                    }
+                } else {
+                    errors = data.message || 'Erro ao salvar usuário';
+                }
+                mostrarToast('❌ ' + errors, 'error');
+            }
+        })
+        .catch(error => {
+            saveBtn.disabled = false;
+            saveBtn.textContent = originalText;
+            console.error('Erro:', error);
+            mostrarToast('❌ Erro ao salvar usuário: ' + error.message, 'error');
+        });
+    };
+
+    // ============================================
+    // DELETAR USUÁRIO
+    // ============================================
+    window.deletarUsuario = function(usuarioId, nome) {
+        const confirmDiv = document.createElement('div');
+        confirmDiv.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+            padding: 16px;
+        `;
+        
+        confirmDiv.innerHTML = `
+            <div style="
+                background: rgba(10, 14, 26, 0.95);
+                border: 1px solid rgba(255, 71, 87, 0.3);
+                border-radius: 12px;
+                padding: 20px 16px;
+                max-width: 380px;
+                width: 100%;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            ">
+                <div style="text-align: center; margin-bottom: 14px;">
+                    <i class="bi bi-exclamation-triangle-fill" style="font-size: 2rem; color: #ff4757;"></i>
+                    <h4 style="color: #fff; margin-top: 8px; font-size: 1rem;">Confirmar Exclusão</h4>
+                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 0; font-size: 0.85rem;">
+                        Excluir o usuário <strong style="color: #fff;">"${nome}"</strong>?
+                    </p>
+                    <p style="color: rgba(255,71,87,0.6); font-size: 0.7rem; margin-top: 4px;">
+                        <i class="bi bi-exclamation-circle"></i> Esta ação não pode ser desfeita!
+                    </p>
+                </div>
+                <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                    <button onclick="this.closest('div[style]').parentElement.remove()" style="
+                        background: rgba(255,255,255,0.05);
+                        border: 1px solid rgba(255,255,255,0.1);
+                        color: rgba(255,255,255,0.6);
+                        padding: 6px 16px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        transition: all 0.3s ease;
+                        font-size: 0.8rem;
+                    ">Cancelar</button>
+                    <button onclick="window.confirmarDeletarUsuario(${usuarioId})" style="
+                        background: linear-gradient(135deg, #ff4757, #c82333);
+                        border: none;
+                        color: white;
+                        padding: 6px 16px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        transition: all 0.3s ease;
+                        font-size: 0.8rem;
+                    ">Excluir</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(confirmDiv);
+    };
+
+    // ============================================
+    // CONFIRMAR E DELETAR USUÁRIO
+    // ============================================
+    window.confirmarDeletarUsuario = function(usuarioId) {
+        const confirmModal = document.querySelector('div[style*="position: fixed"][style*="z-index: 999999"]');
+        if (confirmModal) confirmModal.remove();
+
+        mostrarToast('⏳ Excluindo usuário...', 'info');
+
+        fetch(`/escola/api/admin/usuarios/deletar/${usuarioId}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCSRFToken(),
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mostrarToast('✅ ' + data.message, 'success');
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                mostrarToast('❌ ' + (data.errors?.error || 'Erro ao deletar usuário'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            mostrarToast('❌ Erro ao deletar usuário: ' + error.message, 'error');
+        });
+    };
+
+    // ============================================
+    // INICIALIZAÇÃO
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('👥 Usuários - Inicializando...');
+        
+        // Atualiza contadores
+        const totalUsuarios = document.getElementById('totalUsuarios')?.textContent || 0;
+        const countBadge = document.getElementById('count-usuarios');
+        if (countBadge) countBadge.textContent = totalUsuarios;
+        
+        // Remove loading se existir
+        const overlay = document.getElementById('globalLoadingOverlay');
+        if (overlay) {
+            setTimeout(() => {
+                overlay.classList.remove('active');
+                overlay.style.display = 'none';
+                document.body.style.overflow = '';
+            }, 500);
+        }
+        
+        console.log('✅ Usuários inicializado!');
+    });
+
+    // Expor funções globalmente
+    window.mostrarToast = mostrarToast;
+    window.getCSRFToken = getCSRFToken;
+    
+})();
+</script>
+
+<!-- ============================================ -->
+<!-- FIM DO CONTEÚDO                            -->
+<!-- ============================================ -->

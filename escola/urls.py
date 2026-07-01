@@ -98,7 +98,7 @@ urlpatterns = [
     # ============================================
     path('secretaria/matriculas/', secretaria_views.secretaria_matriculas, name='secretaria_matriculas'),
     path('secretaria/pagamentos/', secretaria_views.secretaria_pagamentos, name='secretaria_pagamentos'),
-    path('secretaria/alunos/', secretaria_views.secretaria_alunos, name='secretaria_alunos'),  # 🔥 ADICIONAR ESTA!
+    path('secretaria/alunos/', secretaria_views.secretaria_alunos, name='secretaria_alunos'),
     path('secretaria/documentos/', secretaria_views.secretaria_documentos, name='secretaria_documentos'),
     
     # ============================================
@@ -137,6 +137,13 @@ urlpatterns = [
     path('api/admin/custos/', escola_views.admin_custos, name='api_admin_custos'),
     path('api/admin/folha_salarial/', escola_views.admin_folha_salarial, name='api_admin_folha_salarial'),
     path('api/admin/usuarios/', escola_views.admin_usuarios, name='api_admin_usuarios'),
+    
+    # 🔥 USUÁRIOS - CRUD (formulário e ações)
+    path('api/admin/usuarios/form/', escola_views.api_usuario_form, name='api_usuario_form'),
+    path('api/admin/usuarios/form/<int:usuario_id>/', escola_views.api_usuario_form, name='api_usuario_form_edit'),
+    path('api/admin/usuarios/salvar/', escola_views.api_usuario_salvar, name='api_usuario_salvar'),
+    path('api/admin/usuarios/salvar/<int:usuario_id>/', escola_views.api_usuario_salvar, name='api_usuario_salvar_edit'),
+    path('api/admin/usuarios/deletar/<int:usuario_id>/', escola_views.api_usuario_deletar, name='api_usuario_deletar'),
     
     # ============================================
     # 🔥 ÁREA FINANCEIRA - URLs da API

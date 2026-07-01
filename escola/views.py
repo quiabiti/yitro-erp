@@ -686,19 +686,297 @@ def admin_folha_salarial(request):
     return render(request, 'escola/partials/admin/folha_salarial.html', context)
 
 
+# escola/views.py
+
+# escola/views.py
+
 @login_required
 def admin_usuarios(request):
-    """Usuários - Área Administrativa"""
+    """Usuários - Área Administrativa (ISOLADO POR ESCOLA)"""
+    from django.contrib.auth import get_user_model
+    from django.contrib.auth.models import Group
+    from .configuracao.models import UsuarioInstituicao
+    
+    User = get_user_model()
+    
     tenant = get_tenant_escola(request)
+    tenant_id = tenant.id if tenant else None
+    user = request.user
+    
+    # 🔥 Super Admin vê todos os usuários (gestão global)
+    if user.is_superuser and not tenant_id:
+        usuarios = User.objects.all().order_by('username')
+        total_usuarios = usuarios.count()
+        total_ativos = usuarios.filter(is_active=True).count()
+        total_inativos = usuarios.filter(is_active=False).count()
+        total_admins = usuarios.filter(is_superuser=True).count()
+        tenant_nome = "Todas as escolas (Super Admin)"
+    else:
+        # 🔥 Usuário normal vê APENAS os da sua escola
+        if tenant_id:
+            usuarios_ids = UsuarioInstituicao.objects.filter(
+                instituicao_id=tenant_id,
+                ativo=True
+            ).values_list('usuario_id', flat=True).distinct()
+            
+            usuarios = User.objects.filter(id__in=usuarios_ids).order_by('username')
+        else:
+            usuarios = User.objects.none()
+        
+        total_usuarios = usuarios.count()
+        total_ativos = usuarios.filter(is_active=True).count()
+        total_inativos = usuarios.filter(is_active=False).count()
+        total_admins = usuarios.filter(is_superuser=True).count()
+        tenant_nome = tenant.nome if tenant else "Nenhuma escola"
+    
+    # 🔥 Grupos disponíveis para filtro
+    grupos = Group.objects.all().values_list('name', flat=True)
+    
     context = {
         'titulo': 'Usuários - Administrativo',
         'icone': 'bi-people',
         'modulo': 'Área Administrativa',
-        'tenant_nome': tenant.nome if tenant else None,
-        'tenant_id': tenant.id if tenant else None,
+        'tenant_nome': tenant_nome,
+        'tenant_id': tenant_id,
+        'usuarios': usuarios,
+        'total_usuarios': total_usuarios,
+        'total_ativos': total_ativos,
+        'total_inativos': total_inativos,
+        'total_admins': total_admins,
+        'grupos': grupos,
+        'is_super_admin': user.is_superuser,
     }
+    
     return render(request, 'escola/partials/admin/usuarios.html', context)
 
+
+@login_required
+def api_usuario_form(request, usuario_id=None):
+    """Retorna o formulário para criar/editar usuário (ISOLADO POR ESCOLA)"""
+    from django.contrib.auth import get_user_model
+    from django.contrib.auth.models import Group
+    from .configuracao.models import Instituicao, UsuarioInstituicao
+    
+    User = get_user_model()
+    
+    tenant = get_tenant_escola(request)
+    tenant_id = tenant.id if tenant else None
+    user = request.user
+    
+    usuario = None
+    edit = False
+    
+    if usuario_id:
+        usuario = get_object_or_404(User, id=usuario_id)
+        edit = True
+    
+    # Buscar grupos disponíveis
+    grupos = Group.objects.all().order_by('name')
+    
+    # 🔥 Buscar escolas para associar o usuário (ISOLADO POR ESCOLA)
+    if user.is_superuser:
+        # Super Admin vê todas as escolas
+        instituicoes = Instituicao.objects.filter(ativo=True).order_by('nome')
+    else:
+        # 🔥 Usuário normal vê APENAS a escola onde está logado
+        if tenant_id:
+            instituicoes = Instituicao.objects.filter(id=tenant_id, ativo=True).order_by('nome')
+        else:
+            instituicoes = Instituicao.objects.none()
+    
+    # 🔥 Se estiver editando, verificar se o usuário pertence à escola atual
+    if usuario and not user.is_superuser and tenant_id:
+        # Verificar se o usuário tem associação com a escola atual
+        tem_acesso = UsuarioInstituicao.objects.filter(
+            usuario=usuario,
+            instituicao_id=tenant_id,
+            ativo=True
+        ).exists()
+        
+        if not tem_acesso:
+            # Se o usuário não pertence à escola, redirecionar ou mostrar erro
+            return render(request, 'escola/partials/admin/erro.html', {
+                'mensagem': 'Você não tem permissão para editar este usuário.'
+            })
+    
+    context = {
+        'usuario': usuario,
+        'edit': edit,
+        'tenant_id': tenant_id,
+        'tenant_nome': tenant.nome if tenant else None,
+        'grupos': grupos,
+        'instituicoes': instituicoes,
+        'is_super_admin': user.is_superuser,
+        # 🔥 Para o template saber se deve mostrar o campo de escolas ou oculto
+        'mostrar_escolas': user.is_superuser,
+    }
+    
+    return render(request, 'escola/partials/admin/usuario_form.html', context)
+
+    
+
+@login_required
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_usuario_salvar(request, usuario_id=None):
+    """Salva usuário via AJAX"""
+    from django.contrib.auth import get_user_model
+    from django.contrib.auth.models import Group
+    from .configuracao.models import Instituicao, UsuarioInstituicao
+    
+    User = get_user_model()
+    
+    try:
+        tenant = get_tenant_escola(request)
+        tenant_id = tenant.id if tenant else None
+        
+        # Dados do formulário
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        password = request.POST.get('password', '')
+        password_confirm = request.POST.get('password_confirm', '')
+        is_active = request.POST.get('is_active', 'on') == 'on'
+        is_superuser = request.POST.get('is_superuser', '') == 'on'
+        groups = request.POST.getlist('groups')
+        instituicoes = request.POST.getlist('instituicoes')
+        
+        # Validar campos obrigatórios
+        errors = {}
+        
+        if not username:
+            errors['username'] = 'Nome de usuário é obrigatório'
+        elif usuario_id is None and User.objects.filter(username=username).exists():
+            errors['username'] = 'Este nome de usuário já está em uso'
+        
+        if not email:
+            errors['email'] = 'E-mail é obrigatório'
+        elif usuario_id is None and User.objects.filter(email=email).exists():
+            errors['email'] = 'Este e-mail já está em uso'
+        
+        # Validar senha apenas se for criação ou se senha foi preenchida
+        if usuario_id is None:
+            if not password:
+                errors['password'] = 'Senha é obrigatória'
+            elif len(password) < 6:
+                errors['password'] = 'Senha deve ter pelo menos 6 caracteres'
+            elif password != password_confirm:
+                errors['password_confirm'] = 'As senhas não coincidem'
+        else:
+            if password:
+                if len(password) < 6:
+                    errors['password'] = 'Senha deve ter pelo menos 6 caracteres'
+                elif password != password_confirm:
+                    errors['password_confirm'] = 'As senhas não coincidem'
+        
+        if not instituicoes:
+            errors['instituicoes'] = 'Selecione pelo menos uma escola'
+        
+        if errors:
+            return JsonResponse({'success': False, 'errors': errors})
+        
+        # 🔥 Criar ou atualizar usuário
+        if usuario_id:
+            usuario = get_object_or_404(User, id=usuario_id)
+            usuario.username = username
+            usuario.email = email
+            usuario.first_name = first_name
+            usuario.last_name = last_name
+            usuario.is_active = is_active
+            usuario.is_superuser = is_superuser
+            
+            if password:
+                usuario.set_password(password)
+            
+            usuario.save()
+            mensagem = f'Usuário {usuario.username} atualizado com sucesso!'
+        else:
+            usuario = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                is_active=is_active,
+                is_superuser=is_superuser
+            )
+            mensagem = f'Usuário {usuario.username} criado com sucesso!'
+        
+        # 🔥 Atualizar grupos
+        usuario.groups.clear()
+        for group_name in groups:
+            try:
+                group = Group.objects.get(name=group_name)
+                usuario.groups.add(group)
+            except Group.DoesNotExist:
+                pass
+        
+        # 🔥 Atualizar instituições
+        UsuarioInstituicao.objects.filter(usuario=usuario).delete()
+        for inst_id in instituicoes:
+            try:
+                instituicao = Instituicao.objects.get(id=inst_id, ativo=True)
+                UsuarioInstituicao.objects.create(
+                    usuario=usuario,
+                    instituicao=instituicao,
+                    ativo=True
+                )
+            except Instituicao.DoesNotExist:
+                pass
+        
+        return JsonResponse({
+            'success': True,
+            'message': mensagem,
+            'usuario_id': usuario.id,
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao salvar usuário: {e}")
+        return JsonResponse({
+            'success': False,
+            'errors': {'error': str(e)}
+        }, status=500)
+
+
+@login_required
+@csrf_exempt
+@require_http_methods(["DELETE"])
+def api_usuario_deletar(request, usuario_id):
+    """Deleta um usuário"""
+    from django.contrib.auth import get_user_model
+    from .configuracao.models import UsuarioInstituicao
+    
+    User = get_user_model()
+    
+    try:
+        usuario = get_object_or_404(User, id=usuario_id)
+        
+        # Não permitir deletar o próprio usuário
+        if usuario.id == request.user.id:
+            return JsonResponse({
+                'success': False,
+                'errors': {'error': 'Você não pode deletar seu próprio usuário'}
+            }, status=400)
+        
+        username = usuario.username
+        
+        # Remover associações com instituições
+        UsuarioInstituicao.objects.filter(usuario=usuario).delete()
+        
+        # Deletar o usuário
+        usuario.delete()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Usuário {username} deletado com sucesso!'
+        })
+    except Exception as e:
+        logger.error(f"❌ Erro ao deletar usuário: {e}")
+        return JsonResponse({
+            'success': False,
+            'errors': {'error': str(e)}
+        }, status=500)
 
 # ============================================
 # 🔥 ÁREA FINANCEIRA
