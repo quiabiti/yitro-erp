@@ -67,19 +67,20 @@
     
     <!-- COLUNA DIREITA: LISTA NOMINAL DA TURMA -->
     <div class="col-12 col-md-8 col-lg-9">
-        <!-- BOTÕES DE AÇÃO - COLORIDOS -->
+        <!-- BOTÕES DE AÇÃO - COM EMOJIS -->
         <div class="d-flex gap-2 mb-2 flex-wrap no-print">
             <button class="btn-imprimir" onclick="imprimirLista()" style="background: #2ed573; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-size: clamp(0.7rem, 1.5vw, 0.85rem); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
-                <i class="bi bi-printer me-1"></i> Imprimir
+                🖨️ Imprimir
             </button>
             <button class="btn-pdf" onclick="exportarPDF()" style="background: #ff4757; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-size: clamp(0.7rem, 1.5vw, 0.85rem); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
-                <i class="bi bi-file-pdf me-1"></i> Exportar PDF
+                📄 Exportar PDF
             </button>
         </div>
         
         <div id="lista-nominal-container" style="min-height: 300px; background: #ffffff; color: #000000 !important; border-radius: 8px; overflow: hidden; padding: 0 !important; border: 1px solid #000;">
             <div class="text-center py-4" style="color: #000 !important; font-size: clamp(0.7rem, 1.8vw, 0.9rem);">
-                <i class="bi bi-hand-index-thumb me-2" style="font-size: clamp(1.5rem, 5vw, 2.5rem); display: block; margin-bottom: 8px; color: #000;"></i>
+                <!-- MÃO APONTANDO PARA A DIREITA -->
+                <i class="bi bi-hand-index-thumb me-2" style="font-size: clamp(1.5rem, 5vw, 2.5rem); display: block; margin-bottom: 8px; color: #000; transform: rotate(-90deg);"></i>
                 <span style="color: #000 !important;">Selecione uma turma</span>
             </div>
         </div>
@@ -590,8 +591,9 @@
             font-size: 0.55rem !important;
             padding: 4px 10px !important;
         }
-        .btn-imprimir i, .btn-pdf i {
+        .btn-imprimir, .btn-pdf {
             font-size: 0.55rem !important;
+            padding: 4px 10px !important;
         }
     }
 </style>

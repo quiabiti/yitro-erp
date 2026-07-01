@@ -27,42 +27,42 @@
 <!-- CARDS RESUMO - COM TEXTOS PRETOS -->
 <div class="row g-1 g-sm-2 mb-3 fade-in-up delay-1">
     <div class="col-4 col-md-2">
-        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #000;">
             <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #00d4ff !important;"><i class="bi bi-people"></i></div>
             <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalAlunos">{{ total_alunos|default:0 }}</h3>
             <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Total</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
-        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('pendente')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('pendente')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #000;">
             <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #ffa502 !important;"><i class="bi bi-clock"></i></div>
             <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalPendentes">{{ total_pendentes|default:0 }}</h3>
             <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Pendentes</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
-        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('confirmada')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('confirmada')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #000;">
             <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #2ed573 !important;"><i class="bi bi-check-circle"></i></div>
             <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalConfirmadas">{{ total_confirmadas|default:0 }}</h3>
             <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Confirmadas</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
-        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('concluida')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('concluida')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #000;">
             <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #7b2ffc !important;"><i class="bi bi-mortarboard"></i></div>
             <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalConcluidas">{{ total_concluidas|default:0 }}</h3>
             <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Concluídas</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
-        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('trancada')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
-            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #6c757d !important;"><i class="bi bi-pause-circle"></i></div>
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('trancada')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #000;">
+            <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #000 !important;"><i class="bi bi-pause-circle"></i></div>
             <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalTrancadas">{{ total_trancadas|default:0 }}</h3>
             <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Trancadas</p>
         </div>
     </div>
     <div class="col-4 col-md-2">
-        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('cancelada')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #ddd;">
+        <div class="card-resumo text-center p-1 p-sm-2" onclick="filtrarPorStatus('cancelada')" style="cursor: pointer; padding: 0.4rem 0.2rem !important; border-radius: 10px; background: #ffffff; border: 1px solid #000;">
             <div style="font-size: clamp(1rem, 3.5vw, 1.2rem); color: #ff4757 !important;"><i class="bi bi-x-circle"></i></div>
             <h3 style="font-size: clamp(0.7rem, 2.5vw, 0.9rem); color: #000 !important; margin: 2px 0; font-weight: 700;" id="totalCanceladas">{{ total_canceladas|default:0 }}</h3>
             <p style="font-size: clamp(0.4rem, 1.2vw, 0.5rem); color: #000 !important; margin: 0; font-weight: 500;">Canceladas</p>
@@ -71,18 +71,18 @@
 </div>
 
 <!-- FILTROS E BUSCA -->
-<div class="glass-card p-2 p-sm-3 mb-3 fade-in-up delay-2" style="background: #ffffff !important; border: 1px solid #ddd !important;">
+<div class="glass-card p-2 p-sm-3 mb-3 fade-in-up delay-2" style="background: #ffffff !important; border: 1px solid #000 !important;">
     <div class="row g-1 g-sm-2 align-items-center">
         <div class="col-12 col-sm-6 col-md-4">
             <div class="d-flex gap-1 gap-sm-2">
-                <input type="text" id="buscarMatricula" class="metal-form-control" placeholder="Buscar aluno..." style="font-size: clamp(0.7rem, 2vw, 0.8rem); padding: 6px 8px; min-height: 32px; color: #000; background: #fff; border: 1px solid #ddd; border-radius: 6px;">
+                <input type="text" id="buscarMatricula" class="metal-form-control" placeholder="Buscar aluno..." style="font-size: clamp(0.7rem, 2vw, 0.8rem); padding: 6px 8px; min-height: 32px; color: #000; background: #fff; border: 1px solid #000; border-radius: 6px;">
                 <button class="metal-btn-primary" onclick="carregarMatriculas()" style="font-size: clamp(0.6rem, 1.5vw, 0.7rem); padding: 4px 10px; min-height: 32px; background: #00d4ff; color: #fff; border: none; border-radius: 6px;">
                     <i class="bi bi-search"></i>
                 </button>
             </div>
         </div>
         <div class="col-6 col-sm-3 col-md-3">
-            <select id="filtroStatus" class="metal-form-control" style="font-size: clamp(0.65rem, 1.8vw, 0.8rem); padding: 4px 8px; min-height: 32px; color: #000; background: #fff; border: 1px solid #ddd; border-radius: 6px;" onchange="carregarMatriculas()">
+            <select id="filtroStatus" class="metal-form-control" style="font-size: clamp(0.65rem, 1.8vw, 0.8rem); padding: 4px 8px; min-height: 32px; color: #000; background: #fff; border: 1px solid #000; border-radius: 6px;" onchange="carregarMatriculas()">
                 <option value="">Status</option>
                 <option value="pendente">Pendente</option>
                 <option value="confirmada">Confirmada</option>
@@ -92,7 +92,7 @@
             </select>
         </div>
         <div class="col-6 col-sm-3 col-md-3">
-            <select id="filtroClasse" class="metal-form-control" style="font-size: clamp(0.65rem, 1.8vw, 0.8rem); padding: 4px 8px; min-height: 32px; color: #000; background: #fff; border: 1px solid #ddd; border-radius: 6px;" onchange="carregarMatriculas()">
+            <select id="filtroClasse" class="metal-form-control" style="font-size: clamp(0.65rem, 1.8vw, 0.8rem); padding: 4px 8px; min-height: 32px; color: #000; background: #fff; border: 1px solid #000; border-radius: 6px;" onchange="carregarMatriculas()">
                 <option value="">Classe</option>
                 {% for classe in classes %}
                     <option value="{{ classe.id }}">{{ classe.nome }}</option>
@@ -100,7 +100,7 @@
             </select>
         </div>
         <div class="col-12 col-sm-12 col-md-2 text-end">
-            <button class="metal-btn-secondary" onclick="limparFiltros()" style="font-size: clamp(0.6rem, 1.5vw, 0.7rem); padding: 4px 10px; min-height: 32px; width: 100%; background: #6c757d; color: #fff; border: none; border-radius: 6px;">
+            <button class="metal-btn-secondary" onclick="limparFiltros()" style="font-size: clamp(0.6rem, 1.5vw, 0.7rem); padding: 4px 10px; min-height: 32px; width: 100%; background: #000; color: #fff; border: none; border-radius: 6px;">
                 <i class="bi bi-arrow-counterclockwise me-1"></i> Limpar
             </button>
         </div>
@@ -109,7 +109,7 @@
 
 <!-- LISTA DE MATRÍCULAS - TABELA ORGANIZADA -->
 <section class="fade-in-up delay-3">
-    <div class="glass-card" style="padding: 0.6rem 0.8rem; background: #ffffff !important; border: 1px solid #ddd !important;">
+    <div class="glass-card" style="padding: 0.6rem 0.8rem; background: #ffffff !important; border: 1px solid #000 !important;">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h6 style="font-size: clamp(0.75rem, 2.5vw, 0.85rem); color: #000 !important; font-weight: 700; margin: 0;">
                 <i class="bi bi-list-ul me-2" style="color: #00d4ff;"></i> Matrículas
@@ -124,7 +124,7 @@
         <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
             <table class="tabela-matriculas" style="width: 100%; border-collapse: collapse; font-size: clamp(0.65rem, 1.8vw, 0.8rem); color: #000 !important;">
                 <thead>
-                    <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                    <tr style="background: #fff; border-bottom: 2px solid #000;">
                         <th style="text-align: left; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Aluno</th>
                         <th style="text-align: left; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">BI</th>
                         <th style="text-align: center; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Ano Lectivo</th>
@@ -138,7 +138,7 @@
                 <tbody id="lista-matriculas">
                     {% if matriculas %}
                         {% for matricula in matriculas %}
-                            <tr style="border-bottom: 1px solid #eee;">
+                            <tr style="border-bottom: 1px solid #000;">
                                 <td style="padding: 6px 8px; color: #000 !important; font-weight: 500;">{{ matricula.aluno.nome_completo|default:'N/A' }}</td>
                                 <td style="padding: 6px 8px; color: #000 !important;">{{ matricula.aluno.bi|default:'' }}</td>
                                 <td style="text-align: center; padding: 6px 8px; color: #000 !important;">{{ matricula.ano_lectivo.ano|default:'' }}</td>
@@ -169,7 +169,7 @@
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="8" style="text-align: center; padding: 30px 10px; color: #999 !important; font-size: clamp(0.7rem, 1.8vw, 0.85rem);">
+                            <td colspan="8" style="text-align: center; padding: 30px 10px; color: #000 !important; font-size: clamp(0.7rem, 1.8vw, 0.85rem);">
                                 <i class="bi bi-inbox me-2" style="font-size: 1.2rem;"></i> Nenhuma matrícula cadastrada
                             </td>
                         </tr>
@@ -305,9 +305,9 @@
     .metal-btn-primary:hover { background: rgba(255,255,255,0.25); color: white; }
     
     .metal-btn-secondary { 
-        background: rgba(108,117,125,0.2); 
-        border: 1px solid rgba(108,117,125,0.3); 
-        color: #6c757d; 
+        background: rgba(0,0,0,0.1); 
+        border: 1px solid rgba(0,0,0,0.2); 
+        color: #000; 
         border-radius: 8px; 
         font-weight: 500; 
         transition: all 0.2s ease; 
@@ -317,7 +317,7 @@
         padding: 4px 12px;
     }
     .metal-btn-secondary:active { transform: scale(0.96); }
-    .metal-btn-secondary:hover { background: rgba(108,117,125,0.3); color: #5a6268; }
+    .metal-btn-secondary:hover { background: rgba(0,0,0,0.2); color: #000; }
     
     .metal-btn-danger { 
         background: linear-gradient(135deg, #dc3545, #c82333); 
@@ -334,11 +334,11 @@
     .metal-btn-danger:hover { opacity: 0.9; }
     
     .metal-form-control { 
-        background: rgba(255,255,255,0.05) !important; 
-        border: 1px solid rgba(255,255,255,0.1) !important; 
+        background: #ffffff !important; 
+        border: 1px solid #000 !important; 
         border-radius: 8px; 
         padding: 6px 10px; 
-        color: #ffffff !important; 
+        color: #000 !important; 
         font-size: clamp(0.7rem, 2vw, 0.85rem); 
         width: 100%; 
         min-height: 32px;
@@ -349,13 +349,13 @@
         border-color: #00d4ff !important; 
         box-shadow: 0 0 0 2px rgba(0,212,255,0.15) !important; 
         outline: none; 
-        background: rgba(255,255,255,0.08) !important; 
-        color: #ffffff !important; 
+        background: #ffffff !important; 
+        color: #000 !important; 
     }
-    .metal-form-control::placeholder { color: rgba(255,255,255,0.3) !important; }
+    .metal-form-control::placeholder { color: rgba(0,0,0,0.3) !important; }
     
     .metal-form-label { 
-        color: rgba(255,255,255,0.9) !important; 
+        color: #000 !important; 
         font-weight: 500; 
         font-size: clamp(0.65rem, 1.8vw, 0.8rem); 
         margin-bottom: 0.15rem; 
@@ -401,20 +401,22 @@
     }
     
     .glass-card { 
-        background: rgba(255,255,255,0.03); 
-        backdrop-filter: blur(10px); 
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.05); 
+        background: #ffffff !important; 
+        border: 1px solid #000 !important; 
         border-radius: 12px; 
         transition: all 0.2s ease; 
-        color: #ffffff !important; 
+        color: #000 !important; 
     }
     .glass-card:active { transform: scale(0.99); }
+    .glass-card:hover {
+        border-color: #00d4ff !important;
+        box-shadow: 0 2px 12px rgba(0,212,255,0.1);
+    }
     
     .card-resumo {
         transition: all 0.2s ease;
         background: #ffffff !important;
-        border: 1px solid #ddd !important;
+        border: 1px solid #000 !important;
     }
     .card-resumo:hover {
         border-color: #00d4ff !important;
@@ -437,8 +439,8 @@
     .bg-danger { background-color: #ff4757 !important; }
     .bg-primary { background-color: #00d4ff !important; }
     .bg-info { background-color: #7b2ffc !important; }
-    .bg-secondary { background-color: #6c757d !important; }
-    .bg-dark { background-color: #343a40 !important; }
+    .bg-secondary { background-color: #000 !important; }
+    .bg-dark { background-color: #000 !important; }
     
     .fade-in-up { animation: fadeInUp 0.4s ease forwards; opacity: 0; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -454,7 +456,7 @@
     .status-badge.pendente { background: #ffa502; color: #ffffff; }
     .status-badge.confirmada { background: #2ed573; color: #ffffff; }
     .status-badge.concluida { background: #7b2ffc; color: #ffffff; }
-    .status-badge.trancada { background: #6c757d; color: #ffffff; }
+    .status-badge.trancada { background: #000; color: #ffffff; }
     .status-badge.cancelada { background: #ff4757; color: #ffffff; }
     
     .toast-custom { 
@@ -739,7 +741,7 @@ function carregarMatriculas() {
                 const tipoLabel = item.tipo_display || item.tipo;
                 
                 html += `
-                    <tr style="border-bottom: 1px solid #eee;">
+                    <tr style="border-bottom: 1px solid #000;">
                         <td style="padding: 6px 8px; color: #000 !important; font-weight: 500;">${item.aluno_nome || 'N/A'}</td>
                         <td style="padding: 6px 8px; color: #000 !important;">${item.aluno_bi || ''}</td>
                         <td style="text-align: center; padding: 6px 8px; color: #000 !important;">${item.ano_lectivo || ''}</td>
@@ -772,7 +774,7 @@ function carregarMatriculas() {
             container.innerHTML = `
                 <table style="width: 100%; border-collapse: collapse; font-size: clamp(0.65rem, 1.8vw, 0.8rem); color: #000 !important;">
                     <thead>
-                        <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                        <tr style="background: #fff; border-bottom: 2px solid #000;">
                             <th style="text-align: left; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Aluno</th>
                             <th style="text-align: left; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">BI</th>
                             <th style="text-align: center; padding: 6px 8px; font-weight: 700; color: #000 !important; text-transform: uppercase; font-size: clamp(0.55rem, 1.5vw, 0.7rem);">Ano Lectivo</th>
