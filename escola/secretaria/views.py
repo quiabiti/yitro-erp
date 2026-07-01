@@ -131,6 +131,8 @@ def secretaria_pagamentos(request):
     return render(request, 'escola/partials/secretaria/pagamentos.html', context)
 
 
+# escola/secretaria/views.py - CORRIGIDO
+
 @login_required
 def secretaria_alunos(request):
     """Lista de Alunos por Turma - Secretaria Geral"""
@@ -152,14 +154,12 @@ def secretaria_alunos(request):
         total_alunos = Aluno.objects.filter(ativo=True).count()
         alunos = Aluno.objects.filter(ativo=True).prefetch_related('matriculas')
     
-    # 🔥 Preparar dados das turmas com lista de alunos (COMPLETO)
+    # 🔥 Preparar dados das turmas com lista de alunos
     turmas_data = []
     for turma in turmas:
         alunos_turma = []
         for aluno in alunos:
-            # Verificar se o aluno tem matrícula nesta turma
             matricula = aluno.matriculas.filter(turma=turma).first()
-            
             if matricula:
                 alunos_turma.append({
                     'id': aluno.id,
@@ -196,15 +196,14 @@ def secretaria_alunos(request):
         'municipio': escola.municipio if escola and hasattr(escola, 'municipio') else '',
     }
     
-    # 🔥 CONVERTER PARA JSON - USANDO default=str PARA DATAS
+    # 🔥 CONVERTER PARA JSON
     turmas_json = json.dumps(turmas_data, ensure_ascii=False, default=str)
     escola_json = json.dumps(escola_data, ensure_ascii=False, default=str)
     
     # 🔥 LOG PARA DEBUG
     print(f"📦 Turmas encontradas: {len(turmas_data)}")
     print(f"📦 Total de alunos: {total_alunos}")
-    if turmas_data:
-        print(f"📦 Primeira turma: {turmas_data[0]['nome']} - {turmas_data[0]['total_alunos']} alunos")
+    print(f"📦 JSON turmas: {turmas_json[:200] if turmas_json else 'VAZIO'}")
     
     context = {
         'titulo': 'Lista de Alunos por Turma',
@@ -213,12 +212,12 @@ def secretaria_alunos(request):
         'turmas': turmas_data,
         'total_alunos': total_alunos,
         'escola': escola_data,
-        'turmas_json': turmas_json,
-        'escola_json': escola_json,
+        # 🔥🔥🔥 ESSAS DUAS LINHAS SÃO O SEGREDO! 🔥🔥🔥
+        'turmas_json': turmas_json,  # ← ESSENCIAL!
+        'escola_json': escola_json,   # ← ESSENCIAL!
     }
     
-    return render(request, 'escola/partials/secretaria/alunos.html', context)  
-
+    return render(request, 'escola/partials/secretaria/alunos.html', context)
 
 @login_required
 def secretaria_documentos(request):
